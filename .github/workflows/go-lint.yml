@@ -55,7 +55,7 @@ jobs:
       # have been built with at least the Go version go.mod targets (go 1.26):
       # golangci-lint refuses to load a module newer than its own toolchain.
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v9
         with:
           version: v2.12.2
           args: --new-from-rev=${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
