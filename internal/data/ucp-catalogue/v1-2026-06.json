@@ -1,0 +1,287 @@
+{
+  "version": "v1-2026-06",
+  "ucp_dev_spec_version": "https://ucp.dev/specifications/2026-06/",
+  "timestamp": "2026-06-21T00:00:00Z",
+  "description": "V1 initial release: checkout-first capabilities with fulfillment and buyer consent extensions",
+  "capabilities": [
+    {
+      "name": "catalog",
+      "namespace": "dev.ucp.shopping.catalog",
+      "spec_url": "https://ucp.dev/specifications/2026-06/capabilities/catalog/",
+      "description": "Product search and lookup for agents",
+      "implemented": true,
+      "required_for_v1": true,
+      "version": "1.0"
+    },
+    {
+      "name": "cart",
+      "namespace": "dev.ucp.shopping.cart",
+      "spec_url": "https://ucp.dev/specifications/2026-06/capabilities/cart/",
+      "description": "Pre-purchase cart building with estimated totals (no payment handlers)",
+      "implemented": false,
+      "required_for_v1": false,
+      "version": "1.0"
+    },
+    {
+      "name": "checkout",
+      "namespace": "dev.ucp.shopping.checkout",
+      "spec_url": "https://ucp.dev/specifications/2026-06/capabilities/checkout/",
+      "description": "Stateful purchase session with live stock, shipping, and tax calculation",
+      "implemented": true,
+      "required_for_v1": true,
+      "version": "1.0"
+    },
+    {
+      "name": "order",
+      "namespace": "dev.ucp.shopping.order",
+      "spec_url": "https://ucp.dev/specifications/2026-06/capabilities/order/",
+      "description": "Order lifecycle tracking and status sync webhook (outbound only in V1)",
+      "implemented": true,
+      "required_for_v1": false,
+      "version": "1.0"
+    },
+    {
+      "name": "identity",
+      "namespace": "dev.ucp.shopping.identity",
+      "spec_url": "https://ucp.dev/specifications/2026-06/capabilities/identity/",
+      "description": "OAuth 2.0 identity linking for buyer association and loyalty",
+      "implemented": false,
+      "required_for_v1": false,
+      "version": "1.0"
+    }
+  ],
+  "extensions": [
+    {
+      "name": "fulfillment",
+      "namespace": "dev.ucp.shopping.fulfillment",
+      "extends": ["checkout"],
+      "spec_url": "https://ucp.dev/specifications/2026-06/extensions/fulfillment/",
+      "description": "Adds shipping options, pickup, and delivery methods to checkout",
+      "implemented": true,
+      "required_for_v1": true,
+      "version": "1.0"
+    },
+    {
+      "name": "buyer_consent",
+      "namespace": "dev.ucp.shopping.buyer_consent",
+      "extends": ["checkout"],
+      "spec_url": "https://ucp.dev/specifications/2026-06/extensions/buyer_consent/",
+      "description": "Adds buyer consent (analytics, marketing, data sale) to checkout",
+      "implemented": true,
+      "required_for_v1": true,
+      "version": "1.0"
+    },
+    {
+      "name": "discount",
+      "namespace": "dev.ucp.shopping.discount",
+      "extends": ["checkout"],
+      "spec_url": "https://ucp.dev/specifications/2026-06/extensions/discount/",
+      "description": "Applies promo codes and loyalty discounts at checkout",
+      "implemented": false,
+      "required_for_v1": false,
+      "version": "1.0"
+    }
+  ],
+  "payment_handlers": [
+    {
+      "name": "google_pay",
+      "id": "google_pay",
+      "namespace": "dev.ucp.payment.instrument.google_pay",
+      "spec_url": "https://ucp.dev/specifications/2026-06/instruments/google_pay/",
+      "description": "Google Pay payment handler",
+      "implemented": true,
+      "configuration_fields": {
+        "merchant_id": {
+          "type": "string",
+          "required": true,
+          "description": "Google Merchant ID from Google Pay Console"
+        },
+        "gateway": {
+          "type": "string",
+          "required": true,
+          "enum": ["stripe", "adyen", "square"],
+          "description": "Payment gateway provider"
+        },
+        "gateway_config": {
+          "type": "object",
+          "required": true,
+          "description": "Gateway-specific configuration (keys, secrets, etc., stored securely)"
+        }
+      }
+    },
+    {
+      "name": "shop_pay",
+      "id": "shop_pay",
+      "namespace": "dev.ucp.payment.instrument.shop_pay",
+      "spec_url": "https://ucp.dev/specifications/2026-06/instruments/shop_pay/",
+      "description": "Shopify Shop Pay handler",
+      "implemented": true,
+      "configuration_fields": {
+        "app_id": {
+          "type": "string",
+          "required": true,
+          "description": "Shopify app ID"
+        },
+        "credentials": {
+          "type": "object",
+          "required": true,
+          "description": "Shopify API credentials (stored securely)"
+        }
+      }
+    },
+    {
+      "name": "stripe",
+      "id": "stripe",
+      "namespace": "dev.ucp.payment.instrument.stripe",
+      "spec_url": "https://ucp.dev/specifications/2026-06/instruments/stripe/",
+      "description": "Stripe payment handler",
+      "implemented": false,
+      "configuration_fields": {
+        "api_key": {
+          "type": "string",
+          "required": true,
+          "description": "Stripe API key (stored securely)"
+        }
+      }
+    },
+    {
+      "name": "adyen",
+      "id": "adyen",
+      "namespace": "dev.ucp.payment.instrument.adyen",
+      "spec_url": "https://ucp.dev/specifications/2026-06/instruments/adyen/",
+      "description": "Adyen payment handler",
+      "implemented": false,
+      "configuration_fields": {
+        "merchant_account": {
+          "type": "string",
+          "required": true,
+          "description": "Adyen merchant account code"
+        }
+      }
+    }
+  ],
+  "scoring_rubric": {
+    "version": "v1-2026-06",
+    "description": "Google UCP eligibility scoring rules",
+    "dimensions": [
+      {
+        "name": "completeness",
+        "display_name": "Data Completeness",
+        "weight": 0.25,
+        "description": "Required fields present for product categories",
+        "rules": [
+          {
+            "id": "required_price",
+            "description": "Product has a valid price",
+            "weight": 50,
+            "blocks_checkout": true
+          },
+          {
+            "id": "required_category",
+            "description": "Product has a category",
+            "weight": 30,
+            "blocks_checkout": false
+          },
+          {
+            "id": "required_description",
+            "description": "Product has a description",
+            "weight": 20,
+            "blocks_checkout": false
+          }
+        ]
+      },
+      {
+        "name": "consistency",
+        "display_name": "Cross-Source Consistency",
+        "weight": 0.25,
+        "description": "Data consistency across the store and Sarvex-served data",
+        "rules": [
+          {
+            "id": "price_consistency",
+            "description": "Price matches across all sources",
+            "weight": 50,
+            "blocks_checkout": true
+          },
+          {
+            "id": "inventory_consistency",
+            "description": "Inventory/stock status consistent",
+            "weight": 50,
+            "blocks_checkout": false
+          }
+        ]
+      },
+      {
+        "name": "attribute_quality",
+        "display_name": "Attribute Quality",
+        "weight": 0.25,
+        "description": "Attributes are structured, standard, and descriptive",
+        "rules": [
+          {
+            "id": "structured_attributes",
+            "description": "Attributes use structured enums not free text",
+            "weight": 30,
+            "blocks_checkout": false
+          },
+          {
+            "id": "descriptive_title",
+            "description": "Product title is descriptive (50+ chars)",
+            "weight": 25,
+            "blocks_checkout": false
+          },
+          {
+            "id": "image_present",
+            "description": "Product has at least one image",
+            "weight": 25,
+            "blocks_checkout": false
+          },
+          {
+            "id": "standard_enums",
+            "description": "Uses Google-standard enums for applicable fields",
+            "weight": 20,
+            "blocks_checkout": false
+          }
+        ]
+      },
+      {
+        "name": "delivery_data",
+        "display_name": "Delivery Data",
+        "weight": 0.25,
+        "description": "Shipping, fulfillment, and delivery information",
+        "rules": [
+          {
+            "id": "shipping_regions_configured",
+            "description": "Fulfillment regions are configured",
+            "weight": 40,
+            "blocks_checkout": false
+          },
+          {
+            "id": "shipping_rates_available",
+            "description": "Shipping rates can be calculated",
+            "weight": 35,
+            "blocks_checkout": false
+          },
+          {
+            "id": "delivery_date_realistic",
+            "description": "Estimated delivery dates are realistic",
+            "weight": 25,
+            "blocks_checkout": false
+          }
+        ]
+      }
+    ],
+    "readiness_threshold": {
+      "type": "blocking_issues_predicate",
+      "description": "Zero open issues with blocks_checkout=true across merchant's catalog",
+      "optional_soft_floor": {
+        "type": "numeric",
+        "value": 80,
+        "dimension": "overall",
+        "description": "Optional: overall score >= 80 (from rubric content, not hardcoded)"
+      }
+    },
+    "scoring_method": "weighted_aggregate",
+    "dimensions_aggregation": {
+      "overall": "weighted_average_of_dimensions"
+    }
+  }
+}

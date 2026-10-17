@@ -1,0 +1,48 @@
+---
+title: Installing the Magento module
+description: Install, enable, and configure the Sarvex UCP Gateway module on Magento 2.
+---
+
+The Sarvex UCP Gateway module works with Magento 2 and requires PHP 8.1, 8.2, or 8.3.
+
+## Install with Composer (recommended)
+
+1. From your Magento root, run `composer require sarvex/module-ucp-gateway`.
+2. Enable the module and apply it:
+
+   ```bash
+   bin/magento module:enable Sarvex_Ucp
+   bin/magento setup:upgrade
+   bin/magento cache:flush
+   ```
+
+## Install manually
+
+1. Copy the module folder to `app/code/Sarvex/Ucp/` in your Magento installation.
+2. Run:
+
+   ```bash
+   bin/magento module:enable Sarvex_Ucp
+   bin/magento setup:upgrade
+   bin/magento setup:di:compile
+   bin/magento cache:flush
+   ```
+
+## Configure
+
+1. In Magento Admin, go to **Stores → Configuration → Services → Sarvex UCP Gateway**.
+2. Enter your **Sarvex Endpoint URL** (given to you by Sarvex, e.g. `https://api.sarvex.io`, no trailing slash) and save. The module needs this before pairing will work.
+
+**Store ID**, **Connector ID**, and **HMAC Secret** fill in automatically once you [pair your store](/integration-guides/setup/pairing-your-store). They're read-only, and the secret is stored encrypted.
+
+## What the module does
+
+Like the WooCommerce plugin, it does two jobs and nothing else: it signals Sarvex when products or stock change (only the SKU is sent, never product data), and it serves your UCP profile at `/.well-known/ucp`. See [How Sarvex connects](/integration-guides/concepts/how-sarvex-connects).
+
+If a proxy or CDN in front of Magento intercepts `/.well-known/*` before it reaches Magento, add a passthrough rule. For nginx:
+
+```nginx
+location = /.well-known/ucp {
+    rewrite ^ /index.php$request_uri last;
+}
+```

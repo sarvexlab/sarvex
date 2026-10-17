@@ -1,0 +1,12 @@
+---
+title: Troubleshooting
+description: Common integration issues — pairing, missing product changes, agent discovery, resyncing, and re-pairing.
+---
+
+- **Pairing won't complete** — regenerate the pairing code from Connect and re-enter it in the plugin or module; codes aren't reusable across attempts. If pairing was working and then stopped, check **Path** — a broken connection shows up there as a task.
+- **A product change isn't showing up** — give it a little time; Sarvex's periodic catalog re-check will catch anything a live signal missed. If it's been a while, contact Sarvex with the product SKU.
+- **Agents can't find your store** — load `/.well-known/ucp` on your domain directly in a browser. It should return content, not a 404 or a redirect. If your store was recently unreachable, you may briefly be seeing the cached last-known-good version, which resolves on its own.
+- **You need to force a full resync** — go to **Settings**, find your store's connector, and trigger a resync from there. No need to touch the plugin.
+- **You need to re-pair from scratch** — disconnect the connector from **Settings**; you'll be routed back to Connect to pair again.
+- **Magento: signals or the profile aren't working** — check `var/log/system.log` and `var/log/exception.log` for lines tagged `sarvex_ucp:` (remove the HMAC secret before sharing them with Sarvex). If `/.well-known/ucp` returns a 404 or redirect, your proxy or CDN may be intercepting `.well-known` paths; see the passthrough rule in [Installing the Magento module](/integration-guides/setup/magento).
+- Still stuck? [Contact Sarvex](https://sarvex.io/contact) with your store URL and what you're seeing.

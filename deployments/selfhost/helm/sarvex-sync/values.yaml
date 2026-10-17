@@ -1,0 +1,31 @@
+image:
+  repository: ghcr.io/sarvexlabs/sarvex.cp
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  port: 8082
+
+env: "production"
+tls: false
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+redis:
+  address: "redis.sarvex-core.svc.cluster.local:6379"
+nats:
+  url: "nats://nats.sarvex-core.svc.cluster.local:4222"
+
+vault:
+  address: "http://vault.sarvex-core.svc.cluster.local:8200"
+  role: "sarvex-sync"
+
+routing:
+  hostnames: [] # e.g. ["connect.sarvex.example"] — where WooCommerce/Magento plugins POST signals

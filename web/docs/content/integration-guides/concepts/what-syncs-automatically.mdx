@@ -1,0 +1,14 @@
+---
+title: What syncs automatically
+description: Product, stock, and price changes sync to Sarvex automatically — near real-time, with a safety-net re-check.
+---
+
+Once paired, the plugin watches for changes on your store and reacts to:
+
+- Adding or updating a product
+- Updating stock quantity
+- Stock status changes (in stock ↔ out of stock)
+
+Each sends a lightweight signal to Sarvex — just the product identifier and what changed — and Sarvex pulls the full, current product details from your store. It's automatic and near real-time; nothing to trigger.
+
+If a change doesn't show up right away, there's nothing to fix — Sarvex periodically re-checks your whole catalog as a safety net, so a dropped signal (a missed webhook, a brief outage) gets caught and corrected on its own.

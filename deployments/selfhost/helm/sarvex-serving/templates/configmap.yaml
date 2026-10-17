@@ -1,0 +1,18 @@
+# A minimal configs.<env>.json — mirrors configs/serving/configs.development.json's
+# shape (see internal/pkg/utils/configurations.go), but deliberately near-empty:
+# gonfig.GetConf loads this file first, then any field carrying an env:"NAME"
+# tag is overridden by the OS env var of that name if set (env wins) — so the
+# real values (Mongo/Redis addresses, secrets) come from the Deployment's env
+# vars and the Vault Agent Injector below, and this file only needs to exist
+# and be valid JSON.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "sarvex-serving.name" . }}-config
+  labels:
+    {{- include "sarvex-serving.labels" . | nindent 4 }}
+data:
+  configs.{{ .Values.env }}.json: |
+    {
+      "ServiceName": "serving"
+    }

@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sarvex-sync.name" . }}
+  labels:
+    {{- include "sarvex-sync.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "sarvex-sync.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "sarvex-sync.labels" . | nindent 8 }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: {{ .Values.vault.role | quote }}
+        # Renders the injector's auto-auth token to /vault/secrets/token, exported
+        # below as VAULT_TOKEN for secretmanagement's Vault KV client.
+        vault.hashicorp.com/agent-inject-token: "true"
+        vault.hashicorp.com/agent-inject-secret-env: "secret/data/sarvex/sync"
+        vault.hashicorp.com/agent-inject-template-env: |
+          {{`{{- with secret "secret/data/sarvex/sync" -}}`}}
+          export MONGO_CONNECTION_STRING="{{`{{ .Data.data.mongo_connection_string }}`}}"
+          export SLACK_APP_TOKEN="{{`{{ .Data.data.slack_app_token }}`}}"
+          export CONTACT_API_TOKEN="{{`{{ .Data.data.contact_api_token }}`}}"
+          {{`{{- end -}}`}}
+    spec:
+      containers:
+        - name: sync
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              [ -f /vault/secrets/env ] && . /vault/secrets/env
+              export VAULT_ADDR="{{ .Values.vault.address }}"
+              [ -f /vault/secrets/token ] && export VAULT_TOKEN="$(cat /vault/secrets/token)"
+              exec /app --service sync \
+                --port {{ .Values.service.port }} \
+                --configPath /etc/sarvex/config \
+                --env {{ .Values.env }} \
+                --tls {{ .Values.tls }}
+          env:
+            - name: REDIS_ADDRESS
+              value: {{ .Values.redis.address | quote }}
+            - name: NATS_URL
+              value: {{ .Values.nats.url | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/sarvex/config
+              readOnly: true
+      terminationGracePeriodSeconds: 15
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "sarvex-sync.name" . }}-config

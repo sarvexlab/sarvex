@@ -1,0 +1,38 @@
+{
+  "product": {
+    "description": {},
+    "id": "SIM-store-ma-0001",
+    "media": [
+      {
+        "type": "image",
+        "url": "http://sim.test/stores/store-matrix/media/catalog/product/SIM-store-ma-0001.jpg"
+      }
+    ],
+    "price_range": {
+      "max": {
+        "amount": 2099,
+        "currency": "USD"
+      },
+      "min": {
+        "amount": 2099,
+        "currency": "USD"
+      }
+    },
+    "title": "Sim Product 1",
+    "url": "http://sim.test/stores/store-matrix/sim-product-1.html",
+    "variants": [
+      {
+        "availability": {
+          "available": true
+        },
+        "description": {},
+        "id": "SIM-store-ma-0001",
+        "price": {
+          "amount": 2099,
+          "currency": "USD"
+        },
+        "title": "Sim Product 1"
+      }
+    ]
+  }
+}

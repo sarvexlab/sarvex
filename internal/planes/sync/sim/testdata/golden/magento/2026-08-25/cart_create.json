@@ -1,0 +1,71 @@
+{
+  "currency": "USD",
+  "discounts": {
+    "applied": [
+      {
+        "amount": 839,
+        "code": "SPRING20",
+        "title": "SPRING20"
+      }
+    ]
+  },
+  "id": "5001",
+  "line_items": [
+    {
+      "id": "1000",
+      "item": {
+        "id": "SIM-store-ma-0001",
+        "price": 2099,
+        "title": "Sim Product 1"
+      },
+      "quantity": 2,
+      "totals": [
+        {
+          "amount": 4198,
+          "type": "subtotal"
+        },
+        {
+          "amount": 4198,
+          "type": "total"
+        }
+      ]
+    }
+  ],
+  "totals": [
+    {
+      "amount": 4198,
+      "type": "subtotal"
+    },
+    {
+      "amount": 0,
+      "type": "tax"
+    },
+    {
+      "amount": 0,
+      "type": "fulfillment"
+    },
+    {
+      "amount": -839,
+      "type": "discount"
+    },
+    {
+      "amount": 3359,
+      "type": "total"
+    }
+  ],
+  "ucp": {
+    "capabilities": {
+      "dev.ucp.shopping.cart": [
+        {
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.discount": [
+        {
+          "version": "2026-08-25"
+        }
+      ]
+    },
+    "version": "2026-08-25"
+  }
+}

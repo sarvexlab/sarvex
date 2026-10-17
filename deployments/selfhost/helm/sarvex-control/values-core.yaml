@@ -1,0 +1,5 @@
+resources:
+  requests: { cpu: 500m, memory: 512Mi }
+  limits: { memory: 1Gi }
+routing:
+  hostnames: ["console.sarvex.example"]

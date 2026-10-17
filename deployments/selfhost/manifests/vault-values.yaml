@@ -1,0 +1,21 @@
+# Helm values for the official `hashicorp/vault` chart. HA mode with
+# integrated (Raft) storage — no external dependency for Vault's own state,
+# which matters since Vault is what everything else's secrets depend on.
+# Provides the Transit engine (store signing keys) and the KV v2 engine
+# (connector credentials).
+server:
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: true
+      setNodeId: true
+  dataStorage:
+    storageClass: local-path
+    size: 10Gi
+  # Injector: the sidecar-free init-container pattern this plan's Helm
+  # charts rely on (see each plane's deployment.yaml vault.hashicorp.com/*
+  # annotations) — enabling it here is what makes those annotations do
+  # anything.
+injector:
+  enabled: true

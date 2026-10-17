@@ -1,0 +1,33 @@
+---
+title: UCP endpoints
+description: The agent-facing serving-plane endpoints, governed by the external ucp.dev specification.
+---
+
+The endpoints AI shopping agents call are served by Sarvex's **serving plane** and are deliberately **not** part of Sarvex's own OpenAPI file. They conform to the external [ucp.dev](https://ucp.dev) specification; implement against that spec.
+
+Sarvex pins the schema types per spec generation in `internal/spec/vYYYYMMDD` (today `2026-04-08` and `2026-08-25`), and tracks deviations in each generation's `DISCREPANCIES.md`. A profile advertises which generation and capabilities a store serves; agents negotiate against it.
+
+## Endpoints
+
+| Method + path | Purpose |
+| --- | --- |
+| `GET /.well-known/ucp` | The business profile. Served from the merchant's own domain by the plugin, with Sarvex's bytes. |
+| `POST /catalog/search` | Catalog search (served from cache only). |
+| `GET /catalog/{itemId}` | Product lookup (cache only). |
+| `POST /checkout-sessions` | Create a checkout session (live stock and pricing). |
+| `GET /checkout-sessions/{checkoutId}` | Read session state. |
+| `PUT /checkout-sessions/{checkoutId}` | Full-replacement update (buyer, fulfillment, selection). |
+| `POST /checkout-sessions/{checkoutId}/complete` | Accept an opaque payment credential reference plus `handler_id`; create the order. |
+| `POST /checkout-sessions/{checkoutId}/cancel` | Cancel a non-terminal session (idempotent). |
+| `GET /orders/{orderId}` / `PUT /orders/{orderId}` | Read an order; append fulfillment events or adjustments. |
+
+Base path is the `services.endpoint` published in the profile.
+
+## Guarantees worth knowing
+
+- **Discovery and catalog reads never call the store.** They read only the serving cache. Checkout is the one exception: it calls the merchant backend live, only through the sync-plane connector.
+- **Idempotent mutations.** Checkout mutations require idempotency keys; retries are the normal case.
+- **No raw credentials.** The checkout schema has no field able to hold a payment credential — only opaque references and a `handler_id`.
+- **Signed requests.** Agent identity is ECDSA request signing per UCP / RFC 9421, not API keys ([ADR-0001](/contributing/adr/0001-ecdsa-signatures-for-agent-identity)).
+
+For the internals see [Architecture](/developers/architecture/overview), and for the wire-level schemas the spec modules under `internal/spec/`.

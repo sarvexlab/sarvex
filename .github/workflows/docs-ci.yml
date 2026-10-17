@@ -1,0 +1,45 @@
+name: Docs CI
+
+# Builds the documentation site (web/docs) and lints the contracts it renders.
+# Nothing is deployed from here — the site is built and viewed locally.
+on:
+  pull_request:
+    paths:
+      - "web/docs/**"
+      - "docs/**"
+      - "*.md"
+      - "plugin/*/README.md"
+      - "sarvex-v1-control-plane.yaml"
+      - "sarvex-v1-syncing-plane-async.yaml"
+      - ".github/workflows/docs-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "web/docs/**"
+      - "docs/**"
+      - "*.md"
+      - "plugin/*/README.md"
+      - "sarvex-v1-control-plane.yaml"
+      - "sarvex-v1-syncing-plane-async.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/docs/package-lock.json
+      - name: Build and check the docs site
+        run: |
+          make docs-install
+          make docs-build
+          make docs-check
+      - name: Audit docs dependencies
+        working-directory: web/docs
+        run: npm audit --audit-level=high

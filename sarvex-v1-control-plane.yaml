@@ -1,0 +1,4145 @@
+openapi: 3.0.3
+
+info:
+  title: Sarvex V1 API
+  version: 1.0.0
+  description: |
+    Control-plane API for Sarvex V1 — the authenticated surface behind the merchant
+    console, the operator tooling, and the store-connector ingest endpoint.
+
+    ## Scope of this document
+    This specification covers the **control plane** and the **sync-plane ingest edge**
+    (`/connector/*`). It deliberately does **not** specify the **serving plane**
+    (the UCP edge: profile, discovery, pricing, availability, shipping, and the three
+    checkout-session operations). Those endpoints conform to the published UCP / Google
+    UCP-checkout schemas — they are governed by an external specification, not by
+    Sarvex's own contract, and are versioned against the UCP spec version recorded per
+    merchant in `conformance_record`. See the backend architecture document, Domains 4–5.
+
+    ## Conventions (true for every operation)
+    - **Tenant scoping:** `merchant_id` is **never** a path or query parameter. It is
+      read from the authenticated principal's token claim server-side, so a token can
+      only ever reach its own tenant's data. Operators select a merchant via the
+      `X-Operate-As` header (see security schemes), which is audit-logged.
+    - **Wire format:** all request and response bodies are JSON with **snake_case**
+      field names.
+    - **List envelope:** all collection responses are
+      `{ "data": [...], "page": { "cursor": string|null, "has_more": boolean } }`.
+    - **Error envelope:** all non-2xx responses are
+      `{ "error": { "code": string, "message": string, "details": object|null } }`.
+    - **Pagination:** cursor-based via the `cursor` query parameter; `limit` caps page size.
+    - **Idempotency:** all mutating operations accept an `Idempotency-Key` header;
+      replays return the original result.
+    - **Money:** integer minor units (cents) plus an ISO-4217 `currency` field; never floats.
+    - **Timestamps:** RFC 3339 / ISO 8601 UTC strings.
+  contact:
+    name: Sarvex
+    url: https://sarvex.example.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.sarvex.example.com/v1
+    description: Production
+  - url: https://api.staging.sarvex.example.com/v1
+    description: Staging
+
+tags:
+  - name: Auth
+    description: Resolving the principal from the externally-issued, Sarvex-verified JWT. No login/logout — authentication is handled by the IdP (OAuth 2.0 authorization-code flow).
+  - name: Account
+    description: Merchant profile and Google-required business facts.
+  - name: Stores
+    description: The stores a merchant operates (merchant → store → connector). One in V1, modelled for many.
+  - name: Connectors
+    description: Store connection, pairing, health. A connector belongs to a store.
+  - name: Payment
+    description: Per-store payment-handler configuration (instruments vs handlers model).
+  - name: Connector Ingest
+    description: |
+      **Sync-plane-served endpoints bundled here by convention.** These `/connector/*` paths
+      are actually served by the sync plane (not the control plane); they are included in this
+      spec for operational convenience (a single auth token reaches both control and sync).
+      Covered operations: plugin-facing ingest (HMAC-signed). Covers both plugin roles: change
+      signals (push) and the profile fetch the plugin serves at the merchant origin (Role 2).
+      The plugin does not proxy the UCP API — the profile's endpoint points directly at Sarvex.
+  - name: Catalog
+    description: Readiness score, products, attribute mappings.
+  - name: Tasks
+    description: The task spine — every actionable item, by owner.
+  - name: Activation
+    description: |
+      The store's own UCP activation lifecycle — profile served, capabilities declared,
+      signatures verifying, checkout working. Sarvex and the merchant only: nothing in
+      this lifecycle references feeds or any other agent surface. `active` is the terminal success state and is complete on its own; a
+      store may sit there with zero surfaces enrolled indefinitely.
+  - name: Surfaces
+    description: |
+      Agent-surface enrollment — per-store, zero-to-many, registry-driven. A surface is
+      declared as a descriptor (requirements, prerequisite checks, artifacts, external
+      steps, verification signal); adding one is a descriptor plus its adapters, never a
+      change to these endpoints. The only dependency on activation runs one way:
+      enrollment cannot progress past `available` unless the store is `active`. Surfaces
+      never gate each other.
+  - name: Remediation
+    description: Rule-based fixes and reversible write-backs.
+  - name: Validation
+    description: Pre-validation, sandbox, and production validation status.
+  - name: UCP Presence
+    description: Read-only view of the hosted profile and manifest.
+  - name: Orders
+    description: Orders created via Google checkout and their status sync.
+  - name: Health
+    description: Post-go-live integration health and consistency.
+  - name: Checkout Sessions
+    description: Checkout Escalation Console — session projection, event timeline, and diagnosis for stalled or escalated checkouts.
+  - name: Ledger
+    description: Lost Revenue Ledger — classified, priced, per-store visibility into checkouts that didn't convert.
+  - name: Channel Dashboard
+    description: Agent sessionization, discovery→checkout funnel, and web-baseline comparison for the merchant's UCP-powered checkout channel — what it's earning and how it compares to the web channel.
+  - name: Billing
+    description: Plan, usage, and Stripe-hosted management links.
+  - name: Notifications
+    description: Channel preferences for the fixed V1 alert set.
+  - name: Journey
+    description: The per-store onboarding state machine.
+  - name: Operator
+    description: Operator-only provisioning (create merchant, invite member, create store), board, enter-as-merchant, audit, manual-step capture.
+  - name: Contact
+    description: |
+      Marketing-site contact-form ingest (sarvex.example.com). Not merchant/operator-authenticated —
+      gated by a shared bearer token issued to the website only, scoped to this one endpoint.
+
+security:
+  - bearerAuth: []
+
+paths:
+
+  # ───────────────────────── Contact ─────────────────────────
+  # Marketing-site (sarvex.example.com) contact-form ingest. Not merchant/operator-authenticated —
+  # security is overridden per-operation below to the shared contactAuth bearer token
+  # issued to the website only, and CORS on this route is restricted to the website's
+  # own origin (not the console dashboard origin used everywhere else).
+  /contact:
+    post:
+      tags: [Contact]
+      summary: Receive a contact-form submission from the marketing website
+      security:
+        - contactAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email]
+              properties:
+                name: { type: string, maxLength: 200 }
+                email: { type: string, format: email, maxLength: 320 }
+                message: { type: string, maxLength: 4000 }
+                source: { type: string, description: Free-form origin tag supplied by the caller. }
+      responses:
+        '202':
+          description: Submission accepted and forwarded by email.
+        '401': { $ref: '#/components/responses/unauthorized' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  # ───────────────────────── Auth ─────────────────────────
+  # Authentication is external (OAuth 2.0 authorization-code flow via the IdP — Kinde
+  # in prod, a simulator in test). The client obtains a JWT from the IdP and sends it as a
+  # Bearer token on every authenticated call. Sarvex's services VERIFY the JWT (issuer,
+  # audience, signature, expiry) and read identity + tenant from its claims. Sarvex never
+  # accepts passwords, never issues sessions, and has no login/logout endpoints.
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Resolve the current principal from the verified JWT
+      description: |
+        Returns the caller's identity and authorized tenant scope as derived from the verified
+        bearer token's claims. Purely a read of the validated token + the merchant/store mapping;
+        it does not establish or mutate a session. A request with a missing/invalid/expired token
+        gets 401.
+      responses:
+        '200':
+          description: Current principal and authorized scope.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/principal' }
+        '401': { $ref: '#/components/responses/unauthorized' }
+
+  # ─────────────────────── Account ───────────────────────
+  /account:
+    get:
+      tags: [Account]
+      summary: Get the merchant account
+      responses:
+        '200':
+          description: Account record.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/account' }
+        '401': { $ref: '#/components/responses/unauthorized' }
+    patch:
+      tags: [Account]
+      summary: Update account profile or business facts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/account_update' }
+      responses:
+        '200':
+          description: Updated account.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/account' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /account/members:
+    get:
+      tags: [Account]
+      summary: List team members
+      responses:
+        '200':
+          description: Team members.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/member' }
+    post:
+      tags: [Account]
+      summary: Invite a team member (owner self-serve)
+      description: |
+        Lets the account owner invite additional teammates directly, without operator
+        involvement. Invited members always join with the `staff` role — role changes and
+        owner reassignment remain operator-assisted (see
+        `/operator/merchants/{merchant_id}/members`). Capped at the account's team-member
+        seat limit (`GET /billing` → `usage.member_cap`; defaults to 5, configurable per
+        subscription). Creates the Sarvex-side member record and emails a sign-in link,
+        identical in effect to the operator invite flow.
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/team_member_invite' }
+      responses:
+        '201':
+          description: Member invited; sign-in link sent.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/member' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '409':
+          description: A member with this email already exists, or the account's team-member seat limit has been reached.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+
+  # ─────────────────────── Stores ───────────────────────
+  /stores:
+    get:
+      tags: [Stores]
+      summary: List the merchant's stores
+      description: Merchant → store → connector. V1 returns one store; the model permits many.
+      responses:
+        '200':
+          description: Stores owned by the caller's merchant.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/store' }
+    post:
+      tags: [Stores]
+      summary: Create a store under the merchant
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [platform, name]
+              properties:
+                platform: { $ref: '#/components/schemas/platform' }
+                name: { type: string }
+      responses:
+        '201':
+          description: Store created (no connector yet).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/store' }
+
+  /stores/{store_id}:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Stores]
+      summary: Get a store
+      responses:
+        '200':
+          description: Store.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/store' }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  /stores/{store_id}/profile:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Stores]
+      summary: Get a store's business profile
+      description: |
+        Store-level business identity and fulfillment configuration that is bound into the store's
+        UCP profile at render time (legal entity, support contact, storefront domain, fulfillment
+        regions, shipping zones). Distinct from merchant-level `account.business_facts`; written only
+        by the control plane (the single writer for store profile data).
+      responses:
+        '200':
+          description: Store profile.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/store_profile' }
+        '404': { $ref: '#/components/responses/not_found' }
+    put:
+      tags: [Stores]
+      summary: Set a store's business profile
+      description: |
+        Full-replacement update of the store's business profile. Shipping zones may be supplied here
+        as a manual override/seed; connector ingestion otherwise sources fulfillment data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/store_profile_update' }
+      responses:
+        '200':
+          description: Updated store profile.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/store_profile' }
+        '404': { $ref: '#/components/responses/not_found' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /stores/{store_id}/payment-config:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Payment]
+      summary: Get a store's payment-handler configuration
+      description: Which handlers are enabled and their (non-secret) configuration status. Secrets are never returned.
+      responses:
+        '200':
+          description: Payment configuration.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/payment_config' }
+    put:
+      tags: [Payment]
+      summary: Set a store's payment-handler configuration
+      description: |
+        Enable handlers and supply their processor/gateway parameters. Secret material is write-only
+        (accepted here, never returned). A store cannot pass validation with checkout enabled but no
+        configured handler.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/payment_config_update' }
+      responses:
+        '200':
+          description: Updated configuration.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/payment_config' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  # ─────────────────────── Connectors ───────────────────────
+  /connectors:
+    get:
+      tags: [Connectors]
+      summary: List connected stores
+      responses:
+        '200':
+          description: Connectors with health.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/connector' }
+
+  /stores/{store_id}/connectors/pairing:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    post:
+      tags: [Connectors]
+      summary: Begin connecting a store
+      description: |
+        Creates a connector in `pairing` state for the store and returns a one-time pairing code for
+        the plugin. Store-scoped like every other per-store resource: a merchant may have several
+        stores, so the store cannot be inferred from the bearer. The store must belong to the
+        caller's merchant (404 otherwise).
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [platform]
+              properties:
+                platform: { $ref: '#/components/schemas/platform' }
+      responses:
+        '201':
+          description: Connector created in pairing state.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/connector_pairing' }
+        '404': { $ref: '#/components/responses/not_found' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /connectors/{connector_id}:
+    parameters:
+      - $ref: '#/components/parameters/connector_id'
+    get:
+      tags: [Connectors]
+      summary: Get a connector
+      responses:
+        '200':
+          description: Connector.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/connector' }
+        '404': { $ref: '#/components/responses/not_found' }
+    delete:
+      tags: [Connectors]
+      summary: Disconnect a store
+      description: Unsubscribes plugin signalling and tears down stored credentials.
+      responses:
+        '204': { description: Disconnected. }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  /connectors/{connector_id}/resync:
+    parameters:
+      - $ref: '#/components/parameters/connector_id'
+    post:
+      tags: [Connectors]
+      summary: Trigger a full reconciliation pull
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      responses:
+        '202':
+          description: Resync queued.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/job_accepted' }
+
+  # ──────────────────────── Pairing Completion (plugin → Sarvex) ─────────────
+  /connectors/pairing/complete:
+    post:
+      tags: [Connector Ingest]
+      summary: Complete pairing and provision store credentials
+      description: |
+        Called by the store plugin (HMAC auth) after the merchant installs the plugin and
+        the admin has triggered pairing from the console. The plugin supplies its one-time
+        pairing code plus platform-specific store API credentials scoped to Sarvex's needs.
+        Sarvex validates the credentials, provisions signing keys, encrypts and persists the
+        credentials server-side, and marks the connector healthy.
+
+        The `store_credentials` payload is platform-specific and optional in the wire
+        envelope (a deployment where credentials are provisioned out-of-band may omit it),
+        but live checkout and write-back require credentials to be present.
+
+        **Credential boundary:** `store_credentials` carries integration credentials
+        (REST API keys, webhook secrets) — not payment credentials. Payment credentials
+        are never handled here; see the payment-credential boundary invariant.
+      security:
+        - hmacSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [connector_id, pairing_code]
+              properties:
+                connector_id:
+                  type: string
+                  description: The connector ID returned by POST /connectors at begin-pairing.
+                pairing_code:
+                  type: string
+                  description: One-time pairing code issued to the console operator.
+                store_credentials:
+                  description: |
+                    Platform-specific store API credentials. The shape is discriminated by
+                    the platform recorded on the connector. Required for live checkout and
+                    write-back; may be omitted for profile-only deployments.
+                  oneOf:
+                    - $ref: '#/components/schemas/store_credentials_woocommerce'
+                    - $ref: '#/components/schemas/store_credentials_magento'
+      responses:
+        '200':
+          description: Pairing completed; connector is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  connector_id: { type: string }
+                  store_id: { type: string }
+                  status: { type: string, enum: [healthy] }
+        '400': { $ref: '#/components/responses/validation_error' }
+        '401': { $ref: '#/components/responses/unauthorized' }
+        '422':
+          description: Invalid or expired pairing code, or credential validation failed.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+
+  # ─────────────────── Connector Ingest (plugin → Sarvex, sync-plane-served) ──
+  # NOTE: These `/connector/*` paths are served by the sync plane, not the control plane.
+  # They are bundled into this control-plane spec by convention so a single authentication
+  # token (bearer token) can reach both planes' public boundaries. Internally, requests are
+  # routed to the sync plane based on the path prefix.
+  /connector/signals:
+    post:
+      tags: [Connector Ingest]
+      summary: Receive a change signal from the store plugin
+      description: |
+        The sync-plane edge. Called by the merchant-server plugin, **not** by the console.
+        Authenticated by HMAC signature (not bearer token). Carries a thin signal only —
+        entity type, id, timestamp, monotonic sequence — never full entity data and never
+        payment or PII. Sarvex pulls the full entity via the connector after receiving the signal.
+      security:
+        - hmacSignature: []
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/connector_signal' }
+      responses:
+        '202':
+          description: Signal accepted for async processing.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accepted: { type: boolean, example: true }
+        '401': { $ref: '#/components/responses/unauthorized' }
+        '409':
+          description: Replay or out-of-sequence signal (sequence already seen).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+
+  /connector/heartbeat:
+    post:
+      tags: [Connector Ingest]
+      summary: Plugin heartbeat
+      security:
+        - hmacSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/heartbeat' }
+      responses:
+        '204': { description: Heartbeat recorded. }
+        '401': { $ref: '#/components/responses/unauthorized' }
+
+  /connector/profile:
+    get:
+      tags: [Connector Ingest]
+      summary: Fetch the merchant's current UCP profile (for the plugin to serve at /.well-known/ucp)
+      description: |
+        Called by the plugin (Role 2 — origin-correct doorway), **not** by agents. Returns the
+        exact UCP business-profile bytes Sarvex generates and signs; the plugin serves these
+        verbatim from the merchant's own domain at `/.well-known/ucp` with a `200`. The merchant
+        is resolved from the HMAC credential — no URL parameter.
+
+        **Conditional fetch:** the plugin sends `If-None-Match` with the `ETag` it last received;
+        if the profile is unchanged Sarvex returns `304 Not Modified` and the plugin keeps serving
+        its cached copy. Steady state is a cheap `304` on most calls. The `Cache-Control` header
+        tells the plugin how long its copy is valid; past that (or on `must-revalidate`) it refetches.
+        If this endpoint is unreachable, the plugin serves its last-known-good copy (degradation
+        ladder, profile edge) — the profile must never disappear or error at the merchant origin.
+
+        This endpoint covers only the **profile**. The `/ucp/v1/*` UCP API is served by Sarvex
+        directly — the profile's `services.endpoint` points at Sarvex, so agents call the serving
+        plane straight after discovery. The plugin does not proxy API traffic.
+      security:
+        - hmacSignature: []
+      parameters:
+        - name: If-None-Match
+          in: header
+          description: The ETag the plugin last received; enables a 304 when unchanged.
+          schema: { type: string }
+      responses:
+        '200':
+          description: Current profile document. Serve verbatim at /.well-known/ucp.
+          headers:
+            ETag:
+              description: Opaque version of the profile document.
+              schema: { type: string }
+            Cache-Control:
+              description: How long the plugin may serve its cached copy.
+              schema: { type: string, example: "public, max-age=300, must-revalidate" }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ucp_profile_document' }
+        '304':
+          description: Profile unchanged since the supplied ETag; plugin keeps serving its cache.
+        '401': { $ref: '#/components/responses/unauthorized' }
+        '409':
+          description: No servable profile yet (merchant not far enough through onboarding).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+
+  # ─────────────────────── Catalog ───────────────────────
+  /stores/{store_id}/catalog/readiness:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Catalog]
+      summary: Get the current Agent Readiness Score
+      responses:
+        '200':
+          description: Overall and per-dimension readiness.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/readiness' }
+
+  /stores/{store_id}/catalog/products:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Catalog]
+      summary: List products with per-product readiness
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+        - name: min_score
+          in: query
+          schema: { type: integer, minimum: 0, maximum: 100 }
+        - name: has_blocking_issue
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Products.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/product_summary' }
+
+  /stores/{store_id}/catalog/products/{sku}:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+      - name: sku
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Catalog]
+      summary: Get product detail with issues and attribute mappings
+      responses:
+        '200':
+          description: Product detail.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/product_detail' }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  /stores/{store_id}/catalog/audits:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    post:
+      tags: [Catalog]
+      summary: Trigger a catalog audit
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trigger: { type: string, enum: [manual], default: manual }
+      responses:
+        '202':
+          description: Audit queued.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/job_accepted' }
+
+  # ─────────────────────── Tasks ───────────────────────
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: List tasks (the task spine)
+      description: The single feed behind the merchant Path, the operator board counts, and notifications.
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+        - name: owner
+          in: query
+          schema: { $ref: '#/components/schemas/task_owner' }
+        - name: state
+          in: query
+          schema: { $ref: '#/components/schemas/task_state' }
+        - name: store_id
+          in: query
+          description: Restrict to tasks for one of the caller's own stores. Omit to list across all of the merchant's stores.
+          schema: { type: string }
+      responses:
+        '200':
+          description: Tasks.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/task' }
+
+  /tasks/{task_id}:
+    parameters:
+      - $ref: '#/components/parameters/task_id'
+    get:
+      tags: [Tasks]
+      summary: Get a task with its typed drill-in payload
+      responses:
+        '200':
+          description: Task.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/task' }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  /tasks/{task_id}/resolve:
+    parameters:
+      - $ref: '#/components/parameters/task_id'
+    post:
+      tags: [Tasks]
+      summary: Resolve a task
+      description: Applies a one-click fix, marks a guided task done, or records external completion — per the task's resolution type.
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note: { type: string }
+      responses:
+        '200':
+          description: Resolved task.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/task' }
+        '409':
+          description: Task is not in a resolvable state (e.g. owner=external, blocked-external).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+
+  # ─────────────────────── Remediation ───────────────────────
+  # Remediations are catalog data (architecture §4.5 invariant 4: catalog/
+  # serving data is partitioned by store_id), so these are store-scoped,
+  # matching every other /stores/{store_id}/catalog/* endpoint.
+  /stores/{store_id}/catalog/remediations:
+    parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Remediation]
+      summary: List available remediations
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+        - name: type
+          in: query
+          schema: { type: string, enum: [rule, manual] }
+      responses:
+        '200':
+          description: Remediations.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/remediation' }
+
+  /stores/{store_id}/catalog/remediations/apply:
+    parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [Remediation]
+      summary: Apply rule-based remediations in a batch
+      description: Write-back stores the prior value for every change; reversible and audited.
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [remediation_ids]
+              properties:
+                remediation_ids:
+                  type: array
+                  items: { type: string }
+                  minItems: 1
+      responses:
+        '200':
+          description: Applied; returns audit references.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  applied: { type: integer }
+                  write_back_ids:
+                    type: array
+                    items: { type: string }
+
+  /stores/{store_id}/catalog/write-backs/{write_back_id}/revert:
+    parameters:
+      - name: store_id
+        in: path
+        required: true
+        schema: { type: string }
+      - name: write_back_id
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [Remediation]
+      summary: Revert a write-back to its prior value
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      responses:
+        '200':
+          description: Reverted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reverted: { type: boolean, example: true }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  # ─────────────────────── Validation ───────────────────────
+  /stores/{store_id}/validation/status:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Validation]
+      summary: Get the merchant's validation status
+      description: |
+        Pre-validation is Sarvex's own suite against the store's UCP endpoints, with the
+        spec version targeted. `sandbox`/`production` are always `not_submitted` — they
+        are external verdicts Sarvex does not run; kept on the schema for compatibility
+        rather than removed.
+      responses:
+        '200':
+          description: Validation status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/validation_status' }
+
+  /stores/{store_id}/validation/runs:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    post:
+      tags: [Validation]
+      summary: Trigger a pre-validation run
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      responses:
+        '202':
+          description: Pre-validation queued.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/job_accepted' }
+    get:
+      tags: [Validation]
+      summary: List validation runs (conformance records)
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Conformance records.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/conformance_record' }
+
+  # ─────────────────────── UCP Presence ───────────────────────
+  /stores/{store_id}/presence:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [UCP Presence]
+      summary: Get the hosted UCP presence summary
+      description: Plain-language summary plus the served profile, capabilities, and freshness declarations. Read-only in V1.
+      responses:
+        '200':
+          description: Presence.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/presence' }
+
+  /stores/{store_id}/presence/manifest:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [UCP Presence]
+      summary: Get the raw served manifest
+      responses:
+        '200':
+          description: The current manifest as served to agents, plus cache state.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/manifest_view' }
+
+  /stores/{store_id}/presence/rebuild:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    post:
+      tags: [UCP Presence]
+      summary: Force a serving-cache rebuild
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      responses:
+        '202':
+          description: Rebuild queued.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/job_accepted' }
+
+  # ─────────────────────── Orders ───────────────────────
+  /stores/{store_id}/orders:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Orders]
+      summary: List orders created via Google checkout
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/order_status' }
+      responses:
+        '200':
+          description: Orders.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/order' }
+
+  /stores/{store_id}/orders/{order_id}:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+      - name: order_id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Orders]
+      summary: Get an order with its sync state
+      responses:
+        '200':
+          description: Order.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/order' }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  # ─────────────────────── Health ───────────────────────
+  # Note: these three paths were corrected from the bare /health,
+  # /health/consistency this document previously (incorrectly) documented —
+  # the real Go routes (internal/planes/control/api/handler.go) have always
+  # been store-scoped. Not a behavior change, a documentation fix made
+  # while extending this exact section for endpoint health.
+  /stores/{store_id}/health:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Health]
+      summary: Get a store's overall health
+      description: |
+        Semantic endpoint health, consistency status, and sync freshness (pre-existing
+        `statements`) plus, additively, the endpoint-health composite status and its
+        currently active alerts (`endpoint_status`, `active_alerts` — both omitted if the
+        endpoint-health workers aren't deployed in this environment).
+      responses:
+        '200':
+          description: Health.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/health' }
+
+  /stores/{store_id}/health/consistency:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Health]
+      summary: List consistency findings across sources
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+        - name: severity
+          in: query
+          schema: { $ref: '#/components/schemas/severity' }
+      responses:
+        '200':
+          description: Consistency findings.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/consistency_finding' }
+
+  /stores/{store_id}/health/history:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Health]
+      summary: Endpoint-health timeline — probe outcomes and status-check transitions
+      parameters:
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: |
+            History entries, newest first. Range (to - from) is capped at 30 days;
+            defaults to the last 24 hours if from/to are omitted.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/health_history_entry' }
+        '404': { $ref: '#/components/responses/not_found' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  # ─────────────────────── Endpoint health alerts ───────────────────────
+  /alerts:
+    get:
+      tags: [Health]
+      summary: List this merchant's endpoint-health alerts
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+        - name: status
+          in: query
+          schema: { type: string, enum: [open, acknowledged, resolved] }
+        - name: severity
+          in: query
+          schema: { type: string, enum: [healthy, degraded, critical] }
+        - name: store_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Alerts.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/alert' }
+
+  /alerts/{alert_id}:
+    parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema: { type: string }
+    patch:
+      tags: [Health]
+      summary: Acknowledge or resolve an alert
+      description: |
+        Forward-only: open -> acknowledged -> resolved, or open -> resolved directly.
+        A backward or no-op transition (e.g. re-resolving an already-resolved alert)
+        returns 409.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [acknowledged, resolved] }
+      responses:
+        '200':
+          description: Updated alert.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/alert' }
+        '404': { $ref: '#/components/responses/not_found' }
+        '409':
+          description: The alert is not in a state that allows this transition.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+
+  # ─────────────────────── Checkout Sessions ───────────────────────
+  # Read API for the Checkout Escalation Console. Available at every
+  # billing tier — diagnostic, not an upsell (same rationale as Health
+  # above). The session-projection worker (a background component of the
+  # control-plane process) is the sole writer of the underlying projection;
+  # every route here is read-only.
+  /checkout-sessions:
+    get:
+      tags: [Checkout Sessions]
+      summary: List checkout sessions
+      description: Default sort is last_activity_at descending.
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+        - name: state
+          in: query
+          schema: { $ref: '#/components/schemas/checkout_session_state' }
+        - name: surface
+          in: query
+          schema: { type: string }
+        - name: store_id
+          in: query
+          schema: { type: string }
+        - name: cause
+          in: query
+          description: Filter by diagnosis.cause.
+          schema: { type: string }
+        - name: escalated_only
+          in: query
+          schema: { type: boolean }
+        - name: from
+          in: query
+          description: Filters by last_activity_at >= from.
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          description: Filters by last_activity_at <= to.
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Checkout sessions.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/checkout_session' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /checkout-sessions/live:
+    get:
+      tags: [Checkout Sessions]
+      summary: List sessions currently in progress
+      description: |
+        Non-terminal sessions with last_activity_at inside the active window
+        (default 30 minutes). Polling, not streaming (no websockets/SSE) —
+        the console is expected to poll this endpoint on an interval
+        (~15-30s). Capped result set; page.has_more is true if the cap
+        truncated the result rather than there being a next page to fetch.
+      parameters:
+        - name: window_minutes
+          in: query
+          schema: { type: integer, default: 30 }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 200 }
+      responses:
+        '200':
+          description: Live checkout sessions.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/checkout_session' }
+
+  /checkout-sessions/{checkout_session_id}:
+    parameters:
+      - $ref: '#/components/parameters/checkout_session_id'
+    get:
+      tags: [Checkout Sessions]
+      summary: Get a checkout session, including its diagnosis
+      responses:
+        '200':
+          description: Checkout session.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/checkout_session' }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  /checkout-sessions/{checkout_session_id}/timeline:
+    parameters:
+      - $ref: '#/components/parameters/checkout_session_id'
+    get:
+      tags: [Checkout Sessions]
+      summary: Get a checkout session's event timeline
+      description: |
+        Ordered by seq ascending. Reconstruct-and-display only (R7) — this
+        is a read of what already happened, never a re-execution of any
+        part of the checkout. Payloads are redacted at write time; no
+        payment credential or PAN/CVV-shaped field is ever present.
+      parameters:
+        - name: cursor
+          in: query
+          description: The last seq seen on the previous page (0 = from the beginning).
+          schema: { type: string }
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Timeline entries.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/checkout_session_timeline_entry' }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  # ─────────────────── Lost Revenue Ledger ───────────────────
+  /ledger/summary:
+    get:
+      tags: [Ledger]
+      summary: Monthly rollup, one entry per currency
+      description: |
+        Causes sorted by lost_revenue_minor descending within each currency
+        (R14 — money order is the point of this feature), plus totals,
+        unknown-revenue count, and the delta against the prior month's
+        total. Served entirely from the precomputed rollup (R12) — never
+        aggregated from raw entries at read time. Gated at the analytics
+        tier (Concierge/Scale) — the worker writes for every tier
+        regardless, so an upgrading merchant's backlog is already there.
+
+        currency is optional. Given, the response is a one-element list
+        scoped to that currency. Omitted, the response holds one element
+        per currency the merchant actually has a rollup for that month —
+        read directly from the ledger's own data, not derived from store
+        configuration, so the caller never has to enumerate stores/
+        currencies itself and call this endpoint once per currency.
+        Currencies are never summed together either way (R9): each element
+        is independently computed, exactly as the single-currency form
+        already returns it.
+      parameters:
+        - name: month
+          in: query
+          description: yyyy-MM. Defaults to the current UTC month.
+          schema: { type: string, example: "2026-08" }
+        - name: currency
+          in: query
+          description: Restrict to one currency's rollup. Omit to get every currency the merchant has data for that month (R9 — never summed across currencies).
+          schema: { type: string, example: USD }
+      responses:
+        '200':
+          description: One rollup per currency (or the single requested currency).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ledger_summary_list' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /ledger/entries:
+    get:
+      tags: [Ledger]
+      summary: List lost-checkout entries
+      description: |
+        Default sort is lost_revenue_minor descending, occurred_at
+        descending as tiebreak (R14) — this is a product invariant, not a
+        convenience default; a client may request sort=occurred_at instead.
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+        - name: cause
+          in: query
+          schema: { $ref: '#/components/schemas/ledger_cause' }
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/ledger_entry_status' }
+        - name: store_id
+          in: query
+          schema: { type: string }
+        - name: surface
+          in: query
+          schema: { type: string }
+        - name: from
+          in: query
+          description: Filters by occurred_at >= from.
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          description: Filters by occurred_at <= to.
+          schema: { type: string, format: date-time }
+        - name: sort
+          in: query
+          description: Default lost_revenue_minor (R14). occurred_at is the one supported alternate.
+          schema: { type: string, enum: [lost_revenue_minor, occurred_at], default: lost_revenue_minor }
+      responses:
+        '200':
+          description: Lost-checkout entries.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/ledger_entry' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /ledger/entries/{entry_id}:
+    parameters:
+      - $ref: '#/components/parameters/entry_id'
+    patch:
+      tags: [Ledger]
+      summary: Change an entry's triage status
+      description: |
+        Status transitions only, forward-only (open -> acknowledged ->
+        resolved). A reversal, or any other field, is rejected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { $ref: '#/components/schemas/ledger_entry_status' }
+      responses:
+        '200':
+          description: Updated entry.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ledger_entry' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '404': { $ref: '#/components/responses/not_found' }
+        '409':
+          description: The requested status is not forward of the entry's current status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  # ─────────────────── Channel Dashboard ───────────────────
+  # Agent sessionization, discovery->checkout funnel, and web-baseline
+  # comparison (internal/planes/control/channel,
+  # internal/planes/sync/webbaseline). Gated at the analytics tier
+  # (Concierge/Scale) — reuses the same gate as Ledger above; the
+  # sessionization/rollup worker (a background component of the
+  # control-plane process) and the web-baseline sync worker (a background
+  # component of the sync-plane process) write for every tier regardless,
+  # same rationale as the Ledger. Every
+  # response is served from precomputed aggregates only — never a raw
+  # scan of sessions or events at request time.
+  /channel/summary:
+    get:
+      tags: [Channel Dashboard]
+      summary: KPI summary, per surface and combined, with prior-period deltas
+      description: |
+        One row per surface the merchant has data for that month, plus one
+        combined "all" row. Deltas are against the prior calendar month,
+        computed server-side from stored counts — never a stored
+        percentage. sessions_inferred is always reported alongside
+        sessions so a reconstructed count is never mistaken for an exact
+        one.
+      parameters:
+        - name: month
+          in: query
+          description: yyyy-MM. Defaults to the current UTC month.
+          schema: { type: string, example: "2026-08" }
+        - name: store_id
+          in: query
+          description: Restrict to one store. Omit for every store the merchant operates (modelled for multiple stores per merchant).
+          schema: { type: string }
+      responses:
+        '200':
+          description: One summary row per surface, plus one combined row.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/channel_summary' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /channel/funnel:
+    get:
+      tags: [Channel Dashboard]
+      summary: Discovery-to-checkout funnel stage counts and derived rates
+      description: |
+        Stage counts are monotonically non-increasing through the funnel
+        (a session cannot reach checkout without reaching cart). Rates are
+        derived at read time from the stored counts, never stored as
+        percentages. Max range 92 days.
+      parameters:
+        - $ref: '#/components/parameters/channel_from'
+        - $ref: '#/components/parameters/channel_to'
+        - $ref: '#/components/parameters/channel_surface'
+        - name: store_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Funnel stage counts and derived rates for the range.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/channel_funnel' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /channel/daily:
+    get:
+      tags: [Channel Dashboard]
+      summary: Daily time series of funnel/revenue counts
+      description: Max range 92 days. Never a raw scan — served entirely from the precomputed daily aggregate.
+      parameters:
+        - $ref: '#/components/parameters/channel_from'
+        - $ref: '#/components/parameters/channel_to'
+        - $ref: '#/components/parameters/channel_surface'
+        - name: store_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: One row per store/surface/day in range.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/channel_daily_entry' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /channel/comparison:
+    get:
+      tags: [Channel Dashboard]
+      summary: Agentic revenue vs. the merchant's web-channel baseline
+      description: |
+        The baseline is sourced from the connector's own order/analytics
+        data (never Sarvex's own traffic — Sarvex never sees web
+        sessions). Revenue and AOV are comparable between the two
+        channels; agent sessions and web sessions are never compared here
+        (different definitions, different measurement) — this response
+        carries no session-count field. Each metric reports available:
+        false with a reason when the baseline's confidence for any day in
+        range is short of connector_reported — never a substituted
+        estimate. agentic_share_of_total divides by the connector's own
+        reported total (which already includes agentic orders placed
+        directly in the merchant's store), never by agentic+baseline,
+        which would double-count them. Max range 92 days.
+      parameters:
+        - $ref: '#/components/parameters/channel_from'
+        - $ref: '#/components/parameters/channel_to'
+        - name: store_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Agentic vs. web-baseline comparison for the range.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/channel_comparison' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  # ─────────────────────── Agent Behavior Insights ───────────────────────
+  # Gated at the analytics tier (reuses the Ledger's requireAnalyticsTier
+  # gate, same as Channel Dashboard). No /insights/attribute_gaps path: the
+  # audit behind this feature found no protocol-level way for a UCP
+  # discovery request to name a requested attribute, so there is nothing
+  # honest to serve there — see internal/planes/control/insights' package
+  # doc comment. Comparison/drop analysis (co_queried_pairs,
+  # drop_after_query_count) and per-product reached_cart_count/
+  # completed_count are likewise not represented on insights_product_demand:
+  # they require session correlation the serving-plane telemetry does not
+  # provide today (the same gap channel_daily_entry.discovery_requests
+  # already documents for pre-checkout discovery traffic).
+  /insights/capability_gaps:
+    get:
+      tags: [Agent Behavior Insights]
+      summary: Capabilities agents requested that the merchant doesn't declare
+      description: |
+        The headline output: for each capability agents' negotiation
+        requests actually named, minus the capabilities the merchant
+        declares in their UCP profile. Sorted by estimated_impact_minor
+        descending, request_count descending as tiebreak, unconditionally
+        — there is no sort query parameter, the same money-first
+        invariant the Lost Revenue Ledger enforces on its own default
+        sort. estimated_impact_minor is 0 with impact_confidence=unmeasurable
+        unless a specific failed/abandoned checkout's cart snapshot could
+        be demonstrably attributed to the missing capability — never a
+        modeled or extrapolated figure. Rows with request_count below the
+        small-count suppression threshold (default 5) are omitted.
+      parameters:
+        - name: month
+          in: query
+          description: yyyy-MM. Defaults to the current UTC month.
+          schema: { type: string, example: "2026-08" }
+        - name: store_id
+          in: query
+          description: Restrict to one store. Omit for every store the merchant operates.
+          schema: { type: string }
+      responses:
+        '200':
+          description: Capability gaps for the month, impact-sorted.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/insights_capability_gap' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /insights/product_demand:
+    get:
+      tags: [Agent Behavior Insights]
+      summary: Top products by agent request count
+      description: |
+        Top-N products (default 100) by summed agent request count over
+        the range, with a per-surface breakdown. Counts only —
+        reached_cart_count/completed_count are not represented (no
+        telemetry correlates a specific catalog request to a specific
+        later checkout; see this path group's top-level description).
+        Rows below the small-count suppression threshold (default 5) are
+        omitted. Max range 92 days.
+      parameters:
+        - $ref: '#/components/parameters/insights_from'
+        - $ref: '#/components/parameters/insights_to'
+        - name: surface
+          in: query
+          description: Restrict ranking and counts to one surface's contribution only. Omit for every surface combined.
+          schema: { $ref: '#/components/schemas/channel_surface' }
+        - name: limit
+          in: query
+          description: Top-N size. Defaults to 100.
+          schema: { type: integer, default: 100 }
+      responses:
+        '200':
+          description: Top products by request count for the range, request-count descending.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/insights_product_demand' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /insights/negotiation:
+    get:
+      tags: [Agent Behavior Insights]
+      summary: Negotiation outcomes, failure breakdown, and payment-handler mismatch detail
+      description: |
+        attempts/successes/failures summed over the range. failures is
+        broken down by the closed failure_reason enum negotiation.Negotiate
+        actually produces (version_unsupported,
+        capabilities_incompatible); each carries
+        missing_capability_counts when the failure reason is itself a
+        capability-set delta (capabilities_incompatible only —
+        version_unsupported fails on the version field, not a capability
+        delta, so that map is absent there). payment_handler_mismatch is
+        its own dedicated breakdown, computed observationally from every
+        negotiation attempt (succeeded or failed) whose offered
+        payment-handler set had no overlap with the merchant's declared
+        set — an empty payment-handler intersection does not fail
+        negotiation on its own, so this condition would otherwise be
+        invisible in `failures`. Breakdown entries below the small-count
+        suppression threshold (default 5) are omitted; attempts/successes
+        totals are never suppressed. Max range 92 days.
+      parameters:
+        - $ref: '#/components/parameters/insights_from'
+        - $ref: '#/components/parameters/insights_to'
+      responses:
+        '200':
+          description: Negotiation outcome summary for the range.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/insights_negotiation' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  # ─────────────────────── Billing ───────────────────────
+  /billing:
+    get:
+      tags: [Billing]
+      summary: Get plan, status, and usage
+      responses:
+        '200':
+          description: Billing state (provider-authoritative projection).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/billing' }
+
+  /billing/portal-link:
+    post:
+      tags: [Billing]
+      summary: Create a Stripe Customer Portal link
+      description: |
+        Plan switching (self_serve is never offered as a switch target — see
+        sarvex-v1-architecture.md §Domain 8) and cancellation happen inside
+        this portal session, alongside payment-method and invoice management.
+        There is no separate checkout-based upgrade endpoint: every merchant
+        already has a subscription from account creation, so an upgrade is a
+        price change on the existing subscription — exactly what the portal's
+        subscription-update feature does.
+      responses:
+        '200':
+          description: Hosted portal URL.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url: { type: string, format: uri }
+
+  /billing/webhooks/stripe:
+    post:
+      tags: [Billing]
+      summary: Stripe webhook receiver
+      description: |
+        Receives Stripe webhook events (customer.subscription.updated,
+        customer.subscription.deleted — covers both Portal-driven and
+        API-driven subscription changes) and syncs subscription state into
+        the billing record. Verified via the Stripe-Signature header against
+        a Stripe-issued signing secret — not part of the console's
+        bearer-JWT or connector HMAC auth models.
+      security:
+        - stripeSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Raw Stripe event payload; shape is provider-defined.
+      responses:
+        '200':
+          description: Event processed (or ignored, if not a handled type).
+        '400': { $ref: '#/components/responses/validation_error' }
+        '401': { $ref: '#/components/responses/unauthorized' }
+
+  # ─────────────────────── Notifications ───────────────────────
+  /notifications/preferences:
+    get:
+      tags: [Notifications]
+      summary: Get notification channel preferences
+      responses:
+        '200':
+          description: Preferences.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/notification_preferences' }
+    put:
+      tags: [Notifications]
+      summary: Replace notification channel preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/notification_preferences' }
+      responses:
+        '200':
+          description: Updated preferences.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/notification_preferences' }
+
+  # ─────────────────────── Journey ───────────────────────
+  # Journey state is per-store (CLAUDE.md invariant 4: catalog/serving/engagement data
+  # partitions by store_id, not merchant_id — a merchant may operate more than one store).
+  # ─────────────────────── Store UCP activation ───────────────────────
+  # The store's own lifecycle. No path, parameter, or schema below names an
+  # agent surface — that separation is the point.
+  /stores/{store_id}/activation:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Activation]
+      summary: Get the store's UCP activation state
+      description: |
+        Returns the store's position in its own activation lifecycle, per-step detail
+        (which steps it has reached and when), and the blocking reason for the step it
+        is currently working toward.
+      responses:
+        '200':
+          description: Activation state with per-step detail.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/activation' }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  /stores/{store_id}/activation/verify:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    post:
+      tags: [Activation]
+      summary: Run conformance verification against the store's own endpoints
+      description: |
+        Runs the conformance suite — profile reachable, signature roundtrip, negotiation
+        handshake, catalog lookup — against the store's own serving-plane endpoints and
+        applies the result to the activation state machine. No external party is
+        involved, which is what makes `verified` reachable without any surface
+        enrollment.
+
+        A run that finds failures is a successful request reporting them, not an error.
+      responses:
+        '200':
+          description: Verification report and the state the store ended in.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/verification_report' }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  # ─────────────────────── Agent surfaces ───────────────────────
+  /surfaces:
+    get:
+      tags: [Surfaces]
+      summary: List the surface registry
+      description: |
+        Every surface this deployment knows about, as descriptors. Not store-scoped:
+        which surfaces exist is a property of the deployment, not of a merchant. What a
+        particular store has done about them is `GET /stores/{store_id}/surfaces`.
+      responses:
+        '200':
+          description: Registered surface descriptors.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, page]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/surface_descriptor' }
+                  page: { $ref: '#/components/schemas/page' }
+
+  /stores/{store_id}/surfaces:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Surfaces]
+      summary: List the store's enrollment state on every registered surface
+      description: |
+        One entry per registered surface, including surfaces the store has never
+        touched (reported as `available`) — the registry decides what exists, not the
+        enrollment table. Each entry carries its descriptor, so a client renders the
+        whole enrollment flow generically without per-surface knowledge.
+      responses:
+        '200':
+          description: Enrollment state per surface.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, page]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/surface_enrollment' }
+                  page: { $ref: '#/components/schemas/page' }
+
+  /stores/{store_id}/surfaces/{surface_id}/enroll:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+      - $ref: '#/components/parameters/surface_id'
+    post:
+      tags: [Surfaces]
+      summary: Begin enrollment on a surface
+      description: |
+        Starts enrollment and immediately evaluates the surface's prerequisites, so the
+        response already says what is outstanding.
+
+        Returns 409 if the store has not reached `active` — the one cross-lifecycle
+        dependency in the system. It is a conflict rather than a validation error: the
+        request is well-formed and the merchant may be entitled to it, the store simply
+        is not there yet.
+      responses:
+        '200':
+          description: Enrollment state after evaluation.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/surface_enrollment' }
+        '404': { $ref: '#/components/responses/not_found' }
+        '409':
+          description: Store is not UCP active, or the transition is not legal from the current state.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+
+  /stores/{store_id}/surfaces/{surface_id}/prerequisites/evaluate:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+      - $ref: '#/components/parameters/surface_id'
+    post:
+      tags: [Surfaces]
+      summary: Re-evaluate a surface's prerequisites on demand
+      description: |
+        Re-runs every prerequisite check and advances or regresses the enrollment to
+        match. Safe to call repeatedly: a merchant who fixes a failing prerequisite
+        re-runs the checks without restarting enrollment.
+      responses:
+        '200':
+          description: Enrollment state after re-evaluation.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/surface_enrollment' }
+        '404': { $ref: '#/components/responses/not_found' }
+        '409':
+          description: Store is not UCP active.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+
+  /stores/{store_id}/surfaces/{surface_id}/submit:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+      - $ref: '#/components/parameters/surface_id'
+    post:
+      tags: [Surfaces]
+      summary: Record that the merchant completed the surface's external steps
+      description: |
+        Moves enrollment from `configured` into `verifying`. Only meaningful for a
+        surface whose descriptor declares `external_steps`; a surface without them
+        moves through automatically.
+      responses:
+        '200':
+          description: Enrollment state after submission.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/surface_enrollment' }
+        '404': { $ref: '#/components/responses/not_found' }
+        '409':
+          description: Store is not UCP active, or the transition is not legal from the current state.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+
+  /stores/{store_id}/surfaces/{surface_id}/config:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+      - $ref: '#/components/parameters/surface_id'
+    put:
+      tags: [Surfaces]
+      summary: Replace the merchant-supplied configuration for a surface
+      description: |
+        The configuration is a string map by design: its shape is the surface's own
+        business, declared by the descriptor's `config_schema`, so typing it here
+        would put surface-specific knowledge into the generic layer. A surface that
+        declares a schema has the map validated against it (unknown keys and ill-typed
+        values are a `422`); one that declares none accepts any map. Prerequisites are
+        re-evaluated against the new configuration before the response is returned.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                config:
+                  type: object
+                  additionalProperties: { type: string }
+      responses:
+        '200':
+          description: Enrollment state after configuration.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/surface_enrollment' }
+        '404': { $ref: '#/components/responses/not_found' }
+        '409':
+          description: Store is not UCP active.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /stores/{store_id}/surfaces/{surface_id}:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+      - $ref: '#/components/parameters/surface_id'
+    delete:
+      tags: [Surfaces]
+      summary: Withdraw enrollment from a surface
+      description: |
+        Returns the surface to `available`. Explicitly does not affect the store's
+        activation state, and does not affect any other surface. Idempotent: withdrawing
+        a surface the store was never enrolled in succeeds.
+      responses:
+        '204': { description: Withdrawn. }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  /stores/{store_id}/journey:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Journey]
+      summary: Get the store's current journey state
+      responses:
+        '200':
+          description: Journey state and next action.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/journey' }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  /stores/{store_id}/journey/stream:
+    parameters:
+      - $ref: '#/components/parameters/store_id'
+    get:
+      tags: [Journey]
+      x-websocket: true
+      summary: Subscribe to live journey updates for the store
+      description: |
+        WebSocket upgrade (RFC 6455) — modelled here for discoverability, not a standard
+        HTTP operation. The client authenticates by sending the bearer token as a
+        WebSocket subprotocol (`Sec-WebSocket-Protocol: bearer, <token>`) rather than an
+        Authorization header, since browsers cannot set custom headers on the handshake
+        request; the server echoes back `bearer` as the negotiated subprotocol. Ownership
+        of `store_id` is verified against the resolved principal before the upgrade
+        completes, exactly as on `GET /stores/{store_id}`.
+
+        On every server-side journey transition (see `control.journey.updated` in
+        sarvex-v1-syncing-plane-async.yaml) the server pushes one
+        `journey_stream_message` text frame with `type: journey.updated`. The payload is
+        a thin signal, not the full journey record — the client is expected to re-fetch
+        `GET /stores/{store_id}/journey` on receipt (same "thin event, fat pull"
+        convention the plugin uses for change signalling).
+
+        The same connection also carries `type: task.updated` frames whenever a task
+        belonging to this store changes (see `control.task.updated` in
+        sarvex-v1-syncing-plane-async.yaml), scoped to stores that already have a
+        journey record. The client is expected to re-fetch the task via
+        `GET /tasks/{id}` (`task_id` on the frame) rather than treat the frame as
+        authoritative.
+
+        It also carries `type: orders.updated` frames whenever a new order is recorded
+        for this store (see `sync.order.created` in
+        sarvex-v1-syncing-plane-async.yaml) — the Path's "Agent orders this week" tile
+        re-reads `GET /orders` on receipt.
+
+        No message frame should be treated as authoritative on its own, and a client
+        that never connects (or whose connection drops) must still see current state on
+        next page load via the GET endpoints above — the stream is a freshness
+        optimization, not a dependency.
+      responses:
+        '101':
+          description: Switching Protocols — connection upgraded to a WebSocket.
+        '401': { $ref: '#/components/responses/unauthorized' }
+        '404': { $ref: '#/components/responses/not_found' }
+
+  # ─────────────────────── Operator ───────────────────────
+  # Provisioning. These bootstrap a tenant before any merchant exists, so they
+  # require the operator role and do NOT use X-Operate-As. In Phase B the equivalent
+  # actions become the merchant's own authenticated calls (self-signup + add store).
+  /operator/merchants:
+    post:
+      tags: [Operator]
+      summary: Provision a new merchant (tenant)
+      description: |
+        Creates the account/tenant root. Operator-only — this is the bootstrap step that cannot use
+        `X-Operate-As` because the merchant does not yet exist. Audit-logged with operator identity.
+        Also provisions the merchant's entry-level (self_serve) Stripe subscription with a 30-day,
+        no-payment-method trial — a merchant account never exists without one — so this call fails
+        as a whole if billing provisioning fails.
+      security:
+        - bearerAuth: [operator]
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, owner_email]
+              properties:
+                name: { type: string }
+                owner_email:
+                  type: string
+                  format: email
+                  description: Used to invite the account owner and to pre-fill the entry-level trial's Stripe customer.
+                business_facts: { type: object, description: "Optional initial business facts: legal entity, support contact, etc." }
+      responses:
+        '201':
+          description: Merchant created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/account' }
+        '403': { $ref: '#/components/responses/forbidden' }
+    get:
+      tags: [Operator]
+      summary: List merchants
+      security:
+        - bearerAuth: [operator]
+      responses:
+        '200':
+          description: Merchants.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/account' }
+        '403': { $ref: '#/components/responses/forbidden' }
+
+  /operator/merchants/{merchant_id}/members:
+    parameters:
+      - name: merchant_id
+        in: path
+        required: true
+        description: The merchant being provisioned. Operator-scoped path id (not a tenant selector for merchant-scoped calls).
+        schema: { type: string }
+    post:
+      tags: [Operator]
+      summary: Invite a member to a merchant (authorize an email)
+      description: |
+        Creates the Sarvex-side member record `{email, role}` and emails a sign-in link. **This is the
+        invite — there is no separate IdP step.** Sarvex authorizes by email; the IdP (Kinde, including
+        social sign-in) authenticates. On first sign-in the verified token's email claim is matched to this
+        record, resolving the merchant + role. No password is set or held by Sarvex.
+      security:
+        - bearerAuth: [operator]
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/member_invite' }
+      responses:
+        '201':
+          description: Member invited; sign-in link sent.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/member' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '409':
+          description: A member with this email already exists for the merchant.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+
+  /operator/merchants/{merchant_id}/stores:
+    parameters:
+      - name: merchant_id
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [Operator]
+      summary: Create a store under a merchant
+      description: |
+        Operator equivalent of `POST /stores`, usable during provisioning. Creates the store (no
+        connector yet); its journey starts at the beginning. Pairing follows via `POST /connectors`.
+      security:
+        - bearerAuth: [operator]
+      parameters:
+        - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [platform, name]
+              properties:
+                platform: { $ref: '#/components/schemas/platform' }
+                name: { type: string }
+      responses:
+        '201':
+          description: Store created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/store' }
+        '403': { $ref: '#/components/responses/forbidden' }
+
+  /operator/board:
+    get:
+      tags: [Operator]
+      summary: List all merchants by journey state (the board)
+      description: Operator-only. Requires operator role; does not use `X-Operate-As`.
+      security:
+        - bearerAuth: [operator]
+      parameters:
+        - name: state
+          in: query
+          schema: { $ref: '#/components/schemas/journey_state' }
+        - name: attention
+          in: query
+          description: Filter to merchants that are blocked or stale.
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Board cards.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/board_card' }
+        '403': { $ref: '#/components/responses/forbidden' }
+
+  /operator/manual-steps:
+    get:
+      tags: [Operator]
+      summary: List captured manual steps
+      security:
+        - bearerAuth: [operator]
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+        - name: disposition
+          in: query
+          schema: { $ref: '#/components/schemas/manual_step_disposition' }
+      responses:
+        '200':
+          description: Manual steps.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/manual_step' }
+        '403': { $ref: '#/components/responses/forbidden' }
+    post:
+      tags: [Operator]
+      summary: Capture a manual step (the Phase B automation backlog)
+      description: One-tap log of an action the product could not yet do. Operator-only.
+      security:
+        - bearerAuth: [operator]
+      parameters:
+        - $ref: '#/components/parameters/operate_as'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/manual_step' }
+      responses:
+        '201':
+          description: Captured.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/manual_step' }
+        '403': { $ref: '#/components/responses/forbidden' }
+
+  /operator/audit-log:
+    get:
+      tags: [Operator]
+      summary: Read the operator audit log
+      security:
+        - bearerAuth: [operator]
+      parameters:
+        - $ref: '#/components/parameters/cursor'
+        - $ref: '#/components/parameters/limit'
+        - name: target_merchant_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Audit entries.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/list_envelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/audit_entry' }
+        '403': { $ref: '#/components/responses/forbidden' }
+
+  /operator/manual-steps/{step_id}/retag:
+    put:
+      tags: [Operator]
+      summary: Reclassify a manual step
+      security:
+        - bearerAuth: [operator]
+      parameters:
+        - name: step_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [disposition]
+              properties:
+                disposition: { $ref: '#/components/schemas/manual_step_disposition' }
+      responses:
+        '200':
+          description: Retagged.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: success }
+                  step_id: { type: string }
+                  disposition: { $ref: '#/components/schemas/manual_step_disposition' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /operator/manual-steps/bulk-retag:
+    post:
+      tags: [Operator]
+      summary: Reclassify many manual steps at once
+      security:
+        - bearerAuth: [operator]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [step_ids, disposition]
+              properties:
+                step_ids:
+                  type: array
+                  minItems: 1
+                  items: { type: string }
+                disposition: { $ref: '#/components/schemas/manual_step_disposition' }
+      responses:
+        '200':
+          description: Retagged.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: success }
+                  steps_retagged: { type: integer }
+                  disposition: { $ref: '#/components/schemas/manual_step_disposition' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+  /operator/timeline-metrics:
+    get:
+      tags: [Operator]
+      summary: Merchants per engagement stage over time
+      security:
+        - bearerAuth: [operator]
+      parameters:
+        - name: merchant_id
+          in: query
+          schema: { type: string }
+        - name: start_date
+          in: query
+          schema: { type: string, format: date }
+        - name: end_date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: One datapoint per stage per day.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datapoints:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date: { type: string }
+                        stage: { type: string }
+                        count: { type: integer }
+                        avg_days_in_stage: { type: integer }
+                  count: { type: integer }
+        '403': { $ref: '#/components/responses/forbidden' }
+
+  /operator/act-on-behalf:
+    post:
+      tags: [Operator]
+      summary: Run an operator action as a merchant (audit-logged)
+      security:
+        - bearerAuth: [operator]
+      parameters:
+        - name: X-Operate-As
+          in: header
+          required: true
+          description: Merchant id the action is performed for.
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string }
+                params: { type: object, additionalProperties: true }
+      responses:
+        '200':
+          description: Executed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: success }
+                  action: { type: string }
+                  target: { type: string }
+                  message: { type: string }
+        '400':
+          description: X-Operate-As missing.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_envelope' }
+        '403': { $ref: '#/components/responses/forbidden' }
+        '422': { $ref: '#/components/responses/validation_error' }
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT issued by the external IdP via the OAuth 2.0 authorization-code flow (Kinde in
+        production; a simulator in test). The client obtains it and sends it as a Bearer token on
+        every authenticated call. Sarvex's services **verify** it — issuer, audience, signature
+        (IdP JWKS), expiry — and read identity and tenant from its claims. Sarvex does not issue
+        or revoke these tokens. `merchant_id`/`store_id` are read from the verified claims (and the
+        merchant→store mapping), never from the URL. The `operator` scope is required for
+        `/operator/*`. Operators acting on a specific merchant pass the `X-Operate-As` header,
+        which is recorded in the audit log.
+    hmacSignature:
+      type: apiKey
+      in: header
+      name: X-Sarvex-Signature
+      description: |
+        HMAC-SHA256 signature over the raw request body plus the `X-Sarvex-Timestamp`
+        and `X-Sarvex-Sequence` headers, keyed by the per-connector signing secret
+        issued at pairing. Used only by the store plugin for `/connector/*`. Replays
+        (seen sequence) are rejected with 409.
+    contactAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Static shared bearer token issued to the sarvex.example.com marketing website only,
+        used solely by `POST /contact`. Not a JWT, not merchant/operator-scoped, and
+        unrelated to `bearerAuth` above — the website has no Sarvex account.
+    stripeSignature:
+      type: apiKey
+      in: header
+      name: Stripe-Signature
+      description: |
+        Stripe's own webhook signature scheme (timestamp + HMAC-SHA256 over
+        the raw body, keyed by the Stripe-issued webhook signing secret).
+        Verified via the Stripe SDK, not Sarvex's connector HMAC scheme.
+
+  parameters:
+    cursor:
+      name: cursor
+      in: query
+      description: Opaque pagination cursor from the previous page's `page.cursor`.
+      schema: { type: string }
+    limit:
+      name: limit
+      in: query
+      description: Maximum items per page.
+      schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+    idempotency_key:
+      name: Idempotency-Key
+      in: header
+      description: Client-generated key; replays return the original result.
+      schema: { type: string }
+    operate_as:
+      name: X-Operate-As
+      in: header
+      description: Merchant id an operator is acting on behalf of (audit-logged).
+      schema: { type: string }
+    connector_id:
+      name: connector_id
+      in: path
+      required: true
+      schema: { type: string }
+    store_id:
+      name: store_id
+      in: path
+      required: true
+      description: A store the caller's merchant owns. Authorized server-side against the principal; not a free-form tenant selector.
+      schema: { type: string }
+    surface_id:
+      name: surface_id
+      in: path
+      required: true
+      description: A surface id from the registry (`GET /surfaces`). Not a tenant selector — enrollment is always scoped to the caller's merchant server-side.
+      schema: { type: string }
+    checkout_session_id:
+      name: checkout_session_id
+      in: path
+      required: true
+      description: A checkout session the caller's merchant owns. Authorized server-side against the principal; not a free-form tenant selector.
+      schema: { type: string }
+    task_id:
+      name: task_id
+      in: path
+      required: true
+      schema: { type: string }
+    entry_id:
+      name: entry_id
+      in: path
+      required: true
+      description: A ledger entry the caller's merchant owns. Authorized server-side against the principal; not a free-form tenant selector.
+      schema: { type: string }
+    channel_from:
+      name: from
+      in: query
+      description: yyyy-MM-dd, inclusive. Defaults to 29 days before `to`. Range with `to` is capped at 92 days.
+      schema: { type: string, format: date, example: "2026-07-01" }
+    channel_to:
+      name: to
+      in: query
+      description: yyyy-MM-dd, inclusive. Defaults to today (UTC). Range with `from` is capped at 92 days.
+      schema: { type: string, format: date, example: "2026-08-06" }
+    channel_surface:
+      name: surface
+      in: query
+      description: Restrict to one surface. Omit for the all-surfaces combined rollup.
+      schema: { $ref: '#/components/schemas/channel_surface' }
+    insights_from:
+      name: from
+      in: query
+      description: yyyy-MM-dd, inclusive. Defaults to 29 days before `to`. Range with `to` is capped at 92 days.
+      schema: { type: string, format: date, example: "2026-07-01" }
+    insights_to:
+      name: to
+      in: query
+      description: yyyy-MM-dd, inclusive. Defaults to today (UTC). Range with `from` is capped at 92 days.
+      schema: { type: string, format: date, example: "2026-08-06" }
+
+  responses:
+    unauthorized:
+      description: Missing or invalid credentials.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/error_envelope' }
+          example:
+            error: { code: unauthorized, message: Authentication required., details: null }
+    forbidden:
+      description: Authenticated but not permitted (e.g. non-operator on an operator route).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/error_envelope' }
+          example:
+            error: { code: forbidden, message: Operator role required., details: null }
+    not_found:
+      description: Resource not found within the caller's tenant.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/error_envelope' }
+          example:
+            error: { code: not_found, message: Resource not found., details: null }
+    validation_error:
+      description: Request body failed validation.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/error_envelope' }
+          example:
+            error:
+              code: validation_error
+              message: One or more fields are invalid.
+              details: { fields: { email: must be a valid email address } }
+
+  schemas:
+
+    # ── Envelopes & primitives ──
+    list_envelope:
+      type: object
+      required: [data, page]
+      properties:
+        data:
+          type: array
+          items: {}
+        page: { $ref: '#/components/schemas/page' }
+    page:
+      type: object
+      required: [cursor, has_more]
+      properties:
+        cursor: { type: string, nullable: true }
+        has_more: { type: boolean }
+    error_envelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: { type: object, nullable: true }
+    job_accepted:
+      type: object
+      properties:
+        job_id: { type: string }
+        status: { type: string, enum: [queued, running], example: queued }
+    money:
+      type: object
+      required: [amount_minor, currency]
+      properties:
+        amount_minor: { type: integer, description: Amount in minor units (cents). }
+        currency: { type: string, example: AUD }
+
+    # ── Store profile ──
+    shipping_rate:
+      type: object
+      required: [method, cost]
+      properties:
+        method: { type: string, description: 'Shipping method, e.g. ground, express.' }
+        cost: { $ref: '#/components/schemas/money' }
+    shipping_zone:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        rates:
+          type: array
+          items: { $ref: '#/components/schemas/shipping_rate' }
+    store_profile:
+      type: object
+      description: Store-level business identity bound into the UCP profile at render time.
+      properties:
+        store_id: { type: string }
+        legal_name: { type: string }
+        support_email: { type: string, format: email }
+        domain: { type: string, format: uri, description: The store's storefront/brand domain where /.well-known/ucp is served. }
+        return_policy_url: { type: string, format: uri, description: URL of this store's return policy. }
+        fulfillment_regions:
+          type: array
+          items: { type: string, description: ISO country code, example: AU }
+        shipping_zones:
+          type: object
+          description: Shipping zones keyed by zone id.
+          additionalProperties: { $ref: '#/components/schemas/shipping_zone' }
+    store_profile_update:
+      type: object
+      description: Full-replacement update of a store's business profile.
+      properties:
+        legal_name: { type: string }
+        support_email: { type: string, format: email }
+        domain: { type: string, format: uri }
+        return_policy_url: { type: string, format: uri }
+        fulfillment_regions:
+          type: array
+          items: { type: string }
+        shipping_zones:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/shipping_zone' }
+
+    # ── Enums ──
+    platform:
+      type: string
+      enum: [woocommerce, magento]
+      description: |
+        Connectable commerce backends: WooCommerce and Magento. The model and enum
+        extend to further platform types without structural change.
+    task_owner:
+      type: string
+      enum: [merchant, sarvex, external]
+    task_state:
+      type: string
+      enum: [open, in_progress, blocked, done]
+    task_resolution:
+      type: string
+      enum: [one_click, guided, automatic, external_wait]
+    journey_state:
+      type: string
+      enum: [connected, synced, ready, live]
+    engagement_stage:
+      type: string
+      description: The 5 concierge engagement stages (internal/planes/control/engagement).
+      enum: [prospect, kickoff, remediation, validation, go_live]
+    ucp_state:
+      type: string
+      description: |
+        The store's own UCP activation lifecycle (internal/planes/control/activation).
+        No value here references an agent surface — `active` means the store's endpoints
+        are live and monitored, not that any distribution partner has approved it.
+      enum: [draft, connector_linked, profile_published, verified, active, suspended]
+    surface_state:
+      type: string
+      description: |
+        A store's enrollment position on one agent surface
+        (internal/planes/control/surface). Per-store, per-surface, zero-to-many.
+      enum: [available, prerequisites_pending, configured, submitted, verifying, enrolled, suspended]
+    surface_protocol:
+      type: string
+      description: The wire protocol an agent surface speaks. Data on the descriptor, never a branch in code.
+      enum: [ucp, acp]
+    connector_type:
+      type: string
+      description: |
+        What a connector record is for. `commerce` is the store's commerce backend and
+        the only kind the checkout path calls. Absent on records written before the
+        discriminator existed, which read as `commerce`.
+      enum: [commerce]
+    order_status:
+      type: string
+      enum: [created, confirmed, shipped, cancelled, refunded]
+    severity:
+      type: string
+      enum: [info, warning, critical]
+    plan:
+      type: string
+      enum: [self_serve, concierge, scale]
+    resolution_tier:
+      type: string
+      enum: [rule, learned, unresolved]
+      description: >-
+        Ontology resolution tier shown in V1 (no LLM tier). `unresolved` means no raw
+        store attribute resolved onto this target at all — the resolve stage emits one
+        entry per catalogue target field, so unresolved entries are the normal way a
+        product reports what it is missing, and carry an empty source_attribute and
+        zero confidence. It was absent from this enum while the sync plane emitted it,
+        which led clients to treat any non-`rule` tier as `learned`.
+
+    # ── Auth ──
+    principal:
+      type: object
+      description: Identity and authorized scope derived from the verified JWT claims (not a session).
+      properties:
+        user_id: { type: string, description: Subject claim from the IdP token. }
+        email: { type: string, format: email }
+        role: { type: string, enum: [owner, staff, operator] }
+        merchant_id:
+          type: string
+          description: The merchant tenant the caller is authorized for (from claims; for operators, the X-Operate-As context).
+        store_ids:
+          type: array
+          description: Stores under that merchant the caller may act on (merchant → store). One in V1.
+          items: { type: string }
+
+    # ── Account ──
+    account:
+      type: object
+      properties:
+        merchant_id: { type: string }
+        name: { type: string }
+        timezone: { type: string, example: Australia/Sydney }
+        country_code: { type: string, description: ISO 3166-1 alpha-2 country code, example: AU }
+        business_facts: { $ref: '#/components/schemas/business_facts' }
+        created_at: { type: string, format: date-time }
+        locale_options:
+          description: >-
+            Reference data for the console's timezone/country selection —
+            countries and their selectable IANA timezones. The client relies
+            entirely on this list rather than validating country/timezone
+            pairs itself.
+          $ref: '#/components/schemas/locale_options'
+    account_update:
+      type: object
+      properties:
+        name: { type: string }
+        timezone: { type: string }
+        country_code: { type: string, description: ISO 3166-1 alpha-2 country code, example: AU }
+        business_facts: { $ref: '#/components/schemas/business_facts' }
+    locale_options:
+      type: object
+      properties:
+        countries:
+          type: array
+          items: { $ref: '#/components/schemas/country_locale' }
+    country_locale:
+      type: object
+      properties:
+        code: { type: string, description: ISO 3166-1 alpha-2 country code, example: AU }
+        name: { type: string, example: Australia }
+        time_zones:
+          type: array
+          items: { type: string, description: IANA timezone name, example: Australia/Sydney }
+    business_facts:
+      type: object
+      description: Facts Google requires downstream; collected at onboarding.
+      properties:
+        legal_entity_name: { type: string }
+        support_email: { type: string, format: email }
+        support_phone: { type: string }
+        fulfillment_regions:
+          type: array
+          items: { type: string, description: ISO country code, example: AU }
+    member:
+      type: object
+      properties:
+        user_id: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [owner, staff] }
+        status: { type: string, enum: [active, invited] }
+    member_invite:
+      type: object
+      required: [email, role]
+      description: Authorize an email for a merchant. Sarvex emails a sign-in link; the IdP authenticates on first sign-in.
+      properties:
+        email: { type: string, format: email }
+        role: { type: string, enum: [owner, staff] }
+    team_member_invite:
+      type: object
+      required: [email]
+      description: |
+        Owner self-serve teammate invite. No role field — self-serve invites always join
+        as staff; inviting another owner remains operator-assisted.
+      properties:
+        email: { type: string, format: email }
+
+    store:
+      type: object
+      description: A commerce backend the merchant operates. One merchant → many stores (one in V1).
+      properties:
+        store_id: { type: string }
+        name: { type: string }
+        platform: { $ref: '#/components/schemas/platform' }
+        domain: { type: string, description: The store's brand domain where /.well-known/ucp is served. }
+        connector_id: { type: string, nullable: true }
+        journey_state: { $ref: '#/components/schemas/journey_state' }
+        ucp_state:
+          allOf:
+            - $ref: '#/components/schemas/ucp_state'
+          description: |
+            The store's UCP activation state, projected onto the store record for
+            convenience. `GET /stores/{store_id}/activation` is the full view.
+            Distinct from journey_state, which remains the operator-facing concierge
+            funnel.
+        declared_capabilities:
+          type: array
+          description: UCP capabilities/extensions this store currently declares (negotiated subset of the catalogue).
+          items: { $ref: '#/components/schemas/ucp_capability' }
+        open_task_count:
+          type: integer
+          description: Open tasks owned by the merchant for this store (capped at 100). Drives the header store switcher's "N for you" badge.
+        blocked:
+          type: boolean
+          description: True if this store has an open task that blocks checkout. Takes priority over open_task_count in the store switcher badge.
+
+    ucp_capability:
+      type: string
+      description: A UCP building block this store may declare. Extensions only appear with their parent capability.
+      enum:
+        - catalog
+        - cart
+        - checkout
+        - order
+        - identity
+        - fulfillment
+        - buyer_consent
+        - discount
+
+    payment_config:
+      type: object
+      description: A store's payment-handler configuration. Secrets are never returned (status only).
+      properties:
+        store_id: { type: string }
+        handlers:
+          type: array
+          items:
+            type: object
+            properties:
+              handler_id: { type: string, example: google_pay }
+              name: { type: string, example: com.google.pay }
+              enabled: { type: boolean }
+              configured: { type: boolean, description: All required parameters/secrets present. }
+              config_status: { type: string, enum: [not_started, incomplete, ready] }
+    payment_config_update:
+      type: object
+      properties:
+        handlers:
+          type: array
+          items:
+            type: object
+            required: [handler_id, enabled]
+            properties:
+              handler_id: { type: string, example: google_pay }
+              enabled: { type: boolean }
+              parameters:
+                type: object
+                description: Processor/gateway parameters; secret fields are write-only and never echoed back.
+                additionalProperties: true
+
+    # ── Connectors ──
+    connector:
+      type: object
+      properties:
+        connector_id: { type: string }
+        store_id: { type: string, description: The store this connector belongs to (merchant → store → connector). }
+        platform: { $ref: '#/components/schemas/platform' }
+        connector_type: { $ref: '#/components/schemas/connector_type' }
+        status: { type: string, enum: [pairing, healthy, degraded, down] }
+        sync_model: { type: string, enum: [realtime, poll] }
+        last_signal_at: { type: string, format: date-time, nullable: true }
+        last_full_sync_at: { type: string, format: date-time, nullable: true }
+        last_heartbeat_at: { type: string, format: date-time, nullable: true }
+        freshness_warning: { type: boolean }
+        plugin_version: { type: string, nullable: true }
+        profile_serving:
+          type: object
+          description: Health of the plugin's Role 2 — serving /.well-known/ucp at the merchant origin. (The plugin serves only the profile; it does not proxy the UCP API.)
+          properties:
+            profile_route_ok:
+              type: boolean
+              description: Profile is being served with a 200 at the merchant domain.
+            last_profile_served_at: { type: string, format: date-time, nullable: true }
+            serving_from_cache:
+              type: boolean
+              description: Plugin is serving last-known-good because Sarvex was unreachable.
+            advertised_endpoint:
+              type: string
+              nullable: true
+              description: The services.endpoint the profile advertises — points at Sarvex (e.g. https://api.sarvex.example.com/ucp/v1/{store}).
+    connector_pairing:
+      allOf:
+        - $ref: '#/components/schemas/connector'
+        - type: object
+          properties:
+            pairing_code:
+              type: string
+              description: One-time code the merchant pastes into the plugin. Shown once.
+
+    # ── Store credentials (provisioned at pairing) ──
+    store_credentials_woocommerce:
+      type: object
+      required: [store_base_url, consumer_key, consumer_secret, webhook_secret]
+      properties:
+        store_base_url:
+          type: string
+          format: uri
+          description: Public storefront URL (e.g. https://mystore.com).
+        consumer_key:
+          type: string
+          description: WooCommerce REST API v3 OAuth consumer key.
+          x-secret: true
+        consumer_secret:
+          type: string
+          description: WooCommerce REST API v3 OAuth consumer secret.
+          x-secret: true
+        webhook_secret:
+          type: string
+          description: Webhook signature verification key.
+          x-secret: true
+        store_currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: ISO 4217 currency code (default USD).
+
+    store_credentials_magento:
+      type: object
+      required: [base_url, admin_user, admin_password, store_code, store_currency, webhook_secret]
+      properties:
+        base_url:
+          type: string
+          format: uri
+          description: Magento instance base URL (e.g. https://mystore.magentosite.cloud).
+        admin_user:
+          type: string
+          description: Magento admin API username.
+        admin_password:
+          type: string
+          description: Magento admin API password.
+          x-secret: true
+        store_code:
+          type: string
+          description: Magento store code (e.g. default).
+        store_currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: ISO 4217 currency code the store operates in.
+        webhook_secret:
+          type: string
+          description: Webhook signature verification secret.
+          x-secret: true
+
+    # ── Connector ingest ──
+    connector_signal:
+      type: object
+      required: [entity_type, entity_id, occurred_at, sequence]
+      properties:
+        entity_type:
+          type: string
+          enum: [product, price, inventory, order_status]
+        entity_id: { type: string }
+        occurred_at: { type: string, format: date-time }
+        sequence:
+          type: integer
+          format: int64
+          description: Monotonic per-connector sequence for replay/ordering.
+        change:
+          type: string
+          enum: [created, updated, deleted]
+    heartbeat:
+      type: object
+      properties:
+        plugin_version: { type: string }
+        platform_version: { type: string }
+        site_url: { type: string, format: uri }
+        healthy: { type: boolean }
+
+    # ── Catalog ──
+    readiness:
+      type: object
+      properties:
+        overall: { type: integer, minimum: 0, maximum: 100, example: 74 }
+        dimensions:
+          type: object
+          properties:
+            completeness: { type: integer, minimum: 0, maximum: 100 }
+            consistency: { type: integer, minimum: 0, maximum: 100 }
+            attribute_quality: { type: integer, minimum: 0, maximum: 100 }
+            delivery_data: { type: integer, minimum: 0, maximum: 100 }
+        last_audit_at: { type: string, format: date-time }
+        product_count: { type: integer }
+    product_summary:
+      type: object
+      properties:
+        sku: { type: string }
+        title: { type: string }
+        score: { type: integer, minimum: 0, maximum: 100 }
+        has_blocking_issue: { type: boolean }
+        open_issue_count: { type: integer }
+    product_detail:
+      allOf:
+        - $ref: '#/components/schemas/product_summary'
+        - type: object
+          properties:
+            dimensions:
+              type: object
+              properties:
+                completeness: { type: integer }
+                consistency: { type: integer }
+                attribute_quality: { type: integer }
+                delivery_data: { type: integer }
+            issues:
+              type: array
+              items: { $ref: '#/components/schemas/product_issue' }
+            attribute_mappings:
+              type: array
+              items: { $ref: '#/components/schemas/attribute_mapping' }
+    product_issue:
+      type: object
+      properties:
+        issue_id: { type: string }
+        field: { type: string }
+        problem: { type: string, enum: [missing, free_text, non_standard_enum, inconsistent] }
+        blocks_checkout: { type: boolean }
+        revenue_impact_monthly:
+          $ref: '#/components/schemas/money'
+        remediable: { type: string, enum: [rule, manual] }
+    attribute_mapping:
+      type: object
+      description: >-
+        One raw store attribute resolved onto a canonical catalog attribute by the
+        map stage.
+      properties:
+        source_attribute: { type: string, example: "Größe" }
+        catalog_attribute:
+          type: string
+          example: size
+          description: >-
+            The canonical merchandising attribute the raw value resolved onto, drawn
+            from the catalogue's attribute field set
+            (internal/pkg/ucp/catalogue/v1/attribute_fields_data.go). These are
+            product-data attributes, NOT fields of the UCP protocol: the UCP spec has
+            no `brand`, `mpn`, `condition` or `age_group`, and expresses `gtin` as a
+            barcode type and `color`/`size`/`material` as product options. This was
+            named `ucp_field`, which asserted a correspondence that does not exist.
+        tier: { $ref: '#/components/schemas/resolution_tier' }
+        confidence: { type: number, format: float, minimum: 0, maximum: 1, example: 0.91 }
+
+    # ── Tasks ──
+    task:
+      type: object
+      properties:
+        task_id: { type: string }
+        store_id: { type: string, description: The store this task belongs to. }
+        title: { type: string, description: "Plain-language, merchant vocabulary." }
+        why_it_matters: { type: string }
+        owner: { $ref: '#/components/schemas/task_owner' }
+        resolution: { $ref: '#/components/schemas/task_resolution' }
+        state: { $ref: '#/components/schemas/task_state' }
+        blocks_checkout: { type: boolean }
+        source:
+          type: string
+          enum: [readiness, checklist, validation, consistency, monitoring, catalog_import]
+          description: Emitting domain; the task spine unifies all of these.
+        source_ref:
+          type: string
+          nullable: true
+          description: Id of the underlying issue/item/finding for drill-in.
+        remediations:
+          type: array
+          description: >-
+            Typed drill-in payload for source=readiness tasks: the rule-based
+            fixes available for the task's product (source_ref = sku). Absent
+            or empty for other sources, or when no unapplied fix exists.
+          items: { $ref: '#/components/schemas/remediation' }
+        finding:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/consistency_finding'
+          description: >-
+            Typed drill-in payload for source=monitoring tasks: the
+            consistency finding that raised this task, snapshotted at raise
+            time (not re-evaluated live). Absent for other sources.
+          nullable: true
+        issues:
+          type: array
+          description: >-
+            Typed drill-in payload for source=readiness tasks: the product's
+            open issues that have no rule-based fix (remediable=manual), so a
+            merchant must edit the value directly. Absent or empty for other
+            sources, or when every blocking issue on the product has an
+            automatic remediation covered by `remediations`.
+          items: { $ref: '#/components/schemas/product_issue' }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    # ── Remediation ──
+    remediation:
+      type: object
+      properties:
+        remediation_id: { type: string }
+        sku: { type: string }
+        field: { type: string }
+        from_value: { type: string }
+        to_value: { type: string }
+        type: { type: string, enum: [rule, manual] }
+        trust: { type: string, enum: [high, low] }
+
+    # ── Validation ──
+    validation_status:
+      type: object
+      properties:
+        pre_validation: { type: string, enum: [not_run, passing, failing] }
+        sandbox: { type: string, enum: [not_submitted, pending, passed, failed] }
+        production: { type: string, enum: [not_submitted, pending, live] }
+        target_spec_version: { type: string, example: ucp-2026-05 }
+        last_run_at: { type: string, format: date-time, nullable: true }
+        open_failures:
+          type: array
+          items: { $ref: '#/components/schemas/validation_failure' }
+    validation_failure:
+      type: object
+      properties:
+        requirement: { type: string, example: checkout.session.create }
+        spec_section: { type: string, example: "§4.2.1" }
+        expected: { type: object }
+        received: { type: object }
+        summary: { type: string }
+    conformance_record:
+      type: object
+      properties:
+        run_id: { type: string }
+        ran_at: { type: string, format: date-time }
+        spec_version: { type: string }
+        result: { type: string, enum: [pass, fail] }
+        passed: { type: integer }
+        failed: { type: integer }
+        warnings: { type: integer }
+
+    # ── Presence ──
+    presence:
+      type: object
+      properties:
+        summary:
+          type: string
+          example: Agents can see 1,840 products, your 3 shipping options, and your 30-day return policy.
+        product_count: { type: integer }
+        capabilities:
+          type: array
+          items: { type: string, example: checkout }
+        freshness_declarations:
+          type: object
+          additionalProperties: { type: string }
+          example: { inventory: near-real-time, pricing: near-real-time }
+        serving: { type: string, enum: [serving, degraded, profile_only, not_serving] }
+        profile_url:
+          type: string
+          format: uri
+          description: The merchant-domain well-known URL where the profile is served.
+          example: https://baysidetrail.com/.well-known/ucp
+        profile_reachable:
+          type: boolean
+          description: Whether the profile currently returns a 200 at the merchant origin.
+        published_version:
+          type: string
+          description: >-
+            The single UCP spec version currently rendered into this store's
+            /.well-known/ucp document. A discovery profile declares exactly
+            one version; this is not a list.
+          example: "2026-04-08"
+        supported_versions:
+          type: array
+          description: >-
+            UCP spec generations Sarvex's negotiation engine can actually
+            serve a live response in for this store today, oldest first. A
+            platform agent may negotiate this store into any of these, not
+            only published_version.
+          items: { type: string }
+          example: ["2026-04-08"]
+    manifest_view:
+      type: object
+      properties:
+        manifest: { type: object, description: The UCP capability document as served. }
+        cache:
+          type: object
+          properties:
+            built_at: { type: string, format: date-time }
+            ttl_seconds: { type: integer }
+            stale: { type: boolean }
+            source_watermark: { type: string, format: date-time }
+    ucp_profile_document:
+      type: object
+      description: |
+        The UCP business profile as served at /.well-known/ucp — generated and signed by Sarvex by
+        rendering the UCP definitions catalogue against this merchant (selection-plus-binding). Conforms
+        to the external ucp.dev profile schema: it references namespaced building blocks (services,
+        capabilities, extensions, payment handlers) defined by ucp.dev — it defines none of them itself.
+        Shape below is indicative, not the authoritative UCP schema.
+      properties:
+        ucp:
+          type: object
+          properties:
+            version:
+              type: string
+              example: "2026-08-25"
+              description: >-
+                The newest UCP spec generation Sarvex's protocol layer (negotiation,
+                discovery envelope) fully supports — not a claim that every capability
+                below is rendered at this version. Each capability entry carries its
+                own version independently; per-capability negotiation picks the
+                highest version mutually supported by the platform and by that
+                specific capability's own declared entries.
+            services:
+              type: object
+              description: Keyed by service namespace (e.g. dev.ucp.shopping), each with spec + rest endpoint.
+              additionalProperties: { type: object }
+            capabilities:
+              type: array
+              description: >-
+                Supported capabilities and extensions, each a ucp.dev namespaced name +
+                version + schema URL. A capability may appear more than once under the
+                same name at different versions when Sarvex can render more than one
+                (e.g. catalog, at both 2026-04-08 and 2026-08-25) — a capability whose
+                response-building hasn't caught up to the document's top-level version
+                (e.g. checkout, still 2026-04-08 only) declares just the one it can
+                actually serve.
+              items: { type: object }
+            payment_handlers:
+              type: array
+              description: Supported handlers (e.g. Google Pay, Shop Pay) the merchant's setup supports, with keys/endpoints.
+              items: { type: object }
+            keys:
+              type: array
+              description: >-
+                Sarvex's public signing keys (a JWK Set), matching the keys the serving
+                plane signs responses with. Named "keys" from the 2026-08-25 generation
+                on; a document declaring an older ucp.version instead uses the legacy
+                "signing_keys" field name — the two are mutually exclusive per document.
+              items: { type: object }
+
+    # ── Orders ──
+    order:
+      type: object
+      properties:
+        order_id: { type: string }
+        checkout_session_id: { type: string }
+        store_order_ref: { type: string, nullable: true, description: Order id in the merchant store. }
+        status: { $ref: '#/components/schemas/order_status' }
+        sync_state: { type: string, enum: [pending_handoff, created, synced, failed] }
+        value: { $ref: '#/components/schemas/money' }
+        placed_at: { type: string, format: date-time }
+
+    # ── Checkout Sessions ──
+    checkout_session_state:
+      type: string
+      enum: [initiated, cart_active, escalated, awaiting_payment, completed, failed, abandoned]
+    cart_summary:
+      type: object
+      properties:
+        currency: { type: string, example: AUD }
+        total_minor: { type: integer, description: Amount in minor units (cents). }
+        item_count: { type: integer }
+    checkout_escalation:
+      type: object
+      properties:
+        reason: { type: string }
+        escalated_at: { type: string, format: date-time }
+        continue_url_issued: { type: boolean }
+        returned_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Set once any further session activity is observed after the escalation — the checkout flow has no explicit "buyer clicked continue_url" signal, so any subsequent event is the proxy.
+        resolved:
+          type: boolean
+          description: True once the session reaches a terminal state after having been escalated at least once.
+    checkout_failure:
+      type: object
+      properties:
+        code: { type: string, description: "Raw failure code (e.g. CONNECTOR_CREATE_FAILED, FRESHNESS_GUARD_FAILED, ORDER_CREATION_FAILED)." }
+        cause: { type: string, description: Classified cause — see checkout_diagnosis.cause. }
+        stage: { type: string }
+    checkout_diagnosis:
+      type: object
+      description: Computed once, at the moment a session goes terminal-failed, abandoned, or is flagged stalled-escalation; stored, never recomputed at read time.
+      properties:
+        stage_reached: { type: string }
+        cause:
+          type: string
+          description: Closed classification — see internal/pkg/checkoutcause.Cause.
+          enum: [connector_create_failed, connector_update_failed, pricing_stale, order_creation_failed, escalation_stalled, buyer_abandoned, unknown]
+        plain_language_summary: { type: string }
+        recommended_action: { type: string }
+        evidence:
+          type: array
+          description: The specific timeline seq values supporting this conclusion.
+          items: { type: integer }
+    checkout_session:
+      type: object
+      properties:
+        checkout_id: { type: string }
+        store_id: { type: string }
+        surface:
+          type: string
+          description: The checkout surface. There is exactly one — UCP checkout.
+          enum: [ucp_checkout]
+        agent_platform:
+          type: string
+          nullable: true
+          description: Best-effort agent platform identification; absent when unavailable.
+        state: { $ref: '#/components/schemas/checkout_session_state' }
+        current_stage: { type: string }
+        started_at: { type: string, format: date-time }
+        last_activity_at: { type: string, format: date-time }
+        terminal_at: { type: string, format: date-time, nullable: true }
+        cart_summary: { $ref: '#/components/schemas/cart_summary' }
+        escalation:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/checkout_escalation'
+          nullable: true
+        failure:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/checkout_failure'
+          nullable: true
+        diagnosis:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/checkout_diagnosis'
+          nullable: true
+        event_count: { type: integer }
+        updated_at: { type: string, format: date-time }
+    checkout_session_timeline_entry:
+      type: object
+      properties:
+        seq: { type: integer }
+        occurred_at: { type: string, format: date-time }
+        event_type: { type: string }
+        stage: { type: string }
+        payload:
+          type: object
+          description: Redacted at write time (R6) — never contains payment credential material, full PANs/tokens, or buyer PII beyond what the merchant already has via their own commerce backend.
+          additionalProperties: true
+
+    # ── Lost Revenue Ledger ──
+    ledger_cause:
+      type: string
+      description: Closed classification — see internal/planes/control/ledger.Cause.
+      enum: [payment_handler, profile_mismatch, sync_freshness, escalation_dropoff, platform_error, timeout, buyer_abandoned, unclassified]
+    ledger_entry_status:
+      type: string
+      enum: [open, acknowledged, resolved]
+    ledger_cause_breakdown:
+      type: object
+      properties:
+        cause: { $ref: '#/components/schemas/ledger_cause' }
+        count: { type: integer }
+        lost_revenue_minor: { type: integer, description: Amount in minor units (cents). }
+    ledger_entry:
+      type: object
+      properties:
+        entry_id: { type: string, example: "led_01J..." }
+        occurred_at: { type: string, format: date-time }
+        checkout_id: { type: string }
+        store_id: { type: string }
+        surface:
+          type: string
+          nullable: true
+          enum: [ucp_checkout]
+        stage: { type: string }
+        failure_code:
+          type: string
+          description: Raw serving-plane signal (e.g. CONNECTOR_CREATE_FAILED), or the literal ABANDONED for an abandonment entry.
+        cause: { $ref: '#/components/schemas/ledger_cause' }
+        recommended_action:
+          type: string
+          description: Merchant-readable and imperative — what to do, never protocol jargon.
+        lost_revenue_minor: { type: integer, description: Amount in minor units (cents). Never an estimate — see revenue_unknown. }
+        currency: { type: string, nullable: true, example: USD }
+        revenue_unknown:
+          type: boolean
+          description: True when no cart snapshot was available at the point of failure — lost_revenue_minor is 0 in that case, never imputed.
+        status: { $ref: '#/components/schemas/ledger_entry_status' }
+        status_changed_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+    ledger_summary:
+      type: object
+      properties:
+        month: { type: string, example: "2026-08" }
+        currency: { type: string, example: USD }
+        causes:
+          type: array
+          description: Sorted by lost_revenue_minor descending (R14).
+          items: { $ref: '#/components/schemas/ledger_cause_breakdown' }
+        total_count: { type: integer }
+        total_lost_revenue_minor: { type: integer }
+        entries_with_unknown_revenue: { type: integer }
+        prior_month_delta_minor:
+          type: integer
+          description: total_lost_revenue_minor minus the prior month's total for the same currency (0 if neither month has data).
+    ledger_summary_list:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          description: One element per currency (or the single requested currency) — never summed across currencies (R9).
+          items: { $ref: '#/components/schemas/ledger_summary' }
+
+    # ── Channel Dashboard ──
+    channel_surface:
+      type: string
+      description: |
+        Closed multi-surface enum. openai_chatgpt is defined but never
+        populated today — no signal in this codebase distinguishes
+        ChatGPT/ACP traffic from any other non-Google agent yet; it exists
+        so a future surface requires no schema migration. Only ever
+        appears on a single store/surface/day row (channel_daily_entry);
+        never "all" — see channel_surface_or_all for the combined-row
+        field.
+      enum: [google_ai_mode, google_gemini, openai_chatgpt, other_agent, unknown]
+    channel_surface_or_all:
+      type: string
+      description: |
+        channel_surface's domain plus the literal "all", used only on the
+        combined-across-surfaces row (channel_summary, channel_funnel).
+        Distinct from channel_surface because the query parameter and
+        channel_daily_entry never emit "all" — a daily row is always one
+        real surface.
+      enum: [google_ai_mode, google_gemini, openai_chatgpt, other_agent, unknown, all]
+    channel_rates:
+      type: object
+      description: Derived at read time from stored counts (R7) — never itself stored.
+      properties:
+        cart_rate: { type: number, format: double, description: sessions_reached_cart / sessions. }
+        checkout_rate: { type: number, format: double, description: sessions_reached_checkout / sessions_reached_cart. }
+        completion_rate: { type: number, format: double, description: checkouts_completed / checkouts_initiated. }
+        aov_minor: { type: integer, description: "revenue_minor / checkouts_completed, zero-safe." }
+    channel_summary:
+      type: object
+      properties:
+        surface: { $ref: '#/components/schemas/channel_surface_or_all' }
+        month: { type: string, example: "2026-08" }
+        sessions: { type: integer }
+        sessions_confirmed:
+          type: integer
+          description: sessions minus sessions_inferred, exposed directly rather than left for the caller to derive — an aggregate can honestly contain both confirmed and inferred sessions, so this is a count, not a single categorical attribution flag.
+        sessions_inferred:
+          type: integer
+          description: The subset of sessions whose correlation to their initiating event had to be reconstructed rather than observed directly — never presented as exact.
+        checkouts_completed: { type: integer }
+        revenue_minor: { type: integer }
+        currency:
+          type: string
+          nullable: true
+          description: Absent (with currency_mixed=false) when no revenue-bearing day exists yet in this row; absent with currency_mixed=true when the summed days/surfaces genuinely disagree on currency. Never a silently-picked first-seen value.
+        currency_mixed: { type: boolean }
+        cart_rate: { type: number, format: double }
+        checkout_rate: { type: number, format: double }
+        completion_rate: { type: number, format: double }
+        aov_minor: { type: integer }
+        prior_period:
+          type: object
+          description: Deltas against the prior calendar month, computed server-side from stored counts (never a stored delta).
+          properties:
+            sessions_delta: { type: integer }
+            checkouts_completed_delta: { type: integer }
+            revenue_minor_delta: { type: integer }
+            aov_minor_delta: { type: integer, description: Current aov_minor minus the prior period's. }
+            completion_rate_delta: { type: number, format: double, description: Current completion_rate minus the prior period's. }
+    channel_funnel:
+      type: object
+      description: Stage counts are monotonically non-increasing through the funnel.
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        surface: { $ref: '#/components/schemas/channel_surface_or_all' }
+        sessions: { type: integer }
+        sessions_confirmed: { type: integer, description: sessions minus sessions_inferred. }
+        sessions_inferred: { type: integer }
+        sessions_reached_cart: { type: integer }
+        sessions_reached_checkout: { type: integer }
+        checkouts_initiated: { type: integer }
+        checkouts_completed: { type: integer }
+        currency: { type: string, nullable: true, description: Same absent/currency_mixed rule as channel_summary.currency. }
+        currency_mixed: { type: boolean }
+        rates: { $ref: '#/components/schemas/channel_rates' }
+    channel_daily_entry:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        surface: { $ref: '#/components/schemas/channel_surface' }
+        store_id: { type: string }
+        sessions: { type: integer }
+        sessions_confirmed: { type: integer, description: sessions minus sessions_inferred. }
+        sessions_inferred: { type: integer }
+        sessions_reached_cart: { type: integer }
+        sessions_reached_checkout: { type: integer }
+        checkouts_initiated: { type: integer }
+        checkouts_completed: { type: integer }
+        revenue_minor: { type: integer }
+        currency:
+          type: string
+          nullable: true
+          description: This row's own currency — a single store/surface/day is never ambiguous the way a summed range can be, so no currency_mixed flag exists here.
+        discovery_requests:
+          type: integer
+          description: Request-level count of pre-checkout catalog-search/lookup traffic — never sessionized (no correlation identifier exists for it); never presented as a session count.
+        rates: { $ref: '#/components/schemas/channel_rates' }
+    channel_baseline_confidence:
+      type: string
+      description: |
+        R11's tri-state confidence indicator, rolled up across every day
+        in the requested range. connector_reported means every day was
+        fully reported; partial means at least one day was incomplete or
+        missing but real data exists for at least one day (the returned
+        figures are computed from that real, if incomplete, data — never
+        an estimate for the gap); unavailable means no usable data exists
+        for any day in range.
+      enum: [connector_reported, partial, unavailable]
+    channel_metric_comparison:
+      type: object
+      description: A single metric's agentic-vs-baseline comparison. available=false only when confidence=unavailable (zero usable baseline days) — a partial range still returns available=true with confidence=partial and a reason, never a substituted estimate.
+      properties:
+        available: { type: boolean }
+        confidence: { $ref: '#/components/schemas/channel_baseline_confidence' }
+        reason: { type: string, description: "Present when available=false, or when confidence=partial to explain what is incomplete." }
+        agentic_minor: { type: integer }
+        baseline_minor: { type: integer }
+        delta_minor: { type: integer, description: agentic_minor minus baseline_minor. }
+    channel_share_comparison:
+      type: object
+      properties:
+        available: { type: boolean }
+        confidence: { $ref: '#/components/schemas/channel_baseline_confidence' }
+        reason: { type: string, description: "Present when available=false, or when confidence=partial to explain what is incomplete." }
+        share:
+          type: number
+          format: double
+          description: agentic_revenue_minor divided by the connector's own reported total revenue for the range (which already includes agentic orders placed directly in the merchant's store) — never agentic/(agentic+baseline), which would double-count them.
+    channel_comparison:
+      type: object
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        agentic:
+          type: object
+          properties:
+            revenue_minor: { type: integer }
+            checkouts_completed: { type: integer }
+            aov_minor: { type: integer }
+            currency: { type: string, nullable: true }
+            currency_mixed: { type: boolean }
+        web_baseline:
+          type: object
+          description: Mirrors agentic's shape so both sides of the comparison render symmetrically.
+          properties:
+            orders: { type: integer }
+            revenue_minor: { type: integer }
+            aov_minor: { type: integer }
+            currency: { type: string, nullable: true }
+            currency_mixed: { type: boolean }
+            confidence: { $ref: '#/components/schemas/channel_baseline_confidence' }
+        # Revenue/AOV are comparable (both sides measure the same thing in
+        # the same unit); agent sessions and web sessions are deliberately
+        # never compared here (R12: different definitions, different
+        # measurement — no session-count field exists on this response at
+        # all, not even an unavailable one).
+        revenue: { $ref: '#/components/schemas/channel_metric_comparison' }
+        aov: { $ref: '#/components/schemas/channel_metric_comparison' }
+        agentic_share_of_total: { $ref: '#/components/schemas/channel_share_comparison' }
+    insights_product_demand:
+      type: object
+      properties:
+        product_id: { type: string }
+        request_count: { type: integer }
+        surface_breakdown:
+          type: object
+          additionalProperties: { type: integer }
+          description: Per-surface contribution to request_count. Keys are channel_surface values.
+    insights_negotiation_failure_reason:
+      type: string
+      description: Closed enum derived from negotiation.Negotiate — the only two strings that service ever produces for a failure.
+      enum: [version_unsupported, capabilities_incompatible]
+    insights_negotiation_failure:
+      type: object
+      properties:
+        reason: { $ref: '#/components/schemas/insights_negotiation_failure_reason' }
+        count: { type: integer }
+        missing_capability_counts:
+          type: object
+          nullable: true
+          additionalProperties: { type: integer }
+          description: Present only when reason=capabilities_incompatible — how many times each requested-but-undeclared capability contributed to this failure reason. Absent for version_unsupported (that failure is caused by the version field, not a capability delta).
+    insights_payment_handler_mismatch:
+      type: object
+      description: "R6: how often agents offered a payment-handler set with no overlap with the merchant's declared set (\"no_common_payment_handler\") — observational, not itself a hard negotiation-failure condition."
+      properties:
+        occurrences: { type: integer }
+        offered_handler_counts:
+          type: object
+          additionalProperties: { type: integer }
+          description: "Per-handler count of how many mismatch occurrences offered it, e.g. “agents offered PayPal 210 times”."
+        merchant_declared_handlers:
+          type: array
+          items: { type: string }
+          description: The merchant's declared payment-handler set as of the most recent occurrence in range.
+    insights_negotiation:
+      type: object
+      properties:
+        attempts: { type: integer }
+        successes: { type: integer }
+        failures:
+          type: array
+          items: { $ref: '#/components/schemas/insights_negotiation_failure' }
+        payment_handler_mismatch: { $ref: '#/components/schemas/insights_payment_handler_mismatch' }
+    insights_impact_confidence:
+      type: string
+      description: |
+        measured: every session counted toward estimated_impact_minor had
+        a cart snapshot demonstrably preceded by the missing capability.
+        partial: some but not all counted sessions had a cart snapshot.
+        unmeasurable: no session could be demonstrably attributed —
+        estimated_impact_minor is 0, never a modeled or extrapolated
+        figure (same no-estimation rule as the Lost Revenue Ledger).
+      enum: [measured, partial, unmeasurable]
+    insights_capability_gap:
+      type: object
+      properties:
+        capability_id:
+          type: string
+          description: A reverse-domain capability name taken verbatim from the negotiation's requested capability set (internal/pkg/ucp/types) — never free-form.
+        request_count: { type: integer }
+        distinct_agent_count:
+          type: integer
+          description: Count of distinct calling agent platforms (by negotiation platform_profile_uri) observed requesting this capability — the closest honest proxy this telemetry supports for "distinct agent" (no per-buyer or per-conversation identity exists on the wire).
+        surface_breakdown:
+          type: object
+          additionalProperties: { type: integer }
+        first_seen_at: { type: string, format: date-time }
+        last_seen_at: { type: string, format: date-time }
+        estimated_impact_minor: { type: integer }
+        impact_confidence: { $ref: '#/components/schemas/insights_impact_confidence' }
+        merchant_supported:
+          type: boolean
+          description: Whether the merchant declares this capability — always false for a row that exists at all (a gap is by construction requested-minus-declared), kept as a stored, queryable field rather than an implied invariant.
+        remediation_available:
+          type: boolean
+          description: Whether Sarvex can close this gap on the merchant's behalf. Always false today — nothing in this codebase lets Sarvex serve a UCP capability for a merchant; every gap requires merchant-side work.
+        recommended_action:
+          type: string
+          description: Merchant-readable, imperative, no protocol jargon.
+
+    # ── Health ──
+    health:
+      type: object
+      properties:
+        statements:
+          type: array
+          items: { $ref: '#/components/schemas/health_statement' }
+        endpoint_status:
+          $ref: '#/components/schemas/endpoint_status'
+        active_alerts:
+          type: array
+          items: { $ref: '#/components/schemas/alert' }
+    health_statement:
+      type: object
+      properties:
+        kind: { type: string, enum: [consistency, semantic_endpoint, sync_freshness, profile_edge] }
+        ok: { type: boolean }
+        message:
+          type: string
+          example: Your prices match across all sources.
+          description: >-
+            Server-rendered English. Clients with copy of their own for this `kind`
+            should render that instead and use `message` only as a fallback.
+        params:
+          type: object
+          additionalProperties: true
+          description: >-
+            The statement's facts as data, so a client can render its own sentence:
+            `critical_count`/`warning_count` on `consistency`, `age_seconds` on
+            `sync_freshness`. Present only where the statement has numbers to report.
+          example: { age_seconds: 7258 }
+        checked_at: { type: string, format: date-time }
+
+    # ── Endpoint health (synthetic probes + real-traffic evaluation) ──
+    endpoint_status:
+      type: object
+      description: Composite status derived from synthetic probes and real-traffic telemetry — see internal/planes/control/endpointhealth.
+      properties:
+        status: { type: string, enum: [healthy, degraded, critical] }
+        evaluated_at: { type: string, format: date-time }
+        checks:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/check_state' }
+          example:
+            profile_reachable: { state: pass, current_value: 0 }
+            signature_roundtrip: { state: pass, current_value: 0.01 }
+    check_state:
+      type: object
+      properties:
+        state: { type: string, enum: [pass, fail, degraded, timeout] }
+        last_pass_at: { type: string, format: date-time, nullable: true }
+        last_fail_at: { type: string, format: date-time, nullable: true }
+        current_value:
+          type: number
+          description: The metric value behind `state` — a rate (0-1), a boolean (0/1), or a latency in ms depending on check_type.
+    health_history_entry:
+      type: object
+      properties:
+        kind: { type: string, enum: [probe_completed, threshold_breached, recovered] }
+        probe_type:
+          type: string
+          enum: [profile_reachable, signature_roundtrip, negotiation_handshake, catalog_lookup]
+        check_type: { type: string }
+        outcome: { type: string, enum: [pass, fail, degraded, timeout] }
+        severity: { type: string, enum: [healthy, degraded, critical] }
+        detail: { type: string }
+        at: { type: string, format: date-time }
+    alert:
+      type: object
+      properties:
+        alert_id: { type: string, example: "alt_01J8Z3..." }
+        store_id: { type: string }
+        check_type: { type: string, example: signature_roundtrip }
+        severity: { type: string, enum: [healthy, degraded, critical] }
+        status: { type: string, enum: [open, acknowledged, resolved] }
+        detail: { type: string }
+        opened_at: { type: string, format: date-time }
+        acknowledged_at: { type: string, format: date-time, nullable: true }
+        acknowledged_by: { type: string }
+        resolved_at: { type: string, format: date-time, nullable: true }
+        auto_resolved: { type: boolean }
+
+    consistency_finding:
+      type: object
+      properties:
+        finding_id: { type: string }
+        sku: { type: string }
+        field: { type: string, example: price }
+        sources:
+          type: object
+          additionalProperties: { type: string }
+          example: { storefront: "29.99", feed: "34.99", served: "29.99" }
+        severity: { $ref: '#/components/schemas/severity' }
+        detected_at: { type: string, format: date-time }
+
+    # ── Billing ──
+    billing:
+      type: object
+      properties:
+        plan: { $ref: '#/components/schemas/plan' }
+        status: { type: string, enum: [active, active_via_invoice, past_due, suspended, canceled] }
+        sku_band: { type: string, example: "up_to_5000" }
+        usage:
+          type: object
+          properties:
+            sku_count: { type: integer }
+            sku_cap: { type: integer }
+            member_cap:
+              type: integer
+              description: Maximum team members this account may invite via POST /account/members. Configurable per subscription; defaults to 5.
+
+    # ── Notifications ──
+    notification_preferences:
+      type: object
+      properties:
+        email_enabled: { type: boolean }
+        weekly_digest: { type: boolean }
+        alert_email: { type: string, format: email, nullable: true }
+        alert_recipients:
+          type: array
+          items: { type: string, format: email }
+          description: Recipients for endpoint-health alert delivery. Additive to alert_email, which nothing else in the codebase reads yet.
+        alert_severity_floor:
+          type: string
+          enum: [degraded, critical]
+          description: Alerts below this severity are not delivered. Defaults to critical (opt in to degraded).
+        quiet_hours_start_hour: { type: integer, minimum: 0, maximum: 23, nullable: true }
+        quiet_hours_end_hour: { type: integer, minimum: 0, maximum: 23, nullable: true }
+        quiet_hours_timezone: { type: string, example: "America/New_York", description: IANA timezone name. }
+
+    # ── Journey ──
+    # ── Store UCP activation ──
+    activation_step:
+      type: object
+      description: One stage of the activation lifecycle, as the console renders it.
+      required: [state, reached]
+      properties:
+        state: { $ref: '#/components/schemas/ucp_state' }
+        reached:
+          type: boolean
+          description: |
+            True once the store has occupied this state at least once. Answered from
+            history, not from the current state, so a store that regressed still
+            reports the ground it covered.
+        reached_at: { type: string, format: date-time }
+        blocking:
+          type: string
+          description: i18n key explaining what is holding the store here. Populated only for the step it is currently working toward.
+    activation_history_entry:
+      type: object
+      required: [state, entered_at]
+      properties:
+        state: { $ref: '#/components/schemas/ucp_state' }
+        entered_at: { type: string, format: date-time }
+    activation:
+      type: object
+      required: [store_id, ucp_state, capabilities, entered_state_at, steps, history]
+      properties:
+        store_id: { type: string }
+        ucp_state: { $ref: '#/components/schemas/ucp_state' }
+        capabilities:
+          type: array
+          description: UCP capability identifiers the store declares. Drawn from the canonical set only, never free-form.
+          items: { type: string }
+        profile_url: { type: string, format: uri }
+        signing_key_id:
+          type: string
+          description: Reference to the store's active keypair. The reference only — no key material crosses this boundary.
+        verified_at: { type: string, format: date-time }
+        suspension_reason:
+          type: string
+          description: i18n key. Store-level causes only (conformance regressed, sustained critical health) — no surface can suspend a store.
+        entered_state_at: { type: string, format: date-time }
+        steps:
+          type: array
+          items: { $ref: '#/components/schemas/activation_step' }
+        history:
+          type: array
+          items: { $ref: '#/components/schemas/activation_history_entry' }
+        last_verification:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/verification_report'
+          description: >-
+            The most recent verification run, absent until the store has been
+            verified once. Present here because verification normally runs as part
+            of a pre-validation run rather than by a direct call to
+            `POST .../activation/verify`, so this is where a client reads the check
+            results back from.
+          nullable: true
+    verification_check:
+      type: object
+      required: [check_id, passed]
+      properties:
+        check_id: { type: string }
+        passed: { type: boolean }
+        detail: { type: string }
+    verification_report:
+      type: object
+      required: [passed, ucp_state, checks, ran_at]
+      properties:
+        passed: { type: boolean }
+        ucp_state: { $ref: '#/components/schemas/ucp_state' }
+        checks:
+          type: array
+          items: { $ref: '#/components/schemas/verification_check' }
+        ran_at: { type: string, format: date-time }
+
+    # ── Agent surfaces ──
+    surface_external_step:
+      type: object
+      description: An action outside Sarvex. Sarvex can describe it and record that the merchant says it is done; it cannot perform it.
+      required: [step_id, label_key, owner]
+      properties:
+        step_id: { type: string }
+        label_key: { type: string, description: 'vue-i18n key. The descriptor owns identity, the console owns copy.' }
+        url: { type: string, format: uri }
+        owner:
+          type: string
+          description: Who the step waits on, so a client renders waiting states without surface-specific knowledge.
+          enum: [merchant, surface]
+    surface_descriptor:
+      type: object
+      description: |
+        The whole of what makes a surface a surface. Adding a surface means adding one
+        of these plus its adapter implementations — never a change to any endpoint,
+        state machine, or console route.
+      required: [surface_id, display_name_key, protocol]
+      properties:
+        surface_id: { type: string }
+        display_name_key: { type: string }
+        description_key: { type: string }
+        protocol: { $ref: '#/components/schemas/surface_protocol' }
+        required_connectors:
+          type: array
+          items: { $ref: '#/components/schemas/connector_type' }
+        required_capabilities:
+          type: array
+          description: Canonical UCP capability identifiers only. A free-form value is rejected at registry construction.
+          items: { type: string }
+        prerequisite_checks:
+          type: array
+          description: Named checks, in the order the merchant sees them. Each resolves to an adapter at registration.
+          items: { type: string }
+        artifacts:
+          type: array
+          description: Sarvex-generated, surface-scoped artifacts. Generated only for stores enrolling in this surface.
+          items: { type: string }
+        config_schema:
+          type: array
+          description: |
+            The merchant-editable configuration this surface takes. The console renders a
+            form from it with no per-surface code. Empty means free-form (or no) config.
+            When non-empty, `PUT .../config` rejects unknown keys and ill-typed values
+            with a validation error.
+          items: { $ref: '#/components/schemas/surface_config_field' }
+        external_steps:
+          type: array
+          items: { $ref: '#/components/schemas/surface_external_step' }
+        verification_signal:
+          type: string
+          description: Names what proves enrollment succeeded.
+        auto_enroll:
+          type: boolean
+          description: |
+            True for a surface that enrolls itself when the store reaches `active`.
+            `direct_agent` is the only such surface: it represents the plain fact that
+            any agent discovering the profile can transact, and exists so that "active
+            with no distribution partner" is explicit rather than implied.
+    surface_config_field:
+      type: object
+      required: [key, type, label_key, required]
+      properties:
+        key: { type: string }
+        type:
+          type: string
+          description: |
+            `text`; `bool` (`"true"`/`"false"`); `string_list` (newline-separated); `json`
+            (a JSON document). Values are always strings on the wire.
+          enum: [text, bool, string_list, json]
+        label_key: { type: string, description: vue-i18n key. }
+        help_key: { type: string, description: vue-i18n key for help text. }
+        required:
+          type: boolean
+          description: Advisory — a missing required value is a failing prerequisite, not a rejected request.
+    prerequisite_result:
+      type: object
+      required: [check_id, label_key, passed, evaluated_at]
+      properties:
+        check_id: { type: string }
+        label_key: { type: string }
+        passed: { type: boolean }
+        reason: { type: string, description: Merchant-readable explanation of a failure. Empty on pass. }
+        remediation_key: { type: string, description: 'vue-i18n key for the fix, where one applies.' }
+        remediation_url: { type: string, format: uri }
+        evaluated_at: { type: string, format: date-time }
+    surface_artifact:
+      type: object
+      required: [artifact_id, label_key]
+      properties:
+        artifact_id: { type: string }
+        label_key: { type: string }
+        url: { type: string, format: uri }
+        detail:
+          type: object
+          description: Artifact-specific read-only facts for display. Rendered generically as label/value rows.
+          additionalProperties: { type: string }
+        generated_at: { type: string, format: date-time }
+    surface_enrollment:
+      type: object
+      required: [surface_id, store_id, state, prerequisites, artifacts, updated_at, descriptor, blocked]
+      properties:
+        surface_id: { type: string }
+        store_id: { type: string }
+        state: { $ref: '#/components/schemas/surface_state' }
+        prerequisites:
+          type: array
+          items: { $ref: '#/components/schemas/prerequisite_result' }
+        artifacts:
+          type: array
+          items: { $ref: '#/components/schemas/surface_artifact' }
+        config:
+          type: object
+          additionalProperties: { type: string }
+        enrolled_at: { type: string, format: date-time }
+        last_verified_at: { type: string, format: date-time }
+        suspension_reason: { type: string }
+        updated_at: { type: string, format: date-time }
+        descriptor:
+          allOf:
+            - $ref: '#/components/schemas/surface_descriptor'
+          description: |
+            Echoed alongside state so a client renders the whole enrollment flow from
+            one response, with no per-surface knowledge of its own.
+        blocked:
+          type: boolean
+          description: True when the store is not yet `active` — the one thing that holds enrollment at `available`.
+        blocked_reason: { type: string, description: i18n key. }
+
+    journey:
+      type: object
+      properties:
+        state: { $ref: '#/components/schemas/journey_state' }
+        history:
+          type: array
+          description: Every state this store has occupied, in the order entered. Append-only.
+          items:
+            type: object
+            properties:
+              state: { $ref: '#/components/schemas/journey_state' }
+              entered_at: { type: string, format: date-time }
+        next_action:
+          type: object
+          nullable: true
+          properties:
+            task_id: { type: string }
+            title: { type: string }
+        open_task_counts:
+          type: object
+          properties:
+            merchant: { type: integer }
+            sarvex: { type: integer }
+            external: { type: integer }
+        entered_state_at: { type: string, format: date-time }
+        stage: { $ref: '#/components/schemas/engagement_stage' }
+        entered_stage_at: { type: string, format: date-time }
+        stage_name: { type: string, description: Human-readable name of the current engagement stage. }
+        stage_description: { type: string }
+        operator_actions:
+          type: array
+          description: Actions an operator typically performs during this stage.
+          items: { type: string }
+        typical_days_in_stage: { type: integer, description: "Typical duration of this stage, for staleness comparison." }
+        stage_elapsed_days: { type: integer, description: Days elapsed since entering the current stage. }
+        required_tasks_status:
+          type: array
+          description: Per-owner rollup of whether that owner's tasks are clear for this stage to exit. Empty for stages with no owner-tracked exit requirement.
+          items:
+            type: object
+            properties:
+              owner: { $ref: '#/components/schemas/task_owner' }
+              resolved: { type: boolean }
+
+    journey_stream_message:
+      type: object
+      description: |
+        The frame type(s) pushed on `/stores/{store_id}/journey/stream`. Thin signal
+        only — clients re-fetch `journey` (via the GET endpoint), the changed task
+        (via `GET /tasks/{id}`), the activation record (via
+        `GET /stores/{store_id}/activation`), or the catalog's readiness and products
+        (via `GET /catalog/readiness` + `GET /catalog/products`), the store's health
+        (via `GET /stores/{store_id}/health` + `.../health/consistency`), or the
+        store's orders (via `GET /orders`) on receipt, keyed off `type`. `task_id` is
+        only present on `task.updated` frames; `state` only on frames carrying a
+        resource state — `catalog.updated`, `health.updated` and `orders.updated`
+        carry neither, since none has a single state to report.
+      properties:
+        type:
+          type: string
+          enum:
+            - journey.updated
+            - task.updated
+            - activation.updated
+            - catalog.updated
+            - health.updated
+            - orders.updated
+        store_id: { type: string }
+        task_id: { type: string, description: Present only on `task.updated` frames. }
+        state:
+          description: >-
+            The journey_state on a `journey.updated` frame, the task_state on a
+            `task.updated` frame, or the ucp_state on an `activation.updated` frame.
+          oneOf:
+            - $ref: '#/components/schemas/journey_state'
+            - $ref: '#/components/schemas/task_state'
+            - $ref: '#/components/schemas/ucp_state'
+        occurred_at: { type: string, format: date-time }
+
+    # ── Operator ──
+    board_card:
+      type: object
+      properties:
+        merchant_id: { type: string }
+        store_id: { type: string, description: The store whose journey state this card reflects (V1 is one store per merchant). }
+        name: { type: string }
+        state: { $ref: '#/components/schemas/journey_state' }
+        days_in_state: { type: integer }
+        open_task_counts:
+          type: object
+          properties:
+            merchant: { type: integer }
+            sarvex: { type: integer }
+            external: { type: integer }
+        blocked: { type: boolean }
+        stale: { type: boolean }
+    manual_step:
+      type: object
+      required: [description]
+      properties:
+        manual_step_id: { type: string, readOnly: true }
+        target_merchant_id: { type: string, readOnly: true }
+        description: { type: string, description: What was done by hand. }
+        disposition: { $ref: '#/components/schemas/manual_step_disposition' }
+        created_at: { type: string, format: date-time, readOnly: true }
+    manual_step_disposition:
+      type: string
+      enum: [unclassified, automate, templatise, accept_manual]
+      default: unclassified
+    audit_entry:
+      type: object
+      properties:
+        entry_id: { type: string }
+        operator_user_id: { type: string }
+        target_merchant_id: { type: string }
+        action: { type: string, example: remediation.apply }
+        detail: { type: object }
+        occurred_at: { type: string, format: date-time }

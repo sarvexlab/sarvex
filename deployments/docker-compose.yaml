@@ -1,0 +1,144 @@
+services:
+  # NATS JetStream: the event bus, same backend a self-hosted deployment runs
+  # (deployments/selfhost/manifests/nats-values.yaml). Persistent store so
+  # unconsumed events survive a restart.
+  nats:
+    image: nats:2.10-alpine
+    command: ["-js", "-sd", "/data", "-m", "8222"]
+    restart: unless-stopped
+    ports:
+      - "4222:4222" # client
+      - "8222:8222" # monitoring
+    volumes:
+      - nats_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  # Vault: Transit wraps store signing keys, KV v2 holds connector
+  # credentials — the same two engines a self-hosted deployment uses. Runs a
+  # persistent server and provisions itself on every start; see
+  # vault/local-entrypoint.sh. Local development only (fixed root token).
+  vault:
+    image: hashicorp/vault:1.18
+    entrypoint: ["/bin/sh", "/local-entrypoint.sh"]
+    restart: unless-stopped
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_TRANSIT_KEY_NAME: sarvex-jwk-signing
+      VAULT_DEV_TOKEN: sarvex-dev-token
+    volumes:
+      - vault_data:/vault/file
+      - ./vault/vault.hcl:/vault/config/vault.hcl:ro
+      - ./vault/local-entrypoint.sh:/local-entrypoint.sh:ro
+    healthcheck:
+      # Healthy only once the server is unsealed AND the transit key exists.
+      test: ["CMD-SHELL", "VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=sarvex-dev-token vault read transit/keys/sarvex-jwk-signing >/dev/null"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - '6379:6379'
+    # environment:
+    #   REDIS_ARGS: "--requirepass password --user username on >password ~* allcommands --user default off nopass nocommands"
+    volumes:
+      - cache:/data
+  # One-shot: generates the internal-auth keyfile mongod needs whenever auth
+  # and --replSet are combined (even for a single-node replica set), then
+  # exits. Runs as root so it can chown/chmod the file for the mongodb
+  # image's runtime uid (999) before mongodb ever starts.
+  mongodb-keyfile-init:
+    image: mongo:7.0
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        set -e
+        if [ ! -f /keyfile/mongo-keyfile ]; then
+          openssl rand -base64 756 > /keyfile/mongo-keyfile
+        fi
+        chmod 400 /keyfile/mongo-keyfile
+        chown 999:999 /keyfile/mongo-keyfile
+    volumes:
+      - mongodb_keyfile:/keyfile
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    depends_on:
+      mongodb-keyfile-init:
+        condition: service_completed_successfully
+    # --replSet turns this into a single-node replica set — behaviorally
+    # identical to standalone for every existing plain CRUD/index usage in
+    # this repo, but it's also the only way to get multi-document ACID
+    # transactions, which the Lost Revenue Ledger's entry+rollup write
+    # requires (internal/planes/control/ledger/mongo_store.go). A single
+    # node still needs rs.initiate() once before it accepts transactions —
+    # see the mongodb-rs-init sidecar below. auth + --replSet also requires
+    # a security.keyFile for internal cluster auth — see mongodb-keyfile-init.
+    command: ["--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongo-keyfile/mongo-keyfile"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_keyfile:/etc/mongo-keyfile:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "-u", "admin", "-p", "password", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  # One-shot: initiates the rs0 replica set the first time the volume is
+  # created, then exits (restart: "no"). Idempotent — a later `docker
+  # compose up` on an already-initiated volume just no-ops via the
+  # try/catch. Not part of the running stack; make dev-down/dev-up don't
+  # need to know it exists.
+  mongodb-rs-init:
+    image: mongo:7.0
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: "no"
+    entrypoint:
+      - mongosh
+      - --host
+      - mongodb
+      - --quiet
+      - -u
+      - admin
+      - -p
+      - password
+      - --authenticationDatabase
+      - admin
+      - --eval
+      - "try { rs.status() } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongodb:27017' }] }) }"
+  # Local OTel Collector: receives OTLP traces/metrics from the three planes
+  # (serving/sync/control, each set up via internal/pkg/otelboot when
+  # OTEL_EXPORTER_OTLP_ENDPOINT is set — see scripts/dev/up.sh) and prints
+  # them via the debug exporter. Config mounted at the image's default path
+  # so no command/entrypoint override is needed.
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    restart: unless-stopped
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
+volumes:
+  cache:
+    driver: local
+  mongodb_data:
+    driver: local
+  mongodb_keyfile:
+    driver: local
+  nats_data:
+    driver: local
+  vault_data:
+    driver: local

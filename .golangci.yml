@@ -1,0 +1,174 @@
+version: "2"
+run:
+  concurrency: 4
+  timeout: 5m
+  tests: true
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 50
+
+linters:
+  enable:
+    # correctness
+    - govet
+    - staticcheck
+    - unused
+    - errcheck
+    - errorlint
+    - nilerr
+    - forcetypeassert
+    - copyloopvar
+    - durationcheck
+    - reassign
+    # security & resources
+    - gosec
+    - bidichk
+    - bodyclose
+    - noctx
+    - containedctx
+    - fatcontext
+    - sqlclosecheck
+    - rowserrcheck
+    # logging
+    - sloglint
+    - loggercheck
+    # modernization & meta
+    - intrange
+    - usestdlibvars
+    - nolintlint
+    # low-noise style/perf
+    - ineffassign
+    - unconvert
+    - predeclared
+    # architectural enforcement
+    - depguard
+
+  disable:
+    # Left off for this first adoption pass — high false-positive or
+    # high-volume-on-legacy-code categories per golang-lint skill guidance.
+    # Revisit enabling these once the errcheck/staticcheck/unused backlog
+    # this config surfaced is worked down.
+    - lll
+    - prealloc
+    - wrapcheck
+    - err113
+    - mnd
+    - iface
+    - nakedret
+    - noinlineerr
+    - gocognit
+    - cyclop
+    - goheader
+    - importas
+    - funcorder
+    - godoclint
+    - varnamelen
+    - exhaustruct
+    - gochecknoglobals
+    - gochecknoinits
+    - unparam
+    - makezero
+    - testpackage
+    - embeddedstructfieldcheck
+    - iotamixing
+    - unqueryvet
+    - recvcheck
+    - mirror
+    - protogetter
+    - spancheck
+    - zerologlint
+    - gocritic
+    - revive
+    - wsl_v5
+    - whitespace
+    - godot
+    - misspell
+    - dupword
+    - errname
+    - asciicheck
+    - gocyclo
+    - nestif
+    - funlen
+    - dupl
+    - perfsprint
+    - goconst
+    - exhaustive
+    - testifylint
+    - thelper
+    - usetesting
+    - paralleltest
+    - exptostd
+
+  exclusions:
+    paths:
+      - vendor$
+      - third_party$
+      - testutils$
+      - examples$
+      - web/console$
+
+  settings:
+    errcheck:
+      check-type-assertions: true
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+    depguard:
+      # Each rule MUST carry `files`. Without it depguard applies the rule to
+      # every file in the repo, so the rule named "serving-plane" would deny
+      # importing internal/planes/control from the control plane itself —
+      # which is not plane isolation, it is a ban on every intra-plane
+      # import. That misconfiguration is invisible while CI lints only
+      # changed lines (existing imports are never re-reported) and surfaces
+      # the moment anyone adds a new file inside a plane.
+      rules:
+        # Serving plane: cannot import sync or control planes
+        serving-plane:
+          files:
+            - "**/internal/planes/serving/**"
+          deny:
+            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
+              desc: "serving plane must not import the sync plane (ADR-0004); cross-plane communication is the event bus"
+            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/control"
+              desc: "serving plane must not import the control plane (ADR-0004); cross-plane communication is the event bus"
+        # Sync plane: cannot import serving or control planes
+        sync-plane:
+          files:
+            - "**/internal/planes/sync/**"
+          deny:
+            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+              desc: "sync plane must not import the serving plane (ADR-0004); cross-plane communication is the event bus"
+            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/control"
+              desc: "sync plane must not import the control plane (ADR-0004); cross-plane communication is the event bus"
+        # Control plane: cannot import serving or sync planes
+        control-plane:
+          files:
+            - "**/internal/planes/control/**"
+          deny:
+            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+              desc: "control plane must not import the serving plane (ADR-0004); cross-plane communication is the event bus"
+            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
+              desc: "control plane must not import the sync plane (ADR-0004); cross-plane communication is the event bus"
+        # Internal/pkg: cannot import any plane (shared package isolation)
+        shared-packages:
+          files:
+            - "**/internal/pkg/**"
+          deny:
+            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+              desc: "shared packages must not import a plane (ADR-0004); dependencies point inward"
+            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
+              desc: "shared packages must not import a plane (ADR-0004); dependencies point inward"
+            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/control"
+              desc: "shared packages must not import a plane (ADR-0004); dependencies point inward"
+
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - web/console$

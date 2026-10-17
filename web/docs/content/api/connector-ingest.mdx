@@ -1,0 +1,37 @@
+---
+title: Connector ingest
+description: The HMAC-signed endpoints a store plugin calls — thin signals, heartbeats and the profile doorway.
+---
+
+The plugin has two roles and keeps no business logic. Operation-level detail (schemas, responses) is in the [Control-plane API](/api/control-plane) under the *Connector Ingest* tag; this page explains how the pieces fit.
+
+## Role 1 — signalling (outbound)
+
+*Thin events, fat pull.* The plugin tells Sarvex **that** something changed; Sarvex pulls the full entity.
+
+`POST /connector/signals` carries only the entity type, id, timestamp and a monotonic sequence — never payment credentials or PII.
+
+| Header | Meaning |
+| --- | --- |
+| `X-Sarvex-Signature` | HMAC-SHA256 over the raw body plus the two headers below, keyed by the per-connector secret issued at pairing. |
+| `X-Sarvex-Timestamp` | Request time. |
+| `X-Sarvex-Sequence` | Monotonic sequence; a seen sequence is rejected `409` (replay / out of order). |
+| `Idempotency-Key` | Safe retries. |
+
+A `202` means accepted for asynchronous processing. A dropped signal is caught by Sarvex's sweeper, so the plugin sends asynchronously with a hard timeout and a local retry.
+
+`POST /connector/heartbeat` reports plugin liveness (`204`).
+
+## Role 2 — profile doorway (inbound)
+
+`GET /connector/profile` returns the exact UCP profile bytes Sarvex generates and signs. The plugin serves them verbatim at `/.well-known/ucp` on the merchant's own domain with a `200` (never a redirect).
+
+- Send `If-None-Match` with the last `ETag`; unchanged → `304`.
+- `Cache-Control` says how long the copy is valid. If Sarvex is unreachable, serve the last-known-good copy.
+- The merchant is resolved from the HMAC credential — no URL parameter.
+
+The plugin does **not** proxy the UCP API: the profile's `services.endpoint` points directly at Sarvex.
+
+## Pairing
+
+After install the plugin pairs with Sarvex to obtain its signing secret; see the [pairing guide](/integration-guides/setup/pairing-your-store).

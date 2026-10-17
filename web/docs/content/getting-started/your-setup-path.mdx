@@ -1,0 +1,44 @@
+---
+title: Your setup path
+description: Path is home base — the five stages from connecting your store to going live, and the task feed that drives each one.
+---
+
+Once you're connected, you land on **Path** — a running list of what's left before your store can go live on agent checkout. It's home base: it always reflects where setup stands, and every piece of work, before and after go-live, happens here.
+
+## The stages
+
+Path moves your store through five stages, each opening once the one before it clears:
+
+- **Draft** — you haven't connected your store yet. Nothing else can start until you do.
+- **Connected** — your store is paired and Sarvex is reading your catalog for the first time. You'll see the live product count as it comes in.
+- **Profile published** — your UCP profile is live at your domain's `/.well-known/ucp`, and every product is scored against what agents need to sell it. Your readiness score shows here; every issue found becomes a task below, re-checked continuously as you clear them.
+- **Verified** — Sarvex runs conformance checks against your own endpoints: request signing, capability negotiation, catalog lookups, and checkout. Monitoring switches on once they all pass, automatically.
+- **Active** — the finish line. Your endpoints are live, verified, and monitored — any agent that reads your profile can transact with you. Reaching Active *is* going live; there's no separate switch.
+
+There's also a state outside this progression:
+
+- **Suspended** — a condition, not a step. It means conformance checks started failing or your endpoints have been unhealthy for a sustained period — the tasks on your Path explain which. It lifts automatically once the cause clears.
+
+Once **Active**, Path also displays two things at a glance, not as work: **agent orders this week**, flowing into your store as they land, and a **consistency** check showing how many products, if any, have drifted from what agents see.
+
+## The task feed
+
+Everything actionable on your Path arrives as a task, grouped by what it needs from you:
+
+- **Needs you now** — things only you can resolve. An empty list says so, with wording that changes by stage — e.g. "your import is running" while connecting, or "we'll surface anything that drifts" once Active.
+- **What we're doing for you** — work Sarvex is already handling automatically, shown so you can see it's in progress (a catalog audit running, a first sync pulling in your products).
+- **Waiting on an external party** — a task that's stalled on someone other than you or Sarvex.
+- **Done** — resolved tasks, kept for reference.
+
+Each task carries one of four resolution types, shown on its card:
+
+- **One-click** — Sarvex has a proposed fix ready; you review and apply it.
+- **Guided steps** — a short walkthrough for something Sarvex can't do for you directly.
+- **Automatic** — nothing to click; Sarvex is handling it and the task clears itself once it's done.
+- **Waiting** — blocked on an external party, not on you.
+
+Clicking a task opens a drawer with the full detail: what was found, why it matters, and — for one-click tasks — the proposed fix, marked high-trust or low-trust so you know how much to double-check it. Applying a fix pushes it straight to your store; you can revert to the original value if needed. Without an automatic fix, the task points you to update it directly in your store. Guided-step tasks walk you through doing it yourself; some just need a "mark as done" once you have.
+
+Every task drawer is a shareable link: opening one updates the page's URL, so you can send a teammate straight to a specific task instead of describing where to find it.
+
+Path isn't a one-time checklist. A pairing failure, a conformance regression, drift between your store and what agents see — anything that breaks later shows up here as a new task, the same as during onboarding.

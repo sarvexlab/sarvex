@@ -1,0 +1,21 @@
+# Helm values for the official `nats/nats` chart (bootstrap-cluster.sh
+# installs it with `helm repo add nats https://nats-io.github.io/k8s/helm/charts/`).
+# JetStream on, 3-node cluster for the core region — this becomes the
+# supercluster hub that edge regions' leaf nodes federate into
+# (bootstrap-nats-leaf.sh), and carries the cross-plane event bus
+# (internal/pkg/eventbus/natsjetstream).
+config:
+  cluster:
+    enabled: true
+    replicas: 3
+  jetstream:
+    enabled: true
+    fileStore:
+      pvc:
+        enabled: true
+        size: 20Gi
+        storageClassName: local-path
+  # Leaf-node listener: edge regions' NATS instances connect here to join
+  # the supercluster. bootstrap-nats-leaf.sh points new regions at this.
+  leafnodes:
+    enabled: true

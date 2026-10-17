@@ -1,0 +1,12 @@
+apiVersion: v2
+name: sarvex-gateway
+description: >
+  One Gateway API Gateway + HTTPRoute set per cluster, reproducing
+  cmd/root.go's proxyMux path rules (/.well-known/ucp + /ucp/* -> serving,
+  /connector/* -> sync, else -> control) without the in-process reverse
+  proxy, which is unnecessary once a real Gateway sits in front of three
+  separately-exposed Services. Install with core=true in the core
+  region (routes to all three planes) and core=false in edge regions
+  (serving only).
+type: application
+version: 0.1.0

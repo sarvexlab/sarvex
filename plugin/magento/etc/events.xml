@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!--
+        Bound to the *_commit_after events, not *_save_after: Sarvex pulls
+        the full entity in response to this signal, so the signal must
+        never fire before the save transaction has actually committed
+        (see Sarvex\Ucp\Observer\*).
+    -->
+    <event name="catalog_product_save_commit_after">
+        <observer name="sarvex_ucp_product_save" instance="Sarvex\Ucp\Observer\ProductSaveObserver"/>
+    </event>
+    <event name="cataloginventory_stock_item_save_commit_after">
+        <observer name="sarvex_ucp_stock_item_save" instance="Sarvex\Ucp\Observer\StockItemSaveObserver"/>
+    </event>
+</config>

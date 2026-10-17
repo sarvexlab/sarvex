@@ -1,0 +1,61 @@
+name: Go Lint
+
+on:
+  pull_request:
+    paths:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+      - '.golangci.yml'
+      - '.github/workflows/go-lint.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+      - '.golangci.yml'
+      - '.github/workflows/go-lint.yml'
+
+jobs:
+  golangci-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # This repo has never been linted before, so golangci-lint would
+      # surface a large pre-existing backlog if it graded the whole tree.
+      # Scoping the gate to lines this PR actually touches needs
+      # --new-from-rev rather than the action's own only-new-issues: that
+      # input fetches the PR diff through GitHub's REST API, which hard-caps
+      # at 300 changed files (406 "diff exceeded the maximum number of
+      # files") — any PR past that cap silently loses the new-issues filter
+      # and fails on the full backlog instead. --new-from-rev computes the
+      # diff with local git against the base commit rev (checked out above
+      # with fetch-depth: 0 so that commit is actually present), which has
+      # no such limit. Widen the .golangci.yml linter set and drop this
+      # scoping once that backlog is worked down.
+      #
+      # golangci-lint-action@v7 (not v6): v6 hard-rejects any v2.x version
+      # string outright ("golangci-lint v2 is not supported by
+      # golangci-lint-action v6, you must update to golangci-lint-action
+      # v7"). v2 is required here because .golangci.yml uses the v2 config
+      # schema (top-level `version: "2"`, `linters.settings`, `formatters`)
+      # — v6's "latest" only ever resolves to the newest v1.x release
+      # (confirmed: it downloaded v1.64.8), and golangci-lint v1's config
+      # validator rejects v2-schema keys outright. version is pinned to a
+      # specific v2 release rather than "latest" for reproducibility. It must
+      # have been built with at least the Go version go.mod targets (go 1.26):
+      # golangci-lint refuses to load a module newer than its own toolchain.
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.12.2
+          args: --new-from-rev=${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}

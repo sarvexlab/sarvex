@@ -1,0 +1,28 @@
+name: Open-source checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  licenses:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: SPDX headers present
+        run: python3 scripts/license-headers.py --check
+      - name: Dependency licences are compatible with Apache-2.0
+        run: |
+          cd web/console && npm ci --no-audit --no-fund && cd ../..
+          python3 scripts/check-licenses.py --npm

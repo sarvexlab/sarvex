@@ -1,0 +1,40 @@
+title = "sarvex.cp gitleaks config"
+
+# Extends gitleaks' default ruleset (see .github/workflows/security.yml)
+# rather than replacing it — this file only adds an allowlist.
+
+[extend]
+useDefault = true
+
+[allowlist]
+  description = "Confirmed false positives from the first whole-history scan (PR #300) — each entry below was checked against the actual source, not just the redacted CI output, before being added here. See docs/SECURITY-TEST-PLAN.md §5."
+
+  # Vendored third-party agent skills, removed from the tree but still present
+  # in history: their security references quote AWS's public example keys as
+  # "don't do this" snippets.
+  paths = [
+    '''^\.?agents?/skills/''',
+  ]
+
+  regexes = [
+    # Stripe Price IDs are non-sensitive by design (Stripe's own docs say
+    # they're safe to expose client-side, unlike sk_/rk_ secret keys).
+    # Appears repeatedly across seeding/**/*.sql fixtures.
+    '''price_[A-Za-z0-9]{10,}''',
+
+    # Fake compact-JWT placeholders (the "signature" segment is the base64 of
+    # the literal word "signature") in the AP2 extension test fixtures under
+    # internal/spec/*/extensions/ap2/.
+    '''eyJhbGciOiJFUzI1NiJ9\.\.c2lnbmF0dXJl''',
+    '''eyJhbGciOiJFUzI1NiJ9\.eyJzdWIiOiIxMjMifQ\.c2ln~ZGlzY2xvc3VyZQ''',
+
+    # Synthetic WooCommerce connector credentials from
+    # internal/planes/control/connector/service_test.go's validWooCreds().
+    '''ck_abc123def456ghi789''',
+    '''cs_xyz987uvw654rst321''',
+    '''whs_secret123456789''',
+
+    # Placeholder Idempotency-Key test value in
+    # internal/pkg/ucp/ucpsig/middleware_test.go.
+    '''abc-def-ghi-22-chars-XYZ''',
+  ]

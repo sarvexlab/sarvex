@@ -1,0 +1,40 @@
+name: Golden Guard
+
+# Adding a spec generation or a backend platform must not change what an
+# existing one produces (docs/plans/version-platform-modularity.md §4). The
+# goldens under **/testdata/golden/ freeze that output, and changing one is
+# allowed only as a deliberate, labelled act. (Version and platform leaks into
+# shared code are not labelled exceptions: internal/archtest fails on any.)
+#
+#   golden  <root>/<platform>/<version>/…  needs spec-change/<version>
+#                                           or platform-change/<platform>
+#   golden  <root>/<version>/…              needs spec-change/<version>
+#   golden  <root>/profile/<platform>.json  needs platform-change/<platform>
+#                                           or any spec-change/* label
+#   golden  <root>/<platform>/canonical/…   needs platform-change/<platform>
+#
+# New golden files (a new version's or platform's) need no label.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+    paths:
+      - '**/testdata/golden/**'
+      - '.github/workflows/golden-guard.yml'
+      - '.github/scripts/golden-guard.sh'
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check labels for changed goldens
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ' ') }}
+        run: .github/scripts/golden-guard.sh

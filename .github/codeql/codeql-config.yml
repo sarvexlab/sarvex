@@ -1,0 +1,17 @@
+name: "Sarvex CodeQL config"
+
+# Scoped to the Go module (the only production deployable per
+# sarvex-v1-architecture.md §A1) — vendored skill docs and generated
+# frontend artifacts add noise without adding coverage CodeQL can act on.
+paths:
+  - internal
+  - cmd
+  - main.go
+
+paths-ignore:
+  - agent/skills
+  - web/console/node_modules
+  - web/console/dist
+  - web/console/coverage
+  - "**/*_test.go"
+  - "**/testdata/**"

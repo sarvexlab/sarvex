@@ -1,0 +1,19 @@
+---
+title: API Reference
+description: Where each Sarvex API surface lives and which contract governs it.
+---
+
+Sarvex exposes four distinct surfaces. Each has exactly one authority — the docs below are generated from, or defer to, it.
+
+| Surface | Audience | Authority | Reference |
+| --- | --- | --- | --- |
+| Control-plane REST API | Console, operators, integrators | `sarvex-v1-control-plane.yaml` (OpenAPI 3.0.3) | [Control-plane API](/api/control-plane) — generated |
+| Connector ingest (`/connector/*`) | Store plugins (WooCommerce, Magento) | Same OpenAPI file, tag *Connector Ingest* | [Connector ingest](/api/connector-ingest) |
+| UCP endpoints | AI shopping agents | The external [ucp.dev](https://ucp.dev) specification | [UCP endpoints](/api/ucp-endpoints) |
+| Sync-plane events | Sarvex services | `sarvex-v1-syncing-plane-async.yaml` (AsyncAPI 2.6.0) | [Events](/api/events) — generated |
+
+Start with [Conventions](/api/conventions) and [Authentication](/api/authentication); they apply to every control-plane operation.
+
+:::note
+The OpenAPI and AsyncAPI references are rendered straight from the contract files at the repository root, so they cannot drift from them. To change an endpoint or event, change the contract and the code together (see [Contributing](/contributing/guide)).
+:::

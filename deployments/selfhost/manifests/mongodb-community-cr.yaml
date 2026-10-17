@@ -1,0 +1,44 @@
+# MongoDBCommunity custom resource for the MongoDB Community Kubernetes
+# Operator (installed by bootstrap-cluster.sh). 3-node replica set — real
+# HA, unlike the single-node rs0 docker-compose.yaml uses for local dev,
+# but the SAME requirement: multi-document transactions (the Lost Revenue
+# Ledger, internal/planes/control/ledger/mongo_store.go) only work inside a
+# replica set, so this is never a standalone mongod even at the smallest
+# size. Core region only — edge regions never run Mongo.
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: sarvex-mongodb
+  namespace: sarvex-core
+spec:
+  members: 3
+  type: ReplicaSet
+  version: "7.0.14"
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  users:
+    - name: sarvex
+      db: admin
+      passwordSecretRef:
+        name: sarvex-mongodb-password # created by bootstrap-cluster.sh from the Vault-issued value, never hardcoded here
+      roles:
+        - { name: readWriteAnyDatabase, db: admin }
+      scramCredentialsSecretName: sarvex-mongodb-scram
+  statefulSet:
+    spec:
+      # local-path-provisioner on local NVMe, not a distributed block store:
+      # Mongo already replicates via its own replica-set protocol, so a
+      # network-replicated volume would double-replicate at a latency cost
+      # for no added safety (see plan's "Datastore" section).
+      volumeClaimTemplates:
+        - metadata: { name: data-volume }
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            storageClassName: local-path
+            resources: { requests: { storage: 50Gi } }
+        - metadata: { name: logs-volume }
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            storageClassName: local-path
+            resources: { requests: { storage: 10Gi } }

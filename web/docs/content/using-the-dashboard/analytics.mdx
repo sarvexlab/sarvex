@@ -1,0 +1,44 @@
+---
+title: Analytics
+description: Checkouts, lost revenue, channel performance, and what agents are asking for — four views, one page.
+---
+
+Once live, **Analytics** shows how your store is doing with agent checkout across four tabs. **Checkouts** is available on every plan; the other three unlock on the Concierge and Scale plans — without one, you'll see a locked preview and upgrade prompt, never a blank page.
+
+Everything here follows the store selected in the header, except the Lost Revenue summary and Agent Behavior Insights, which roll up every store on your account.
+
+## Checkouts
+
+A live log of every checkout session an agent has started on your store. It has two modes:
+
+- **Live** — checkouts in progress, refreshing every ~15 seconds. Empty until one is running.
+- **History** — every past session, filterable by state, cause, date range, and whether it escalated.
+
+Each session shows its state, source surface, start time, last activity, and cart total. Opening one shows the full detail: the cart, run time, a timeline of everything that happened (with raw payloads available as evidence), and — for anything that stalled — what happened, why, and the recommended action. An escalated session also shows whether it's open, stalled, or resolved, and whether the buyer got a continue link back.
+
+## Lost Revenue
+
+Prices every failed and abandoned checkout in the selected month, so you can see exactly what checkout problems are costing you rather than just that they happened.
+
+- A **summary** gives the entry count, the top cause, and how this month compares to last.
+- **Causes** breaks the total down, ranked by revenue or count. Fixable causes — payment failures, profile mismatches, stale catalog data, dropped escalations, platform errors, timeouts — are listed separately from checkouts a buyer simply abandoned, so the fixable list is exactly that: things you can act on.
+- **Entries** lists every priced loss individually — cause, timing, stage, status (open, acknowledged, resolved), and a recommended action — each linked back to its checkout session. Entries move from open to acknowledged to resolved as you work through them; a few show as "not priced" when the cart data wasn't available.
+
+## Channel Dashboard
+
+Tracks agent checkout sessions from discovery through completion and compares that channel to your regular web traffic. Pick a period (this month, last month, last 90 days, or a custom range up to 92 days) and optionally narrow to one surface — Google AI Mode, Google Gemini, ChatGPT, another agent, or unknown.
+
+- **KPIs**: checkouts completed, revenue, average order value, and completion rate, each compared to the prior period. Revenue is hidden, not shown wrong, if a period mixes currencies.
+- **Funnel**: sessions → reached cart → reached checkout → completed. Some sessions are estimated from checkout activity rather than directly observed; the funnel shows the confirmed/estimated split.
+- **Daily trend**: checkouts initiated, checkouts completed, and revenue, charted by day (shown in your local time zone; each point is a UTC calendar day).
+- **Agentic vs. web**: revenue, average order value, and what share of your total revenue agent checkout represents, next to the same numbers for your web channel.
+- A **lost revenue** figure for the period, linking straight through to the full Ledger.
+
+## Agent Behavior Insights
+
+What agents are actually asking your store for — useful for deciding what to fix next, separate from what's already failed. Same period and surface controls as the Channel Dashboard; low-volume items are hidden to avoid presenting noise as signal.
+
+- **Capability gaps** — capabilities agents requested during negotiation that you don't declare, ranked by estimated revenue impact. Each gap shows request and agent counts, a confidence level (measured, partial, or not measurable — meaning no failed or abandoned checkout could be tied to it, not that it was free), and whether Sarvex can close it or it needs action on your side.
+- **Negotiation** — how often agent negotiation with your store succeeds, and why it fails when it doesn't: unsupported protocol versions, incompatible capabilities, or a payment-handler mismatch where no handler an agent offers overlaps with what you declare.
+- **Product demand** — your most-requested products by agent lookup count, broken out by surface. This counts requests only — the protocol doesn't yet let a lookup be correlated with a later checkout, so cart or completion rates aren't available.
+- **Attribute gaps** — attributes agents asked for that your catalog didn't return. Shown as not available for now — the UCP protocol has no way for an agent to name a requested attribute yet, so there's nothing to report until that changes.

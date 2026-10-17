@@ -1,0 +1,7 @@
+# First production region ("core") override.
+replicaCount: 2 # >1 replica requires the Redis-backed rate limiter (see plan item 13) — do not scale beyond 1 without it
+resources:
+  requests: { cpu: 500m, memory: 512Mi }
+  limits: { memory: 1Gi }
+routing:
+  hostnames: ["ucp.sarvex.example"]

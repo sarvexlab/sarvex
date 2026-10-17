@@ -1,0 +1,68 @@
+name: Container image
+
+# Builds the single Sarvex binary image (all three planes; --service
+# selects which one runs) and publishes it to GitHub Container Registry. The
+# Helm charts under deployments/selfhost/helm pull ghcr.io/sarvexlabs/sarvex.cp;
+# Argo CD (deployments/selfhost/gitops) rolls the cluster to the tag set in
+# the chart values. Pull requests build without pushing.
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths:
+      - 'internal/**'
+      - 'cmd/**'
+      - 'configs/**'
+      - 'build/**'
+      - 'go.mod'
+      - 'go.sum'
+      - '.github/workflows/image.yml'
+  pull_request:
+    paths:
+      - 'build/**'
+      - '.github/workflows/image.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=sha
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: build/package/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,0 +1,76 @@
+rules:
+  # NOTE on scope: `store_id`/resource ids in a URL path are the normal,
+  # blessed REST addressing pattern per docs/TENANCY-PATTERNS.md, *provided*
+  # the query/repo call also takes merchant_id from the verified principal
+  # and fences on it (query-level fencing, ADR-2) — see e.g.
+  # store.go's getStore: `h.deps.Store.Get(ctx, p.MerchantID, storeID)`.
+  # This rule therefore does not flag store_id-from-URL (that would be
+  # almost entirely false positives against the intended pattern); it flags
+  # the actually-forbidden thing: `merchant_id` — the tenant/account
+  # identifier itself — sourced from a URL path/query param, which
+  # CLAUDE.md §2.4 permits only via "authorized operator scope"
+  # (the `/operator/merchants/:merchant_id/**` routes, gated by the
+  # `requireOperator` middleware in handler.go) and excludes here.
+  - id: merchant-id-from-url-param
+    languages: [go]
+    severity: ERROR
+    message: >-
+      merchant_id must be resolved server-side from the verified principal
+      (Kinde JWT claim, HMAC credential, or authorized operator scope) —
+      never from a URL path or query parameter directly. This is CLAUDE.md
+      §2.4 (two-level tenant isolation) and a stop-and-report condition per
+      §6, not a style nit. If this genuinely is an operator-scoped route
+      (merchant_id is the *target* of an operator action, not the caller's
+      own tenant), it belongs in operator.go behind `requireOperator` and
+      should be excluded here explicitly, not silenced ad hoc.
+    patterns:
+      - pattern-either:
+          - pattern: $C.Param("merchant_id")
+          - pattern: $C.QueryParam("merchant_id")
+          - pattern: $C.FormValue("merchant_id")
+    paths:
+      exclude:
+        - "**/*_test.go"
+        # Sanctioned exception: every route here is registered with
+        # `requireOperator` in handler.go, matching CLAUDE.md §2.4's
+        # "authorized operator scope" resolution path.
+        - "**/internal/planes/control/api/operator.go"
+
+  # Scoped to Sarvex's own checkout-facing schema — internal/pkg/ucp/types/**
+  # is deliberately excluded. Verified by reading the code (not assumed):
+  # those packages pin the external ucp.dev wire spec (CLAUDE.md §3) and
+  # *must* model the full CardCredential shape (Number/CVC/Cryptogram) to
+  # faithfully represent what a handler's raw-card path can carry on the
+  # wire — the invariant is enforced one layer up, in
+  # internal/planes/serving/api/checkout_contract.go's
+  # OpaquePaymentCredential, whose UnmarshalJSON deliberately plucks out
+  # only handler_id+token and silently drops any CardCredential-shaped
+  # payload (see that file's own comment on why it isn't
+  # `json.Unmarshal(data, &v20260408.Payment{})`). Confirmed clean via
+  # `grep -rn CardCredential`/`PaymentCredential` across the tree and a
+  # manual read of that unmarshal path — 2026-09-26. If a future change
+  # widens this rule's scope to include internal/pkg/ucp/types again,
+  # expect it to fire on those legitimate spec-mirror fields and re-verify
+  # before treating it as a real finding.
+  - id: checkout-credential-bearing-field
+    languages: [generic]
+    severity: ERROR
+    message: >-
+      A field shaped like a raw card number/CVV/PAN was found in Sarvex's
+      own checkout/payment-config schema (not the external ucp.dev spec
+      mirror under internal/pkg/ucp/types, which is excluded from this
+      rule). CLAUDE.md §2.8: the checkout schema must have no field able to
+      hold a raw credential — Sarvex sees only opaque references +
+      handler_id. Stop and report per §6 rather than fixing in place; this
+      may be intentional pass-through plumbing that needs the same
+      structural stripping checkout_contract.go's OpaquePaymentCredential
+      already does, not a simple field rename.
+    patterns:
+      - pattern-regex: '(?i)\b(card_number|cardnumber|card_num|cvv|cvc2?|\bpan\b|primary_account_number)\b\s+string'
+    paths:
+      include:
+        - "**/internal/planes/serving/checkout*.go"
+        - "**/internal/planes/serving/api/*.go"
+        - "**/internal/planes/control/api/payment_config.go"
+      exclude:
+        - "**/*_test.go"

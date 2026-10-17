@@ -1,0 +1,18 @@
+---
+title: Going live / validation
+description: How validation works and what it takes to go live — pre-validation, the checks Sarvex runs, and what holds it up.
+---
+
+**Validation** runs the checks Sarvex requires before agent checkout turns on. Run it from Path or the Validation screen; each check reports pass, fail, or warn, with what to fix.
+
+**Pre-validation** is the stage you trigger yourself. It runs the reconciled UCP spec's checks — request signing, negotiation, catalog lookups, checkout — directly against your endpoints, the same checks that run automatically at Path's Verified stage. Every run is pinned to a target spec version, so "conformant" doesn't shift underneath you later. The Validation screen keeps a full run history and lists open failures with what to fix.
+
+Going live — reaching **Active** on Path — depends only on your endpoints passing conformance. Once every check passes, agent checkout is live — there's no separate activation switch.
+
+Common things that hold pre-validation up:
+
+- Products missing fields agents need — check each product's readiness state under **Store**
+- The connector not currently paired or reachable
+- Recent sync issues flagged under **Health**
+
+Validation also tracks review status on individual agent surfaces, which have their own live paths. See [Surface live paths](/getting-started/surface-live-paths).

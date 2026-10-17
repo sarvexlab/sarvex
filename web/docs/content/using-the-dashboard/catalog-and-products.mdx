@@ -1,0 +1,19 @@
+---
+title: Catalog & products
+description: Store shows what agents see — your UCP profile, your product catalog and its readiness, and syncs automatically from your own store.
+---
+
+**Store** shows exactly what agents see: your profile, your catalog, and — on its own page — the orders coming back in. It's read-only; everything traces back to your store or to Sarvex's automatic scoring.
+
+## Presence — your UCP profile
+
+The **Presence** tab shows the actual profile agents read at your domain's `/.well-known/ucp` — plain language first, then the raw manifest. Before Active, you'll see the draft version, marked as not yet published; it publishes automatically at go-live. Once live, the page shows which protocol versions are supported, confirms it's served from your domain (via the Sarvex plugin, with a last-known-good cache), and states that Sarvex generates, owns, and signs the profile — your catalog, pricing, and shipping are read live, not baked in.
+
+## Products
+
+Once your store is paired, Sarvex pulls in your product catalog automatically — there's nothing to upload.
+
+- The **Products** tab lists every product with an agent-readiness score out of 100 and a status: ready to serve to agents, or blocked, with the reason why. Search narrows the list by SKU.
+- Click into a product to open its detail drawer: the score, every open issue, and which issues block checkout versus which just affect quality. Each issue names the kind of problem — a missing field, free text where a structured value is needed, a value outside the standard taxonomy, or a value that disagrees across your sources.
+- The drawer also shows how your store's attribute names map onto the standard names Sarvex scores against, how confident each mapping is (matched by a known rule, or learned), and which attributes aren't mapped yet.
+- Product, price, and stock changes sync to Sarvex automatically — nothing to trigger by hand. See [What syncs automatically](/integration-guides/concepts/what-syncs-automatically) for exactly what's covered.

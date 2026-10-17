@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sarvex-control.name" . }}
+  labels:
+    {{- include "sarvex-control.labels" . | nindent 4 }}
+    sarvex.example.com/route-target: control
+spec:
+  selector:
+    {{- include "sarvex-control.labels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}

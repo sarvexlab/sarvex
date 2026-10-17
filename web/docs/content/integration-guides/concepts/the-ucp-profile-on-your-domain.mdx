@@ -1,0 +1,10 @@
+---
+title: The UCP profile on your domain
+description: How shopping agents discover that your store supports agent checkout.
+---
+
+Shopping agents discover that your store supports agent checkout by requesting `/.well-known/ucp` on your domain. The plugin serves this file, but the content comes from Sarvex — the plugin is just the doorway.
+
+- It's cached for an hour, so a brief Sarvex outage doesn't break it — your store keeps serving the last known-good version.
+- It never requires authentication and never redirects; it just returns the file.
+- You don't maintain or edit this yourself.

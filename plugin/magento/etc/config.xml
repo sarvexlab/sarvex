@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <sarvex_ucp>
+            <general>
+                <endpoint_url/>
+                <store_id/>
+                <connector_id/>
+                <hmac_secret/>
+                <signal_sequence>0</signal_sequence>
+                <profile_sequence>0</profile_sequence>
+            </general>
+        </sarvex_ucp>
+    </default>
+</config>
