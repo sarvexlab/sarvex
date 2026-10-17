@@ -1,0 +1,25 @@
+{
+  "name": "sarvex-docs",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "sync": "node scripts/sync-docs.mjs",
+    "dev": "npm run sync && blume dev",
+    "build": "npm run sync && blume build",
+    "preview": "blume preview",
+    "doctor": "npm run sync && blume doctor"
+  },
+  "dependencies": {
+    "blume": "^1.7.0"
+  },
+  "overrides": {
+    "lodash-es": "^4.18.1",
+    "path-to-regexp": "^8.4.2",
+    "@scalar/json-magic": {
+      "undici": "^7.30.0"
+    }
+  }
+}

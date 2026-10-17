@@ -1,0 +1,13 @@
+# core: true in the core region (adds /connector/* -> sync and the
+# default/console -> control routes); false in edge regions (serving only).
+core: true
+
+gatewayClassName: cilium # Cilium's own Gateway API implementation — see bootstrap-cluster.sh
+
+hostnames:
+  serving: ["ucp.sarvex.example"] # /.well-known/ucp + /ucp/* + checkout — set per region in values-<region>.yaml
+  control: ["console.sarvex.example"] # core only
+  sync: ["connect.sarvex.example"] # core only
+
+tls:
+  enabled: false # flip to true + set certificateRefs once cert-manager is wired up (see plan Stage 1)

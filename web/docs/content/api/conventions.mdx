@@ -1,0 +1,43 @@
+---
+title: Conventions
+description: Wire conventions that hold for every control-plane operation.
+---
+
+These hold for every operation in the control-plane API.
+
+| Topic | Rule |
+| --- | --- |
+| Field names | `snake_case`, in requests and responses. |
+| Tenant scoping | `merchant_id` and `store_id` are **never** path or query parameters. They are resolved server-side from the verified token (or connector HMAC credential). |
+| List envelope | `{ "data": [...], "page": { "cursor": string \| null, "has_more": boolean } }` |
+| Pagination | Cursor-based: pass `cursor`; `limit` caps page size. |
+| Error envelope | Every non-2xx is `{ "error": { "code", "message", "details" } }`. |
+| Idempotency | Mutating operations accept an `Idempotency-Key` header; a replay returns the original result. |
+| Money | Integer minor units (cents) plus an ISO-4217 `currency`. Never floats. |
+| Timestamps | RFC 3339 / ISO 8601, UTC. |
+
+## Example
+
+```bash
+curl -s https://api.sarvex.example.com/v1/stores \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```json
+{
+  "data": [{ "id": "...", "name": "..." }],
+  "page": { "cursor": null, "has_more": false }
+}
+```
+
+```json
+{
+  "error": {
+    "code": "not_found",
+    "message": "store not found",
+    "details": null
+  }
+}
+```
+
+The server URLs in the spec (`api.sarvex.example.com`) are placeholders for your deployment's API host.

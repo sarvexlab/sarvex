@@ -1,0 +1,33 @@
+---
+title: Repository map
+description: Where each plane, shared package, platform and frontend lives.
+---
+
+## Backend
+
+| Path | What it is |
+| --- | --- |
+| `internal/planes/serving` | Always-on, agent-facing: `/.well-known/ucp`, catalog reads, checkout sessions, negotiation. Reads only the Redis serving cache (checkout excepted). |
+| `internal/planes/sync` | Event-driven: `/connector/*` (HMAC), ingestion → mapping → scoring → catalog store, import, sweep, agent-surface artifact generators. |
+| `internal/planes/control` | Interactive: console and operator REST API plus WebSocket. |
+| `internal/spec/vYYYYMMDD` | One self-contained module per UCP spec generation (schema, wire, profile, codec, release). |
+| `internal/platform/<name>` | One self-contained module per backend platform (WooCommerce, Magento; Shopify/BigCommerce/Commercetools are frozen). |
+| `internal/pkg/ucp` | Shared protocol machinery: signing, negotiation, definitions catalogue, connector base. |
+| `internal/pkg/commerce/model` | The canonical commerce model each spec codec renders. |
+| `internal/archtest` | Repository-wide boundary checks (planes, versions, platforms, surfaces). |
+
+The three planes **never import one another**. They communicate over the event bus (NATS JetStream) or through read-only access to a collection the owning plane writes.
+
+## Frontend, plugins, contracts
+
+| Path | What it is |
+| --- | --- |
+| `web/console` | The Vue 3 + TypeScript console (Vite, Pinia). |
+| `web/docs` | This documentation site (Blume). |
+| `plugin/woocommerce`, `plugin/magento` | Thin signalling plugins — no business logic. |
+| `sarvex-v1-control-plane.yaml` | Control-plane + connector-ingest HTTP contract. |
+| `sarvex-v1-syncing-plane-async.yaml` | Sync-plane event contract. |
+| `internal/pkg/ucp/event_types.go`, `command_types.go` | The single source of truth for bus topic names. |
+| `deployments/` | docker-compose for local; Helm + Argo CD + Cloudflare Terraform for self-hosting. |
+
+See [Architecture](/developers/architecture/overview) for the full picture.

@@ -1,0 +1,15 @@
+# k3d (laptop) override — everything else comes from values.yaml. This is
+# the literal "test locally, deploy identically" mechanism: the chart,
+# templates, and container image are unchanged; only these scalars differ.
+replicaCount: 1
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { memory: 256Mi }
+redis:
+  address: "redis.sarvex-serving.svc.cluster.local:6379"
+nats:
+  url: "nats://nats.sarvex-core.svc.cluster.local:4222"
+vault:
+  address: "http://vault.sarvex-core.svc.cluster.local:8200" # k3d-local dev-mode Vault, not a real one
+routing:
+  hostnames: ["ucp.sarvex.localhost"]

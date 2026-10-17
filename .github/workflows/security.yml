@@ -1,0 +1,200 @@
+name: Security
+
+# Whole-tree SAST/SCA — deliberately not scoped to --new-from-rev like
+# go-lint.yml: a security gate that only looks at new lines misses
+# vulnerabilities already sitting in the tree. See docs/SECURITY-TEST-PLAN.md
+# §5 for the gap analysis this workflow closes (govulncheck/gosec/CodeQL/
+# Bearer existed only as a skill-asset template and were never wired in).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  security-events: write
+  # CodeQL's PR overlay-database mode (faster incremental analysis) fetches
+  # the base branch's cached database via the Actions API — without this it
+  # fails with "Resource not accessible by integration" before analysis
+  # even starts. Discovered on this workflow's first real PR run.
+  actions: read
+
+jobs:
+  # These four (govulncheck/gosec/CodeQL/Bearer) are a brand-new gate over
+  # the whole tree, same situation go-lint.yml's own comment describes for
+  # golangci-lint ("this repo has never been linted before, so ... would
+  # surface a large pre-existing backlog"). continue-on-error here for now
+  # — findings still upload to the Security tab for triage — until that
+  # first backlog is worked down; see docs/SECURITY-TEST-PLAN.md §5 for the
+  # sequencing. gosec is the exception: -no-fail already makes it exit 0
+  # regardless of findings, so it has nothing to continue past.
+  govulncheck:
+    name: Vulnerability Check
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Run govulncheck
+        uses: golang/govulncheck-action@v1
+
+  gosec:
+    name: gosec
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      # `securego/gosec@v2` (the Marketplace action's floating major-version
+      # tag) doesn't resolve — "Unable to resolve action, unable to find
+      # version v2" on this workflow's first run. `go install ...@latest`
+      # sidesteps Marketplace tag resolution entirely and needs no pin to
+      # verify.
+      - name: Install gosec
+        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+      - name: Run gosec
+        run: gosec -no-fail -fmt sarif -out gosec-results.sarif ./...
+
+      # The scan itself (above) genuinely succeeds — -no-fail guarantees
+      # that regardless of findings. This step is the one that was still
+      # failing: "Code Security must be enabled for this repository to use
+      # code scanning" — the same repo-setting wall CodeQL/Bearer/Semgrep's
+      # uploads hit (see docs/SECURITY-TEST-PLAN.md discussion on PR #300;
+      # it's Settings → Code security and analysis, not something this
+      # workflow can flip). continue-on-error here rather than on the whole
+      # job, since the job's actual work isn't what's failing.
+      - name: Upload gosec results
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: gosec-results.sarif
+
+  # CodeQL/Bearer/Semgrep are permanently non-blocking, not just for a
+  # first-run triage period: this repo is private, and GitHub only lets
+  # code scanning upload results on private repos through the paid "Code
+  # Security" add-on ($30/active committer/month) — a cost decision made
+  # not to take on. CodeQL can't even start analysis without it ("Code
+  # Security must be enabled for this repository to use code scanning");
+  # Bearer/Semgrep's own scans run fine but the upload-to-Security-tab step
+  # fails the same way. Job-level continue-on-error alone doesn't stop
+  # these from showing red on the PR (it only affects the *workflow run's*
+  # conclusion, not each job's own check-run conclusion) — continue-on-error
+  # on every step is what actually makes the check itself report success.
+  # Their run logs (Actions tab) are still the way to read Bearer/Semgrep
+  # findings now that they'll never reach the Security tab.
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        continue-on-error: true
+        uses: github/codeql-action/init@v4
+        with:
+          languages: go
+          config-file: .github/codeql/codeql-config.yml
+
+      - name: Autobuild
+        continue-on-error: true
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Perform CodeQL Analysis
+        continue-on-error: true
+        uses: github/codeql-action/analyze@v4
+
+  bearer:
+    name: Bearer
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Bearer Security Scan
+        continue-on-error: true
+        uses: bearer/bearer-action@v2
+        with:
+          format: sarif
+          output: bearer-results.sarif
+
+      - name: Upload Bearer results
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: bearer-results.sarif
+
+  semgrep:
+    name: Semgrep (tenancy + payment-boundary invariants)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run Semgrep
+        continue-on-error: true
+        run: |
+          pipx install semgrep==1.178.0
+          semgrep scan \
+            --config .semgrep/tenancy.yml \
+            --config p/security-audit \
+            --config p/secrets \
+            --sarif --output semgrep-results.sarif
+
+      - name: Upload Semgrep results
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: semgrep-results.sarif
+
+  gitleaks:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    # New gate, same triage-before-blocking reasoning as above.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: stable
+
+      # gitleaks-action@v2 now requires a paid GITLEAKS_LICENSE for
+      # organization repos ("License key is required" — hit on this
+      # workflow's first run). The underlying gitleaks CLI is still fully
+      # OSS (MIT); installing it directly sidesteps the wrapper action's
+      # licensing gate entirely. Module path is still zricethezav/gitleaks
+      # (the GitHub org/repo was renamed to gitleaks/gitleaks, but the
+      # go.mod module directive wasn't) — `go install
+      # github.com/gitleaks/gitleaks/v8@latest` fails with "module declares
+      # its path as: github.com/zricethezav/gitleaks/v8 but was required
+      # as: github.com/gitleaks/gitleaks/v8".
+      - name: Install gitleaks
+        run: go install github.com/zricethezav/gitleaks/v8@latest
+
+      # .gitleaks.toml allowlists the 10 matches this workflow's first
+      # full-history run found and confirmed as false positives (a doc's
+      # "Bad — DON'T do this" example, synthetic test fixtures, and a
+      # non-sensitive Stripe Price ID) — see that file and
+      # docs/SECURITY-TEST-PLAN.md §5.
+      - name: Run gitleaks
+        run: gitleaks detect --source . --config .gitleaks.toml --redact -v

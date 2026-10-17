@@ -1,0 +1,40 @@
+---
+// Brand for the docs header: the same lit-diamond Sarvex mark as the
+// marketing site, linking home, plus a "Docs" tag linking to the docs root.
+// Replaces Blume's default text-only brand (see components.ts).
+interface Props {
+  site: { title: string };
+}
+---
+
+<span class="sx-brand">
+  <a class="sx-brand-home" href="https://sarvex.io" aria-label="Sarvex home">
+    <span class="sx-mark" aria-hidden="true"><span class="sx-mark-facet"></span></span>
+    <span class="sx-brand-name">Sarvex</span>
+  </a>
+  <a class="sx-brand-tag" href="/">Docs</a>
+</span>
+
+<script is:inline>
+  // Keep the docs' theme in step with the marketing site's `sarvex-theme`
+  // cookie (same origin): adopt it on load, and write it back whenever the
+  // reader toggles here, so switching between /docs and the rest of the
+  // site never flips the theme.
+  (() => {
+    const read = () => document.cookie.match(/(?:^|; )sarvex-theme=(light|dark)/)?.[1];
+    const write = (t) => {
+      document.cookie = `sarvex-theme=${t}; path=/; max-age=31536000; samesite=lax`;
+    };
+    try {
+      const c = read();
+      if (c && localStorage.getItem("blume-theme") !== c) {
+        localStorage.setItem("blume-theme", c);
+        document.documentElement.dataset.theme = c;
+      }
+    } catch {}
+    new MutationObserver(() => {
+      const t = document.documentElement.dataset.theme;
+      if ((t === "light" || t === "dark") && localStorage.getItem("blume-theme") === t && read() !== t) write(t);
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  })();
+</script>

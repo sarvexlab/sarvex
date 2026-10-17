@@ -1,0 +1,1399 @@
+asyncapi: 2.6.0
+
+info:
+  title: Sarvex V1 — Sync Plane Event Contract
+  version: 1.0.0
+  description: |
+    The **sync plane** is event-driven, eventually-consistent, and retryable. Its
+    interface is therefore a message contract, not a REST API — this AsyncAPI document
+    is the counterpart to `sarvex-v1-openapi.yaml` (which covers the synchronous
+    control plane and the `/connector/*` ingest edge).
+
+    ## What this specifies
+    The internal event bus over which sync-plane components communicate: the normalised
+    change events produced from store signals, the derived scoring/consistency events,
+    the checkout lifecycle and checkout→order handoff events, and the
+    task/journey/monitoring signals that cross into the control plane.
+
+    ## What this does NOT specify
+    - The `/connector/*` HTTP ingest endpoints (in the OpenAPI doc) — they are the
+      *source* of the `sync.*.changed` and `sync.order.status_changed` events here, but the wire
+      call itself is synchronous.
+    - The **pull** side: Sarvex's connector calling the merchant store's own REST API to
+      fetch full entities. That is the store's API, governed by the platform, not by Sarvex.
+    - The serving-plane UCP/checkout endpoints (external UCP/Google schema).
+
+    ## Bus conventions (true for every message)
+    - **Naming.** Events are named `source.resource.something_happened` (past tense) — e.g.
+      `sync.price.changed`, `sync.order.created`, `serving.snapshot.swapped`. The `source` is the
+      emitting plane (`sync.*`, `serving.*`), with one exception: `ops.*` names the endpoint-health
+      probe/evaluator workers (`internal/planes/control/endpointhealth`), a cross-cutting operational
+      concern that isn't owned by one plane (its probes call the serving plane over HTTP, its
+      evaluator consumes serving-plane telemetry, and its read API lives in the control plane).
+      This document specifies **events only**. Imperative
+      **commands** (`source.resource.operation`, e.g. `control.catalog.import`) are a separate
+      contract — see the control→sync commands catalogue — because a command is a directed "do this",
+      not a fan-out "this happened".
+    - **Topic-per-event-type, partitioned by store.** Channels are event-type topics,
+      not topic-per-store. Every message carries `ordering_key = store_id` in its
+      headers. The bus guarantees **ordering within a store**; messages for different
+      stores (and different merchants) are processed fully in parallel. (This is the
+      messaging expression of the tenant-isolation and per-store-sequencing invariants;
+      a store belongs to exactly one merchant per architecture §2a.)
+    - **Delivery is at-least-once.** Every consumer must be idempotent. De-duplication is
+      by `message_id`; ordering/replay protection on ingest is by the monotonic
+      `sequence` carried from the originating store signal.
+    - **Retries with backoff, then dead-letter.** A message that exhausts retries goes to
+      the matching `*.dlq` channel (not enumerated per-channel here; it is a uniform
+      convention) and raises an operator alert. Nothing is silently dropped on the
+      derived-event side. (Lost *ingest* signals are the exception — the reconciliation
+      sweeper is their safety net.)
+    - **Priority lane.** `sync.price.changed` and `sync.inventory.changed` are
+      compliance-critical and consumed on a priority lane so they cannot queue behind a
+      bulk catalog import.
+    - **Envelope:** all payloads are JSON, snake_case, and wrapped by the common
+      `message_envelope` headers (id, ordering key, timestamps, sequence, trace, schema
+      version). Money is integer minor units plus currency. Timestamps are RFC 3339 UTC.
+    - **One producer per event type.** Each channel names exactly one producing component
+      (`x-producer`) and its consumers (`x-consumers`) — the messaging expression of the
+      one-writer-per-store rule.
+  contact:
+    name: Sarvex
+    url: https://sarvex.example.com
+  license:
+    name: Proprietary
+
+defaultContentType: application/json
+
+servers:
+  production:
+    url: pubsub.sarvex.internal
+    protocol: pubsub
+    description: |
+      Logical message broker (technology-agnostic). Roles required: durable topics,
+      per-key ordering, consumer retry + dead-letter, and a priority consumption lane.
+
+channels:
+
+  # ───────────────── Ingest → normalised change events ─────────────────
+  # sync.product.changed / sync.price.changed / sync.inventory.changed are
+  # deliberately not channels here: the ingestion pipeline and the
+  # mapping/scoring workers they used to connect both run inside the same
+  # sync-plane process, so normalising a store signal and re-mapping/scoring
+  # it is a direct, same-process call (internal/planes/sync's mappingPipeline
+  # seam) rather than a message crossing a service boundary. This document
+  # specifies the bus that sync-plane components use to talk to *other
+  # planes* (and to each other where a real process boundary exists, e.g.
+  # competing consumers on a shared lease); it is not a log of every
+  # in-process function call.
+
+  # ───────────────── Derived: scoring & consistency ─────────────────
+  # sync.catalog.scored: same reasoning as above. A re-score's only effect
+  # that crosses a plane boundary is the resulting serving.rebuild_requested
+  # (below); the task_service/journey_state_machine reactions this channel
+  # used to imply are already covered by the dedicated sync.task.raised and
+  # sync.journey.threshold_met/lost channels, which are re-derived here from
+  # the rubric's actual zero-blockers gate rather than a raw score, so there
+  # is nothing left for a separate catalog_scored consumer to do.
+
+  sync.consistency.finding_raised:
+    description: |
+      The consistency engine detected divergence across sources (storefront vs Merchant
+      Center vs served data). Critical findings (price/stock) demand a task.
+    publish:
+      operationId: onConsistencyFinding
+      summary: Cross-source consistency finding
+      x-producer: mapping_scoring_workers
+      x-consumers: [task_service, monitoring]
+      message:
+        $ref: '#/components/messages/consistency_finding_raised'
+
+  sync.reconciliation.discrepancy_found:
+    description: |
+      The scheduled reconciliation sweeper found a difference between the merchant store
+      and Sarvex's catalog store that no live signal accounted for (the safety net for
+      lost ingest signals).
+    publish:
+      operationId: onReconciliationDiscrepancy
+      summary: Sweeper discrepancy
+      x-producer: reconciliation_sweeper
+      x-consumers: [mapping_scoring_workers, task_service]
+      message:
+        $ref: '#/components/messages/reconciliation_discrepancy_found'
+
+  # ───────────────── Derived: serving cache ─────────────────
+  serving.snapshot.swapped:
+    description: |
+      A new per-merchant serving snapshot was built and atomically swapped in. Informational
+      — lets the control plane reflect freshness and lets journey logic react.
+    publish:
+      operationId: onSnapshotSwapped
+      summary: Serving snapshot swapped
+      x-producer: cache_rebuilder
+      x-consumers: [journey_state_machine, monitoring]
+      message:
+        $ref: '#/components/messages/serving_snapshot_swapped'
+
+  serving.request.telemetry_recorded:
+    description: |
+      Emitted for every agent request that reaches the serving plane's UCP routes, carrying
+      signature-verification and negotiation outcome alongside status/latency. Deliberately
+      distinct from serving.log.requested (a pre-existing, unrelated event kept as-is) — this
+      event exists specifically for the endpoint-health evaluator's rolling-window
+      computation and carries fields (signature_result, negotiation_result) that event does
+      not. `synthetic: true` marks requests from Sarvex's own endpoint-health probes
+      (internal/pkg/ucp.ProbeHeader); the evaluator excludes them from real-traffic windows.
+
+      Also part of the versioned checkout lifecycle contract (event_version "1.0"): the
+      common envelope's event_version/event_id/occurred_at/surface fields are layered on
+      top additively (checkout_id is not present here — see
+      lifecycle_event_envelope). signature_result keeps its pre-existing four-value domain
+      (valid/invalid/missing/not_applicable) rather than the contract's generic three-value
+      (valid/invalid/absent): the endpoint-health evaluator already branches on
+      not_applicable specifically to exclude routes that never carry a signature from being
+      counted as a signature breach, and collapsing that into the same value as a route that
+      should have been signed and wasn't would misclassify unsigned-by-design requests. The
+      four-value domain is a strict superset of the generic three (valid/invalid mean
+      exactly what the generic contract says).
+    publish:
+      operationId: onTelemetryRecorded
+      summary: Per-request telemetry (signature/negotiation outcome, status, latency)
+      x-producer: serving_request_pipeline
+      x-consumers: [health_evaluator_worker, agent_session_worker]
+      message:
+        $ref: '#/components/messages/telemetry_recorded'
+
+  # ───────────────── Agent Behavior Insights source events ─────────────────
+  # Documented here retroactively — these three events shipped ahead of
+  # this spec update (the Agent Behavior Insights audit's serving-plane
+  # emission gap closure), so this section brings the contract back in
+  # sync with the code rather than describing something new.
+  serving.catalog.query_recorded:
+    description: |
+      Emitted from the serving plane's discovery read path
+      (CatalogService.Search/Lookup — architecture invariant A10.2, cache
+      only, never a live store call) with the structured, derived signal
+      only: matched/looked-up product ids, query kind, surface. Never the
+      raw free-text `q=` search string — CLAUDE.md's privacy invariant
+      (R12 of the Agent Behavior Insights task) requires that no free-text
+      query content be persisted, so it is simply never captured here
+      rather than sanitized after the fact. Fire-and-forget, bounded
+      timeout — never blocks or fails the discovery request.
+    publish:
+      operationId: onCatalogQueryRecorded
+      summary: An agent's catalog search/lookup request was recorded
+      x-producer: serving_catalog_service
+      x-consumers: [behavior_insights_worker]
+      message:
+        $ref: '#/components/messages/catalog_query_recorded'
+
+  ucp.negotiation.succeeded:
+    description: |
+      UCP capability negotiation (internal/pkg/ucp/negotiation) completed
+      successfully for one platform-profile/store pair. Carries the full
+      requested (platform), declared (business), and active
+      (post-intersection) capability and payment-handler sets — added to
+      close the Agent Behavior Insights audit's finding that this event
+      previously discarded the requested/declared sets, keeping only the
+      post-intersection result. Note: this event does not (yet) carry its
+      own event_id field, unlike most other events in this spec — the
+      Agent Behavior Insights worker dedupes on a composite key
+      (store_id + platform_profile_uri + occurred_at) instead; see that
+      worker's consumer.go for why this is safe for at-least-once
+      redelivery specifically, though not a substitute for a real
+      event_id if this contract gains other consumers with different
+      dedup needs.
+    publish:
+      operationId: onNegotiationSucceeded
+      summary: UCP capability negotiation succeeded
+      x-producer: negotiation_service
+      x-consumers: [behavior_insights_worker]
+      message:
+        $ref: '#/components/messages/negotiation_succeeded'
+
+  ucp.negotiation.failed:
+    description: |
+      UCP capability negotiation failed for one platform-profile/store
+      pair, with reason one of the closed set negotiation.Negotiate
+      actually produces (version_unsupported, capabilities_incompatible).
+      Carries the requested/declared capability and payment-handler sets
+      the same as ucp.negotiation.succeeded (active_capabilities/
+      active_payment_handlers are absent — no intersection was ever
+      reached). Same event_id caveat as ucp.negotiation.succeeded.
+    publish:
+      operationId: onNegotiationFailed
+      summary: UCP capability negotiation failed
+      x-producer: negotiation_service
+      x-consumers: [behavior_insights_worker]
+      message:
+        $ref: '#/components/messages/negotiation_failed'
+
+  # ───────────────── Endpoint health (cross-cutting, see naming note above) ─────────────────
+  ops.health.probe_completed:
+    description: |
+      A synthetic endpoint-health probe (profile_reachable, signature_roundtrip,
+      negotiation_handshake, or catalog_lookup) completed against one store.
+      Emitted once per probe per store per cycle — five per store per
+      Config.ProbeInterval, not once per store.
+    publish:
+      operationId: onHealthProbeCompleted
+      summary: Synthetic endpoint-health probe result
+      x-producer: health_probe_worker
+      x-consumers: [health_evaluator_worker]
+      message:
+        $ref: '#/components/messages/health_probe_completed'
+
+  ops.health.threshold_breached:
+    description: |
+      A store's endpoint-health check crossed into a breaching state and stayed there for
+      Config.FlapBreachThreshold consecutive evaluations (flap suppression) — an alert was
+      opened. One event per {store, check_type} transition, never per evaluation.
+    publish:
+      operationId: onHealthThresholdBreached
+      summary: Endpoint-health check breached (alert opened)
+      x-producer: health_evaluator_worker
+      x-consumers: [console_realtime_hub]
+      message:
+        $ref: '#/components/messages/health_status_changed'
+
+  ops.health.recovered:
+    description: |
+      A store's endpoint-health check recovered for Config.FlapRecoveryThreshold consecutive
+      evaluations after a breach — the matching alert was auto-resolved.
+    publish:
+      operationId: onHealthRecovered
+      summary: Endpoint-health check recovered (alert auto-resolved)
+      x-producer: health_evaluator_worker
+      x-consumers: [console_realtime_hub]
+      message:
+        $ref: '#/components/messages/health_status_changed'
+
+  # ───────────────── Agent-surface artifacts ─────────────────
+  # A surface's Sarvex-generated artifact is generated by the surface's sync-plane half,
+  # served from the serving cache, and its fetches reported back. No channel
+  # here names a surface: the surface id is data in the payload.
+  serving.surface_artifact.fetched:
+    description: |
+      The serving plane served a surface artifact from the cache to a fetcher
+      (a partner reading a file). Carries only the artifact's public token: the serving plane
+      resolves no tenant for a fetch, and the sync plane — which owns the artifact
+      record — attributes the token and records the first-fetch verification signal.
+      Fire-and-forget; a lost event is re-sent by the next fetch.
+    publish:
+      operationId: onSurfaceArtifactFetched
+      summary: Surface artifact fetched
+      x-producer: artifact_handler
+      x-consumers: [surface_artifact_runner]
+      message:
+        $ref: '#/components/messages/surface_artifact_fetched'
+
+  sync.surface_artifact.updated:
+    description: |
+      The surface artifact runner generated an artifact for a store enrolled on a
+      surface, or observed something new about it (first fetch). The control plane
+      re-evaluates that surface's enrollment on it, which is what moves a `verifying`
+      enrollment to `enrolled` without the merchant opening the console.
+    publish:
+      operationId: onSurfaceArtifactUpdated
+      summary: Surface artifact generated or observed
+      x-producer: surface_artifact_runner
+      x-consumers: [surface_subscriber]
+      message:
+        $ref: '#/components/messages/surface_artifact_updated'
+
+  # ───────────────── Checkout lifecycle (session projection) ─────────────────
+  # Consumed exclusively by the control-plane session-projection worker
+  # (internal/planes/control/checkoutescalation, Checkout Escalation
+  # Console) to maintain a read-only, per-session timeline for
+  # merchant/support diagnosis. Read-model only: nothing in the serving
+  # plane's checkout hot path consumes or waits on these — they are
+  # emitted best-effort, the same way serving.checkout.order_intent
+  # already is below. "Completed" has no event of its own here;
+  # serving.checkout.order_intent (below) already fires exactly once at
+  # that transition and carries everything the projection needs.
+  serving.checkout.session_initiated:
+    description: Emitted at the end of a successful checkout create.
+    publish:
+      operationId: onCheckoutSessionInitiated
+      summary: A checkout session was created
+      x-producer: checkout_session_service
+      x-consumers: [session_projection_worker]
+      message:
+        $ref: '#/components/messages/checkout_session_initiated'
+
+  serving.checkout.cart_updated:
+    description: Emitted at the end of every successful checkout update (buyer/fulfillment/line items, shipping+tax resolved).
+    publish:
+      operationId: onCheckoutCartUpdated
+      summary: A checkout session's cart/buyer/fulfillment was updated
+      x-producer: checkout_session_service
+      x-consumers: [session_projection_worker]
+      message:
+        $ref: '#/components/messages/checkout_cart_updated'
+
+  serving.checkout.payment_submitted:
+    description: |
+      Emitted immediately before the checkout service's synchronous
+      CheckoutComplete call to the connector — the one live external call
+      in the checkout flow, and so the one place a real "awaiting payment"
+      window exists between request and resolution.
+    publish:
+      operationId: onCheckoutPaymentSubmitted
+      summary: A checkout session's payment was submitted to the connector
+      x-producer: checkout_session_service
+      x-consumers: [session_projection_worker, agent_session_worker]
+      message:
+        $ref: '#/components/messages/checkout_payment_submitted'
+
+  serving.checkout.escalated:
+    description: |
+      The connector's CheckoutComplete response was requires_escalation
+      (e.g. 3DS) — the buyer must complete an out-of-band action at
+      continue_url before the agent can retry complete. Nothing was
+      committed at the merchant.
+
+      Shared by two contracts on the same topic, one message schema: the
+      pre-existing session-projection fields (event_id/checkout_session_id/
+      reason/continue_url/stage/emitted_at) are unchanged, and the
+      versioned checkout lifecycle contract's common envelope
+      (event_version/occurred_at/checkout_id/surface, event_version "1.0")
+      is layered on top additively — see checkout_failed for why the two
+      contracts share rather than duplicate this channel.
+    publish:
+      operationId: onCheckoutEscalated
+      summary: A checkout session requires buyer escalation
+      x-producer: checkout_session_service
+      x-consumers: [session_projection_worker, agent_session_worker]
+      message:
+        $ref: '#/components/messages/checkout_escalated'
+
+  serving.checkout.failed:
+    description: |
+      A checkout session failed at create, update, the pre-complete
+      freshness guard, or complete. Carries the raw failure signal (code,
+      message, stage) only — classification into a cause happens once,
+      downstream, in the session-projection worker's diagnosis layer
+      (internal/pkg/checkoutcause), not on this event.
+
+      Shared by two contracts on the same topic, one message schema: the
+      pre-existing session-projection fields above are unchanged, and the
+      versioned checkout lifecycle contract's common envelope plus a
+      structured `failure` object and `cart_snapshot` (event_version "1.0")
+      are layered on top additively, so the session-projection worker keeps
+      parsing the flat fields it already reads without any change on its
+      side. failure.detail carries no PII and no payment credential
+      material of any kind — checkout_failed never has access to raw
+      credentials in the first place (the checkout schema has no field able
+      to hold one; architecture invariant 8), so this is a description of
+      what the field can never contain, not an active redaction step.
+    publish:
+      operationId: onCheckoutFailed
+      summary: A checkout session failed
+      x-producer: checkout_session_service
+      x-consumers: [session_projection_worker, lost_revenue_ledger_worker, agent_session_worker]
+      message:
+        $ref: '#/components/messages/checkout_failed'
+
+  # ───────────────── Versioned checkout lifecycle contract (event_version "1.0") ─────────────────
+  # New channels only — serving.checkout.escalated/failed and
+  # serving.request.telemetry_recorded above are also part of this
+  # contract (their messages carry the common envelope additively; see
+  # their descriptions) but are not repeated here since they're already
+  # documented as channels. serving.checkout.initiated/updated/completed
+  # still have no consumer; serving.checkout.abandoned below now does (the
+  # Lost Revenue Ledger, added after this contract) — see its own
+  # x-consumers.
+  serving.checkout.initiated:
+    description: Emitted once, at the end of a successful checkout create — the versioned contract's counterpart to serving.checkout.session_initiated above (a distinct event, not a rename of it).
+    publish:
+      operationId: onCheckoutInitiatedV1
+      summary: A checkout session was created (versioned lifecycle contract)
+      x-producer: checkout_session_service
+      x-consumers: [agent_session_worker]
+      message:
+        $ref: '#/components/messages/checkout_initiated_v1'
+
+  serving.checkout.updated:
+    description: Emitted at the end of every successful checkout update (buyer/fulfillment/line items, shipping+tax resolved) — the versioned contract's counterpart to serving.checkout.cart_updated above.
+    publish:
+      operationId: onCheckoutUpdatedV1
+      summary: A checkout session was updated (versioned lifecycle contract)
+      x-producer: checkout_session_service
+      x-consumers: [agent_session_worker]
+      message:
+        $ref: '#/components/messages/checkout_updated_v1'
+
+  serving.checkout.completed:
+    description: |
+      Emitted once a connector CheckoutComplete call has genuinely placed
+      an order at the merchant — the same transition
+      serving.checkout.order_intent (below) already reports to the sync
+      plane's order-intent handler; this is the same moment, reported to
+      the versioned lifecycle contract. Unlike the pre-existing
+      session-projection contract (which has no event of its own for this
+      transition, relying on order_intent instead), this contract has a
+      dedicated channel.
+    publish:
+      operationId: onCheckoutCompletedV1
+      summary: A checkout session completed (versioned lifecycle contract)
+      x-producer: checkout_session_service
+      x-consumers: []
+      message:
+        $ref: '#/components/messages/checkout_completed_v1'
+
+  serving.checkout.abandoned:
+    description: |
+      Emitted by a scheduled sweep (not inline from a checkout request) —
+      a session in a non-terminal state with no activity for
+      AbandonmentThreshold (default 30 minutes, configurable) is marked
+      abandoned and this event fires with the session's last known
+      cart_snapshot and stage (the SessionState the session was in when it
+      went quiet — added for the Lost Revenue Ledger, additive to the
+      original contract, which had no consumer yet). The sweep reads
+      session state from the serving plane's own Redis session store and
+      marks a session before emitting, so a session emits this at most
+      once even across concurrent/repeated sweep passes.
+    publish:
+      operationId: onCheckoutAbandonedV1
+      summary: A checkout session was abandoned (versioned lifecycle contract)
+      x-producer: checkout_abandonment_sweep
+      x-consumers: [lost_revenue_ledger_worker, agent_session_worker]
+      message:
+        $ref: '#/components/messages/checkout_abandoned_v1'
+
+  # ───────────────── Checkout → order handoff ─────────────────
+  serving.checkout.order_intent:
+    description: |
+      Emitted by the serving-plane checkout service at `complete`, after the
+      connector's synchronous CheckoutComplete call has already captured funds
+      and created the order at the merchant store — order_id/store_order_ref/
+      order_status are carried on this event precisely because the order
+      already exists by the time it fires. The order-intent handler's job is
+      to record that order locally (and enable future status-sync), never to
+      create it — creating it again here would duplicate the order at the
+      merchant.
+    publish:
+      operationId: onOrderIntent
+      summary: Order intent from a completed checkout (order already created)
+      x-producer: checkout_session_service
+      x-consumers: [order_intent_handler, agent_session_worker]
+      message:
+        $ref: '#/components/messages/order_intent'
+
+  sync.order.created:
+    description: The order-intent handler recorded the (already-created) order locally and confirmed the session.
+    publish:
+      operationId: onOrderCreated
+      summary: Order recorded from a completed checkout
+      x-producer: order_intent_handler
+      x-consumers: [journey_state_machine, monitoring]
+      message:
+        $ref: '#/components/messages/order_created'
+
+  sync.order.handoff_failed:
+    description: |
+      Order creation in the store could not be completed after retries. **Critical** —
+      raises an operator alert; never a silent loss. The checkout session remains in
+      committed-pending-handoff for manual resolution.
+    publish:
+      operationId: onHandoffFailed
+      summary: Order handoff failed (critical)
+      x-producer: order_handoff_worker
+      x-consumers: [task_service, monitoring]
+      message:
+        $ref: '#/components/messages/order_handoff_failed'
+
+  sync.order.status_changed:
+    description: |
+      A status change on a Sarvex-originated order (from a store plugin signal), driving
+      the status-sync loop back toward the originating agent.
+    publish:
+      operationId: onOrderStatusChanged
+      summary: Order status change (normalised)
+      x-producer: ingestion_pipeline
+      x-consumers: [order_handoff_worker]
+      message:
+        $ref: '#/components/messages/order_status_changed'
+
+  # ───────────────── Cross-plane signals (sync → control) ─────────────────
+  sync.task.raised:
+    description: |
+      The inbound seam for **detected** tasks from the sync side: a sync-plane component that
+      found something (readiness/consistency via scoring, discrepancy via sweeper, alert via
+      monitoring, handoff failure, validation failure, catalog import failure) asks the task
+      service to create/update a task — or, via the `resolved` flag, to close one whose
+      underlying condition no longer applies (e.g. a rescore no longer finds the issue, or a
+      resync succeeds after a prior failure). Multiple sync-plane sources produce onto this
+      channel; the task service is the sole consumer/writer. (Prescribed tasks — the go-live
+      items — are raised control-plane internally by the checklist/journey service
+      on stage transition, not over this channel.)
+    publish:
+      operationId: onTaskRaised
+      summary: Detected task raised/updated/resolved from a sync-plane finding
+      x-producer: sync_plane_sources
+      x-consumers: [task_service]
+      message:
+        $ref: '#/components/messages/task_raised'
+
+  sync.journey.threshold_met:
+    description: |
+      A store crossed the readiness threshold (zero open blocks_checkout issues). The journey
+      state machine owns the actual transition and its guard conditions; this announces the fact.
+    publish:
+      operationId: onThresholdMet
+      summary: Readiness threshold met
+      x-producer: mapping_scoring_workers
+      x-consumers: [journey_state_machine]
+      message:
+        $ref: '#/components/messages/journey_threshold'
+
+  sync.journey.threshold_lost:
+    description: |
+      A store regressed below the readiness threshold (a new blocks_checkout issue appeared).
+      The journey state machine decides whether to move the store back from a ready state.
+    publish:
+      operationId: onThresholdLost
+      summary: Readiness threshold lost
+      x-producer: mapping_scoring_workers
+      x-consumers: [journey_state_machine]
+      message:
+        $ref: '#/components/messages/journey_threshold'
+
+  control.journey.updated:
+    description: |
+      The journey state machine applied a state transition for a store. Produced and
+      consumed entirely within the control plane — it exists so a state change accepted
+      by one control-plane instance reaches the console-realtime hub on every instance
+      (the WebSocket connection for a given store is pinned to whichever instance
+      accepted it), not to cross a plane boundary. Consumed by the realtime hub to push
+      `journey_stream_message` frames on `GET /stores/{store_id}/journey/stream`
+      (sarvex-v1-control-plane.yaml); the console re-fetches the full `journey` resource
+      on receipt rather than trusting this event's payload as authoritative.
+    publish:
+      operationId: onJourneyUpdated
+      summary: Journey state transitioned
+      x-producer: journey_state_machine
+      x-consumers: [console_realtime_hub]
+      message:
+        $ref: '#/components/messages/journey_updated'
+
+  control.store.activation_state_changed:
+    description: |
+      A store's UCP activation state changed — the store's *own* lifecycle (profile
+      served, capabilities declared, signatures verifying, checkout working). Produced
+      and consumed within the control plane.
+
+      This is the topic to subscribe to for "is this store agent-transactable". It says
+      nothing about distribution: a store reaching `active` is complete on its own, with
+      zero agent surfaces enrolled. Consumed by the surface service (entering `active`
+      is what auto-enrolls `direct_agent`) and by health and analytics, which key off
+      activation rather than polling for it.
+
+      Both ends of the move are carried, not just the new state: consumers care about
+      direction — entering `active` and leaving it call for different work — and
+      reconstructing that from a bare new-state event would mean every consumer keeping
+      its own copy of the previous value.
+    publish:
+      operationId: onStoreActivationStateChanged
+      summary: Store UCP activation state transitioned
+      x-producer: activation_state_machine
+      x-consumers: [surface_service, endpoint_health, analytics]
+      message:
+        $ref: '#/components/messages/store_activation_state_changed'
+
+  control.store.surface_state_changed:
+    description: |
+      A store's enrollment on one agent surface changed. Produced and consumed within
+      the control plane, and deliberately a separate topic from
+      control.store.activation_state_changed: the two are separate lifecycles, and a
+      consumer that cares about one must not be woken by the other.
+
+      `surface_id` is what makes this useful to a consumer scoped to a single surface —
+      an artifact worker gates on its own surface and ignores every other surface's
+      transitions without loading anything. Surface state never affects activation
+      state, and never affects another surface.
+    publish:
+      operationId: onStoreSurfaceStateChanged
+      summary: Agent-surface enrollment state transitioned
+      x-producer: surface_service
+      x-consumers: [surface_artifact_runner, endpoint_health, analytics]
+      message:
+        $ref: '#/components/messages/store_surface_state_changed'
+
+  sync.monitoring.alert_raised:
+    description: A monitoring probe or freshness check crossed a threshold; routed to tasks/notifications by owner.
+    publish:
+      operationId: onMonitoringAlert
+      summary: Monitoring alert
+      x-producer: monitoring
+      x-consumers: [task_service]
+      message:
+        $ref: '#/components/messages/monitoring_alert_raised'
+
+  control.task.updated:
+    description: |
+      A control-plane Task was raised, resolved, or completed. Produced and consumed
+      entirely within the control plane — same cross-instance fan-out reason as
+      control.journey.updated. Consumed by the realtime hub, which checks whether the
+      task's store currently has an active journey record before pushing a
+      `journey_stream_message` frame (type `task.updated`) on
+      `GET /stores/{store_id}/journey/stream` (sarvex-v1-control-plane.yaml); the
+      console re-fetches the task via `GET /tasks/{id}` on receipt rather than trusting
+      this event's payload as authoritative.
+    publish:
+      operationId: onTaskUpdated
+      summary: Task raised or state changed
+      x-producer: task_service
+      x-consumers: [console_realtime_hub]
+      message:
+        $ref: '#/components/messages/task_updated'
+
+components:
+
+  messageTraits:
+    common_envelope:
+      headers:
+        type: object
+        required: [message_id, ordering_key, occurred_at, schema_version]
+        properties:
+          message_id:
+            type: string
+            description: Unique per message; consumers de-duplicate on this.
+          ordering_key:
+            type: string
+            description: The store_id. Guarantees per-store ordering; the catalog/serving tenant boundary (a store belongs to one merchant — see architecture §2a).
+          occurred_at:
+            type: string
+            format: date-time
+          sequence:
+            type: integer
+            format: int64
+            description: Monotonic per-connector sequence carried from the origin signal (ingest events only).
+          trace_id:
+            type: string
+            description: Correlates a chain of events from one originating cause.
+          schema_version:
+            type: string
+            example: "1.0"
+
+  schemas:
+    money:
+      type: object
+      required: [amount_minor, currency]
+      properties:
+        amount_minor: { type: integer }
+        currency: { type: string, example: AUD }
+    cart_summary:
+      type: object
+      required: [currency, total_minor, item_count]
+      properties:
+        currency: { type: string, example: AUD }
+        total_minor: { type: integer }
+        item_count: { type: integer }
+    severity:
+      type: string
+      enum: [info, warning, critical]
+    task_owner:
+      type: string
+      enum: [merchant, sarvex, external]
+
+    # ── Versioned checkout lifecycle event contract (event_version "1.0") ──
+    # Defined once, $ref'd from every message payload in this contract
+    # (checkout_initiated_v1/checkout_updated_v1/checkout_completed_v1/
+    # checkout_abandoned_v1 below, plus additively on the pre-existing
+    # checkout_escalated/checkout_failed/telemetry_recorded messages —
+    # those three channels are shared by both the pre-existing
+    # session-projection contract and this one; see checkout_escalated's
+    # description for why). checkout_id is intentionally absent on
+    # telemetry_recorded (not required there, see that message).
+    lifecycle_event_envelope:
+      type: object
+      required: [event_version, event_id, occurred_at, merchant_id, store_id, surface]
+      properties:
+        event_version:
+          type: string
+          example: "1.0"
+          description: Semver of this event contract. Starts at "1.0"; bump on a breaking payload change.
+        event_id:
+          type: string
+          description: Fresh per emission — a ULID prefixed "evt_", lexicographically sortable by emission time.
+          pattern: '^evt_[0-9A-HJKMNP-TV-Z]{26}$'
+        occurred_at:
+          type: string
+          format: date-time
+        merchant_id: { type: string }
+        store_id: { type: string }
+        surface:
+          type: string
+          description: >-
+            Best-effort Google surface, derived from the UCP-Agent header's
+            profile-URL host. "unknown" when the header is absent or
+            doesn't recognizably match a known Google surface.
+          enum: [google_ai_mode, google_gemini, unknown]
+        checkout_id:
+          type: string
+          description: Absent on serving.request.telemetry_recorded; the Sarvex checkout session id everywhere else.
+    cart_line_item_snapshot:
+      type: object
+      required: [sku, quantity, unit_price_minor]
+      properties:
+        sku: { type: string }
+        quantity: { type: integer }
+        unit_price_minor:
+          type: integer
+          description: 0 when no live connector pricing was ever resolved for this session (see cart_snapshot).
+    cart_snapshot:
+      type: object
+      required: [currency, total_minor, line_items]
+      properties:
+        currency: { type: string, example: USD }
+        total_minor: { type: integer }
+        line_items:
+          type: array
+          items: { $ref: '#/components/schemas/cart_line_item_snapshot' }
+    failure_code:
+      type: string
+      description: Closed enum — every checkout failure code the serving plane can currently produce.
+      enum: [CONNECTOR_CREATE_FAILED, CONNECTOR_UPDATE_FAILED, FRESHNESS_GUARD_FAILED, ORDER_CREATION_FAILED]
+    failure_stage:
+      type: string
+      description: >-
+        Closed enum. Only session_create, cart_update, payment_submission,
+        and confirmation are reachable by any failure_code this contract
+        currently produces — negotiation and escalation are part of the
+        full contract enum but not yet reachable (see checkout_failed).
+      enum: [negotiation, session_create, cart_update, payment_submission, confirmation, escalation]
+    failure_detail:
+      type: object
+      required: [code, stage, handler_id, detail]
+      properties:
+        code: { $ref: '#/components/schemas/failure_code' }
+        stage: { $ref: '#/components/schemas/failure_stage' }
+        handler_id:
+          type: string
+          nullable: true
+          description: The selected payment instrument's handler_id, when a payment instrument had been selected at the time of failure; null otherwise.
+        detail:
+          type: string
+          description: No PII, no payment credential material of any kind — see the failed message's description.
+    negotiation_capability_sets:
+      type: object
+      description: The observational requested/declared/active capability and payment-handler sets shared by negotiation_succeeded and negotiation_failed. Names are the wire profile's reverse-domain capability/handler names (internal/pkg/ucp/types), never free text.
+      properties:
+        requested_capabilities:
+          type: array
+          items: { type: string }
+          description: The calling platform's full capability set.
+        declared_capabilities:
+          type: array
+          items: { type: string }
+          description: The business (merchant)'s full declared capability set.
+        active_capabilities:
+          type: array
+          items: { type: string }
+          nullable: true
+          description: The post-intersection capability set. Absent (null) on a failed negotiation — no intersection was ever reached.
+        requested_payment_handlers:
+          type: array
+          items: { type: string }
+        declared_payment_handlers:
+          type: array
+          items: { type: string }
+        active_payment_handlers:
+          type: array
+          items: { type: string }
+          nullable: true
+          description: Absent (null) on a failed negotiation. Note that an empty (non-null) intersection here does NOT itself fail negotiation — see ucp.negotiation.failed's reason enum, which never includes a payment-handler cause.
+
+  messages:
+
+    consistency_finding_raised:
+      name: consistency_finding_raised
+      title: Consistency finding
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [finding_id, sku, field, severity]
+        properties:
+          finding_id: { type: string }
+          sku: { type: string }
+          field: { type: string, example: price }
+          sources:
+            type: object
+            additionalProperties: { type: string }
+          severity: { $ref: '#/components/schemas/severity' }
+
+    reconciliation_discrepancy_found:
+      name: reconciliation_discrepancy_found
+      title: Sweeper discrepancy
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [sku, field]
+        properties:
+          sku: { type: string }
+          field: { type: string }
+          store_value: { type: string }
+          sarvex_value: { type: string }
+
+    serving_snapshot_swapped:
+      name: serving_snapshot_swapped
+      title: Snapshot swapped
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [snapshot_version, built_at]
+        properties:
+          snapshot_version: { type: string }
+          built_at: { type: string, format: date-time }
+          source_watermark: { type: string, format: date-time }
+
+    order_intent:
+      name: order_intent
+      title: Order intent
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [checkout_session_id, order_id, store_order_ref, order_status, line_items, total]
+        properties:
+          checkout_session_id: { type: string }
+          order_id:
+            type: string
+            description: The order identifier returned by the connector's synchronous CheckoutComplete call — the order already exists at the merchant.
+          store_order_ref:
+            type: string
+            description: The merchant store's own reference for the order (may equal order_id, depending on connector).
+          order_status:
+            type: string
+            description: The order status as of creation (connector CheckoutComplete response), e.g. "completed".
+          line_items:
+            type: array
+            items:
+              type: object
+              properties:
+                sku: { type: string }
+                quantity: { type: integer }
+          total: { $ref: '#/components/schemas/money' }
+          # Note: carries references and verification artifacts only — never raw payment credentials.
+
+    order_created:
+      name: order_created
+      title: Order created
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [order_id, checkout_session_id, store_order_ref]
+        properties:
+          order_id: { type: string }
+          checkout_session_id: { type: string }
+          store_order_ref: { type: string }
+
+    checkout_session_initiated:
+      name: checkout_session_initiated
+      title: Checkout session initiated
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [event_id, checkout_session_id, store_id, merchant_id, surface, cart, stage]
+        properties:
+          event_id:
+            type: string
+            description: Fresh per emission — the session-projection worker's idempotency/dedup key, independent of the bus envelope's own message_id.
+          checkout_session_id: { type: string }
+          store_id: { type: string }
+          merchant_id: { type: string }
+          surface:
+            type: string
+            description: The checkout surface. There is exactly one — UCP checkout.
+            enum: [ucp_checkout]
+          agent_platform:
+            type: string
+            nullable: true
+            description: Best-effort agent platform identification from the UCP-Agent header; absent when the header wasn't present.
+          cart: { $ref: '#/components/schemas/cart_summary' }
+          stage: { type: string, enum: [initiated] }
+
+    checkout_cart_updated:
+      name: checkout_cart_updated
+      title: Checkout cart updated
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [event_id, checkout_session_id, store_id, merchant_id, cart, stage]
+        properties:
+          event_id: { type: string }
+          checkout_session_id: { type: string }
+          store_id: { type: string }
+          merchant_id: { type: string }
+          cart: { $ref: '#/components/schemas/cart_summary' }
+          stage: { type: string, enum: [cart_active] }
+
+    checkout_payment_submitted:
+      name: checkout_payment_submitted
+      title: Checkout payment submitted
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [event_id, checkout_session_id, store_id, merchant_id, stage]
+        properties:
+          event_id: { type: string }
+          checkout_session_id: { type: string }
+          store_id: { type: string }
+          merchant_id: { type: string }
+          stage: { type: string, enum: [awaiting_payment] }
+
+    checkout_escalated:
+      name: checkout_escalated
+      title: Checkout escalated
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/lifecycle_event_envelope'
+          - type: object
+            required: [event_id, checkout_session_id, store_id, merchant_id, continue_url, stage]
+            properties:
+              event_id: { type: string }
+              checkout_session_id: { type: string }
+              store_id: { type: string }
+              merchant_id: { type: string }
+              reason:
+                type: string
+                description: The qualifying error message's content (severity requires_buyer_input or requires_buyer_review).
+              continue_url:
+                type: string
+                description: Where the buyer must go to complete the out-of-band action before the agent retries complete.
+              stage: { type: string, enum: [escalated] }
+
+    checkout_failed:
+      name: checkout_failed
+      title: Checkout failed
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/lifecycle_event_envelope'
+          - type: object
+            required: [event_id, checkout_session_id, store_id, merchant_id, code, stage, failure, cart_snapshot]
+            properties:
+              event_id: { type: string }
+              checkout_session_id: { type: string }
+              store_id: { type: string }
+              merchant_id: { type: string }
+              code:
+                type: string
+                description: Raw SessionError code from checkout_service.go, e.g. CONNECTOR_CREATE_FAILED, CONNECTOR_UPDATE_FAILED, FRESHNESS_GUARD_FAILED, ORDER_CREATION_FAILED. Classified into a checkoutcause.Cause downstream, not here. Identical to failure.code (below) — kept for the pre-existing session-projection consumer, which reads this flat field.
+              message: { type: string }
+              stage:
+                type: string
+                enum: [create, update, complete_freshness_guard, complete]
+              failure:
+                description: The versioned lifecycle contract's structured failure detail — a duplicate view of code/message/stage above using the contract's own closed enums, not new information.
+                $ref: '#/components/schemas/failure_detail'
+              cart_snapshot:
+                $ref: '#/components/schemas/cart_snapshot'
+
+    checkout_initiated_v1:
+      name: checkout_initiated_v1
+      title: Checkout initiated (versioned lifecycle contract)
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        $ref: '#/components/schemas/lifecycle_event_envelope'
+
+    checkout_updated_v1:
+      name: checkout_updated_v1
+      title: Checkout updated (versioned lifecycle contract)
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        $ref: '#/components/schemas/lifecycle_event_envelope'
+
+    checkout_completed_v1:
+      name: checkout_completed_v1
+      title: Checkout completed (versioned lifecycle contract)
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        $ref: '#/components/schemas/lifecycle_event_envelope'
+
+    checkout_abandoned_v1:
+      name: checkout_abandoned_v1
+      title: Checkout abandoned (versioned lifecycle contract)
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/lifecycle_event_envelope'
+          - type: object
+            required: [cart_snapshot, stage]
+            properties:
+              cart_snapshot:
+                $ref: '#/components/schemas/cart_snapshot'
+              stage:
+                type: string
+                description: The SessionState the session was in when it went quiet (added for the Lost Revenue Ledger, additive to the original contract) — distinguishes ordinary top-of-funnel drop-off from a stall right before the final complete call.
+                enum: [incomplete, ready_for_complete]
+
+    order_handoff_failed:
+      name: order_handoff_failed
+      title: Order handoff failed
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [checkout_session_id, reason]
+        properties:
+          checkout_session_id: { type: string }
+          reason: { type: string }
+          attempts: { type: integer }
+
+    order_status_changed:
+      name: order_status_changed
+      title: Order status changed
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [store_order_ref, status]
+        properties:
+          store_order_ref: { type: string }
+          status:
+            type: string
+            enum: [confirmed, shipped, cancelled, refunded]
+
+    task_raised:
+      name: task_raised
+      title: Task raised
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [source, source_ref, owner, title]
+        properties:
+          source:
+            type: string
+            enum: [readiness, consistency, validation, monitoring, catalog_import]
+          source_ref: { type: string }
+          issue_id:
+            type: string
+            description: >-
+              Id of the specific issue on source_ref's product that raised
+              this task (readiness only). Disambiguates multiple blocking
+              issues on the same product so each gets its own task instead of
+              colliding on (source, store, source_ref).
+          owner: { $ref: '#/components/schemas/task_owner' }
+          title: { type: string }
+          blocks_checkout: { type: boolean }
+          resolved:
+            type: boolean
+            description: >-
+              When true, this signals the (source, source_ref, issue_id) task
+              should be closed rather than raised — the underlying condition
+              no longer applies.
+
+    journey_threshold:
+      name: journey_threshold
+      title: Journey threshold change
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [store_id]
+        properties:
+          store_id: { type: string }
+          blocks_checkout_count:
+            type: integer
+            description: Open blocks_checkout issues at time of emission (0 = threshold met).
+
+    journey_updated:
+      name: journey_updated
+      title: Journey state transitioned
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [store_id, state]
+        properties:
+          store_id: { type: string }
+          state:
+            type: string
+            description: The journey state entered by this transition (see journey_state in sarvex-v1-control-plane.yaml).
+
+    store_activation_state_changed:
+      name: store_activation_state_changed
+      title: Store UCP activation state transitioned
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [store_id, from_state, to_state, signal]
+        properties:
+          store_id: { type: string }
+          from_state:
+            type: string
+            description: The activation state left by this transition (see ucp_state in sarvex-v1-control-plane.yaml).
+            enum: [draft, connector_linked, profile_published, verified, active, suspended]
+          to_state:
+            type: string
+            description: The activation state entered by this transition.
+            enum: [draft, connector_linked, profile_published, verified, active, suspended]
+          signal:
+            type: string
+            description: |
+              The evidence that caused the move. Every value names something that
+              arrived — a connector paired, a profile served, a conformance run passed —
+              never an intention, and never a surface.
+            enum:
+              - connector_linked
+              - connector_unlinked
+              - profile_published
+              - profile_withdrawn
+              - verification_passed
+              - verification_failed
+              - activated
+              - health_critical
+              - resumed
+
+    store_surface_state_changed:
+      name: store_surface_state_changed
+      title: Agent-surface enrollment state transitioned
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [store_id, surface_id, from_state, to_state, event]
+        properties:
+          store_id: { type: string }
+          surface_id:
+            type: string
+            description: |
+              Registry id of the surface (`GET /surfaces`). Deliberately not an enum —
+              the set of surfaces is a deployment property, and adding one must not
+              require a contract change here.
+          from_state:
+            type: string
+            description: The enrollment state left by this transition (see surface_state in sarvex-v1-control-plane.yaml).
+            enum: [available, prerequisites_pending, configured, submitted, verifying, enrolled, suspended]
+          to_state:
+            type: string
+            description: The enrollment state entered by this transition.
+            enum: [available, prerequisites_pending, configured, submitted, verifying, enrolled, suspended]
+          event:
+            type: string
+            description: What drove the move.
+            enum:
+              - enroll
+              - prerequisites_met
+              - prerequisites_failed
+              - submitted
+              - verifying
+              - verified
+              - suspended
+              - resumed
+              - withdrawn
+
+    task_updated:
+      name: task_updated
+      title: Task raised or state changed
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [task_id, store_id, state]
+        properties:
+          task_id: { type: string }
+          store_id: { type: string }
+          state:
+            type: string
+            description: The task's state as of this change (see task_state in sarvex-v1-control-plane.yaml).
+
+    surface_artifact_fetched:
+      name: surface_artifact_fetched
+      title: Surface artifact fetched
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [token]
+        properties:
+          token:
+            type: string
+            description: The artifact's unguessable public handle — not a tenant identifier.
+
+    surface_artifact_updated:
+      name: surface_artifact_updated
+      title: Surface artifact generated or observed
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [store_id, surface_id, artifact_id, what]
+        properties:
+          store_id: { type: string }
+          surface_id: { type: string }
+          artifact_id: { type: string }
+          what:
+            type: string
+            enum: [generated, first_fetch]
+
+    monitoring_alert_raised:
+      name: monitoring_alert_raised
+      title: Monitoring alert
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [kind, severity]
+        properties:
+          kind:
+            type: string
+            enum: [semantic_endpoint, sync_freshness, consistency, profile_edge]
+          severity: { $ref: '#/components/schemas/severity' }
+          message: { type: string }
+
+    telemetry_recorded:
+      name: telemetry_recorded
+      title: Per-request telemetry
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/lifecycle_event_envelope'
+          - type: object
+            required: [store_id, route_template, method, status_code, latency_ms, signature_result, negotiation_result, synthetic]
+            properties:
+              store_id: { type: string }
+              agent_platform:
+                type: string
+                nullable: true
+                description: Best-effort agent platform identification from the UCP-Agent header; null when the header wasn't present.
+              route_template: { type: string, example: /catalog/:itemId }
+              method: { type: string, example: GET }
+              status_code: { type: integer }
+              latency_ms: { type: integer }
+              signature_result:
+                type: string
+                description: >-
+                  Kept as the pre-existing four-value domain rather than the
+                  generic contract's three-value (valid/invalid/absent) —
+                  see this channel's description for why.
+                enum: [valid, invalid, missing, not_applicable]
+              negotiation_result:
+                type: string
+                enum: [succeeded, failed, not_applicable]
+              synthetic:
+                type: boolean
+                description: True for Sarvex's own endpoint-health probe traffic — excluded from real-traffic evaluation.
+              request_id: { type: string }
+
+    catalog_query_recorded:
+      name: catalog_query_recorded
+      title: Agent catalog search/lookup request
+      payload:
+        type: object
+        required: [event_id, store_id, merchant_id, kind, surface, requested_product_ids, occurred_at]
+        properties:
+          event_id: { type: string }
+          store_id: { type: string }
+          merchant_id: { type: string }
+          kind:
+            type: string
+            enum: [search, lookup]
+          surface:
+            type: string
+            description: serving.Surface's full domain (internal/planes/serving/lifecycle_contract.go) — openai_chatgpt is defined on that type but never actually produced by deriveSurface today (no signal distinguishes ChatGPT/ACP traffic yet).
+            enum: [google_ai_mode, google_gemini, openai_chatgpt, other_agent, unknown]
+          agent_platform:
+            type: string
+            nullable: true
+            description: Best-effort agent platform identification from the UCP-Agent header; null when the header wasn't present.
+          requested_product_ids:
+            type: array
+            items: { type: string }
+            description: The returned page's SKUs for a search, or the looked-up item id for a lookup — recorded even when the lookup misses. Never raw free-text query content.
+          occurred_at: { type: string, format: date-time }
+
+    negotiation_succeeded:
+      name: negotiation_succeeded
+      title: UCP capability negotiation succeeded
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/negotiation_capability_sets'
+          - type: object
+            required: [instance_id, platform_profile_uri]
+            properties:
+              instance_id:
+                type: string
+                description: The store id — named instance_id on this event specifically (not store_id, unlike negotiation_failed and every other channel in this spec).
+              platform_profile_uri: { type: string, format: uri }
+
+    negotiation_failed:
+      name: negotiation_failed
+      title: UCP capability negotiation failed
+      payload:
+        allOf:
+          - $ref: '#/components/schemas/negotiation_capability_sets'
+          - type: object
+            required: [store_id, platform_profile_uri, reason]
+            properties:
+              store_id: { type: string }
+              platform_profile_uri: { type: string, format: uri }
+              reason:
+                type: string
+                description: Closed enum derived from negotiation.Negotiate — the only two strings that service ever produces.
+                enum: [version_unsupported, capabilities_incompatible]
+
+    health_probe_completed:
+      name: health_probe_completed
+      title: Synthetic endpoint-health probe result
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [store_id, probe_type, outcome, synthetic]
+        properties:
+          store_id: { type: string }
+          probe_type:
+            type: string
+            enum: [profile_reachable, signature_roundtrip, negotiation_handshake, catalog_lookup]
+          outcome:
+            type: string
+            enum: [pass, fail, degraded, timeout]
+          latency_ms: { type: integer }
+          failure_code:
+            type: string
+            description: Closed enum — see internal/planes/control/endpointhealth's FailureCode. Empty when outcome is pass.
+          detail: { type: string }
+          synthetic:
+            type: boolean
+            description: Always true — carried for symmetry with telemetry_recorded, not because it varies.
+
+    health_status_changed:
+      name: health_status_changed
+      title: Endpoint-health check status change
+      traits:
+        - $ref: '#/components/messageTraits/common_envelope'
+      payload:
+        type: object
+        required: [store_id, check_type, severity]
+        properties:
+          store_id: { type: string }
+          check_type:
+            type: string
+            enum: [profile_reachable, signature_roundtrip, negotiation_handshake, catalog_lookup, timeout_rate, p95_latency, error_rate]
+          severity:
+            type: string
+            enum: [healthy, degraded, critical]
+          value:
+            type: number
+            description: The metric value (a rate 0-1, a boolean 0/1, or a latency in ms) that drove this transition.
+          alert_id: { type: string }

@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sarvex-control-core
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sarvexlab/sarvex.cp
+    targetRevision: main
+    path: deployments/selfhost/helm/sarvex-control
+    helm:
+      valueFiles: [values-core.yaml]
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sarvex-core
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions: [CreateNamespace=true]

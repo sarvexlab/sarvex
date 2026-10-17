@@ -1,0 +1,5 @@
+core: true
+hostnames:
+  serving: ["ucp.sarvex.localhost"]
+  control: ["console.sarvex.localhost"]
+  sync: ["connect.sarvex.localhost"]

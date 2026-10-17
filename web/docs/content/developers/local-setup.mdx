@@ -1,0 +1,47 @@
+---
+title: Local setup
+description: Run the backing services, the three planes and the console locally.
+---
+
+You need Go 1.26+, a current Node.js LTS, and Docker. Local, tests and CI run the *same* services (MongoDB, Redis, NATS JetStream, Vault) via `deployments/docker-compose.yaml` — nothing is emulated.
+
+<Steps>
+  <Step title="Build and run unit tests">
+    ```bash
+    go build ./...
+    make test-unit        # no external services needed
+    ```
+  </Step>
+  <Step title="Start the backend">
+    ```bash
+    make infra-up         # Mongo, Redis, NATS JetStream, Vault, OTel collector
+    make dev-up           # infra + simulated store + control, sync and serving planes
+    make dev-status
+    make dev-token        # mint a dev bearer token for curl
+    ```
+    `make dev-down` stops the stack.
+  </Step>
+  <Step title="Start the console">
+    ```bash
+    make console          # mock mode on :5173 — no backend needed
+    make console-real     # proxies /api to the control plane on :8081 (run make dev-up first)
+    ```
+  </Step>
+  <Step title="Run these docs">
+    ```bash
+    make docs             # live preview of this site
+    make docs-build       # static build into web/docs/dist
+    make docs-preview     # serve the built site
+    ```
+  </Step>
+</Steps>
+
+## Regenerating contract-derived code
+
+The console's TypeScript types are generated from the control-plane OpenAPI file:
+
+```bash
+cd web/console && npm run gen:api
+```
+
+CI fails if `src/api/schema.d.ts` drifts from the contract. The API reference in these docs is rendered from the same files, so it needs no regeneration step.

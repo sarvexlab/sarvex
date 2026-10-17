@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sarvex-serving.name" . }}
+  labels:
+    {{- include "sarvex-serving.labels" . | nindent 4 }}
+    # sarvex-gateway's HTTPRoute selects on this label rather than a
+    # hardcoded Service name, so a region that renames its release doesn't
+    # also have to edit the gateway chart.
+    sarvex.example.com/route-target: serving
+spec:
+  selector:
+    {{- include "sarvex-serving.labels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}

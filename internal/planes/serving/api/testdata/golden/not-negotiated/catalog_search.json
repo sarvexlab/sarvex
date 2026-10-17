@@ -1,0 +1,45 @@
+{
+  "pagination": {
+    "has_next_page": false
+  },
+  "products": [
+    {
+      "description": {
+        "plain": "A ceramic mug."
+      },
+      "id": "SKU-MUG",
+      "price_range": {
+        "max": {
+          "amount": 1500,
+          "currency": "USD"
+        },
+        "min": {
+          "amount": 1500,
+          "currency": "USD"
+        }
+      },
+      "title": "Mug",
+      "variants": [
+        {
+          "availability": {
+            "available": true,
+            "status": "in_stock"
+          },
+          "description": {
+            "plain": "A ceramic mug."
+          },
+          "id": "SKU-MUG",
+          "price": {
+            "amount": 1500,
+            "currency": "USD"
+          },
+          "sku": "SKU-MUG",
+          "title": "Mug"
+        }
+      ]
+    }
+  ],
+  "ucp": {
+    "version": ""
+  }
+}

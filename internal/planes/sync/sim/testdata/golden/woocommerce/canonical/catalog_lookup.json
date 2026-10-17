@@ -1,0 +1,25 @@
+{
+  "product": {
+    "description": {},
+    "id": "1000",
+    "media": [
+      {
+        "type": "image",
+        "url": "https://sim.example.test/images/SIM-store-ma-0001.jpg"
+      }
+    ],
+    "price_range": {
+      "max": {
+        "amount": 2099,
+        "currency": "USD"
+      },
+      "min": {
+        "amount": 2099,
+        "currency": "USD"
+      }
+    },
+    "title": "Sim Product 1",
+    "url": "http://sim-server.internal/stores/store-matrix/product/sim-product-1/",
+    "variants": null
+  }
+}

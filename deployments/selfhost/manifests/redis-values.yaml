@@ -1,0 +1,13 @@
+# Helm values for the `bitnami/redis` chart, standalone mode (no sentinel
+# replicas needed — this is a regional cache the serving plane already
+# rebuilds from Mongo/NATS on demand, not a database of record; see
+# internal/planes/serving's cache-rebuilder). One release per region, core
+# and every edge, each independent — no cross-region Redis replication.
+architecture: standalone
+auth:
+  enabled: true
+  existingSecret: sarvex-redis-auth # created by bootstrap-cluster.sh from a Vault-issued password
+master:
+  persistence:
+    storageClass: local-path
+    size: 10Gi

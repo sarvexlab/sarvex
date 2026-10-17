@@ -1,0 +1,63 @@
+---
+// Site-wide footer for the docs, mirroring the marketing site's footer
+// (components/AppFooter.vue in the site root): link columns, contact line,
+// and the oversized fading wordmark.
+const year = new Date().getFullYear();
+const columns = [
+  {
+    heading: "Product",
+    links: [
+      { label: "Dashboard", href: "https://app.sarvex.io" },
+      { label: "Documentation", href: "https://sarvex.io/docs" },
+    ],
+  },
+  {
+    heading: "Company",
+    links: [
+      { label: "Blog", href: "https://sarvex.io/blog" },
+      { label: "Contact", href: "https://sarvex.io/contact" },
+      { label: "Security", href: "https://sarvex.io/security" },
+    ],
+  },
+  {
+    heading: "Legal",
+    links: [
+      { label: "Terms of service", href: "https://sarvex.io/terms" },
+      { label: "Privacy policy", href: "https://sarvex.io/privacy" },
+    ],
+  },
+];
+---
+
+<footer class="sx-footer">
+  <div class="sx-footer-inner">
+    <div class="sx-footer-top">
+      <div class="sx-footer-brand">
+        <a href="https://sarvex.io" class="sx-brand-home">
+          <span class="sx-mark" aria-hidden="true"><span class="sx-mark-facet"></span></span>
+          <span class="sx-brand-name">Sarvex</span>
+        </a>
+        <span class="sx-footer-tagline">Agentic-commerce readiness</span>
+      </div>
+      <div class="sx-footer-columns">
+        {columns.map((column) => (
+          <div class="sx-footer-column">
+            <div class="sx-footer-heading">{column.heading}</div>
+            {column.links.map((link) => (
+              <a
+                href={link.href}
+                target={link.href.startsWith("http") ? "_blank" : undefined}
+                rel={link.href.startsWith("http") ? "noopener" : undefined}
+              >{link.label}</a>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="sx-footer-bottom">
+      <span>© {year} Sarvex</span>
+      <a href="mailto:mo@sarvex.io">mo@sarvex.io</a>
+    </div>
+  </div>
+  <div class="sx-footer-wordmark" aria-hidden="true">Sarvex</div>
+</footer>

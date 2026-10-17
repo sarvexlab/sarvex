@@ -1,0 +1,22 @@
+# Template for an edge region's NATS leaf node — bootstrap-nats-leaf.sh
+# substitutes __CORE_LEAFNODE_URL__ and applies this via `helm upgrade
+# --install`. A single-node NATS server here that federates to the core
+# supercluster over its leafnode listener (enabled in manifests/nats-values.yaml),
+# so the edge region's serving plane subscribes to cache-rebuild events
+# locally instead of every message crossing the WAN to core individually.
+config:
+  cluster:
+    enabled: false # single node — edge regions don't need their own HA NATS cluster, just a local relay
+  jetstream:
+    enabled: true
+    fileStore:
+      pvc:
+        enabled: true
+        size: 5Gi
+        storageClassName: local-path
+  leafnodes:
+    enabled: false
+  merge:
+    leafnodes:
+      remotes:
+        - url: "__CORE_LEAFNODE_URL__"

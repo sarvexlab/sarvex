@@ -1,0 +1,36 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Cloudflare Worker that serves the built console (static assets only,
+  // no Worker script) at console.sarvex.example.com. Deployed by Cloudflare Workers
+  // Builds (Git integration): Cloudflare watches `main` on this repo and
+  // runs the build/deploy commands configured on the Worker itself in the
+  // dashboard (see web/console/README.md) — no wrangler login/API token
+  // needed on this side, and nothing here pushes to Cloudflare.
+  "name": "sarvex-console",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    // vue-router uses history mode; unmatched paths fall back to
+    // index.html so client-side routing resolves them.
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true
+    }
+  },
+  "routes": [
+    {
+      "pattern": "console.sarvex.example.com",
+      "custom_domain": true
+    }
+  ]
+}

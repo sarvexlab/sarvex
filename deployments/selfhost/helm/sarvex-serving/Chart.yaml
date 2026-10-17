@@ -1,0 +1,10 @@
+apiVersion: v2
+name: sarvex-serving
+description: >
+  The serving plane (agent-facing /.well-known/ucp, catalog reads, checkout
+  sessions) — deployed in EVERY region (core and every edge), since it reads
+  only its regional Redis cache and never calls Mongo/control/sync live
+  (CLAUDE.md §2.2). This is the one chart that runs everywhere.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

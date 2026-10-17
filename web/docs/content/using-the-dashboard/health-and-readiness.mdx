@@ -1,0 +1,36 @@
+---
+title: Health & readiness
+description: The reassurance view — four endpoint checks, catalog consistency, and why nothing here ever asks you to act.
+---
+
+**Health** shows whether your integration is currently working. Monitoring switches on once your store reaches **Active** on your Path; before that, this page explains what will show up once it does.
+
+Health never asks you to act directly — anything that needs fixing is already a task on your Path. This page is for checking in when something feels off, not for doing the fixing.
+
+## Endpoint health
+
+Four synthetic checks run continuously against your live endpoints, the same way an agent would use them:
+
+- **Profile reachable** — fetches your UCP profile and confirms it points back at Sarvex.
+- **Request signing** — sends a signed request and confirms your endpoints verify it correctly. This is what proves a request really came from an agent, not something impersonating one.
+- **Capability handshake** — confirms Sarvex and your endpoints still agree on what you support, before any agent tries to use it.
+- **Product lookup** — looks a product up by id and checks it comes back with a price and availability.
+
+Each check is **Passing**, **Intermittent**, **Failing**, or **Timing out**, with when it last passed and last failed. Together they roll up into one overall status:
+
+- **Healthy** — all four are passing.
+- **Degraded** — passing overall, but one or more checks are intermittent. Agents can still buy.
+- **Critical** — one or more checks are failing outright. Agents may not be able to buy right now.
+
+## Statements
+
+Below endpoint health, a set of plain-language statements covers the rest of what's monitored:
+
+- **Consistency** — whether your catalog still matches what's being served to agents. If it doesn't, you'll see how many mismatches are serious versus minor.
+- **Sync freshness** — whether agents are seeing your current catalog or an older version. A stale reading usually means your store hasn't sent a change, or a sync didn't finish — it catches up on its own once the next change comes through.
+
+## Consistency findings
+
+When consistency isn't clean, each disagreement is listed: the product (or, for an integration-wide problem, the Sarvex plugin itself), the field out of step — price, stock, availability, or a non-responding connection — the value each side reported, and when it was detected. Active alerts can be acknowledged or resolved directly from the page.
+
+Health runs continuously in the background. Whatever needs you becomes a task on your Path — this page is where you see why, not where you fix it.

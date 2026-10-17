@@ -1,0 +1,35 @@
+# Core region only — see Chart.yaml. Same shape as sarvex-serving/values.yaml
+# (image/replica/resources/vault), plus this plane's own backing services.
+image:
+  repository: ghcr.io/sarvexlabs/sarvex.cp
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1 # control is interactive, not on the money path — no need to scale beyond HA minimum
+
+service:
+  port: 8081
+
+env: "production"
+tls: false
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+mongo:
+  connectionStringSecretPath: "secret/data/sarvex/control" # see deployment.yaml's Vault template
+redis:
+  address: "redis.sarvex-core.svc.cluster.local:6379"
+nats:
+  url: "nats://nats.sarvex-core.svc.cluster.local:4222"
+
+vault:
+  address: "http://vault.sarvex-core.svc.cluster.local:8200"
+  role: "sarvex-control"
+
+routing:
+  hostnames: [] # e.g. ["console.sarvex.example"] — only meaningful in the core cluster's Gateway

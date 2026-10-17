@@ -1,0 +1,161 @@
+{
+  "buyer": {
+    "consent": {
+      "dev.ucp.consent.marketing": {
+        "description": "Marketing communications to the buyer.",
+        "granted": true,
+        "source": "platform"
+      }
+    },
+    "email": "ada@example.com",
+    "first_name": "Ada",
+    "last_name": "Lovelace"
+  },
+  "continue_url": "http://sim.test/stores/store-matrix/checkout",
+  "currency": "USD",
+  "fulfillment": {
+    "available_methods": [
+      {
+        "fulfillable_on": "now",
+        "line_item_ids": [
+          "1000"
+        ],
+        "type": "shipping"
+      },
+      {
+        "fulfillable_on": "now",
+        "line_item_ids": [
+          "1000"
+        ],
+        "type": "pickup"
+      }
+    ],
+    "methods": [
+      {
+        "groups": [
+          {
+            "id": "group_1",
+            "line_item_ids": [
+              "1000"
+            ]
+          }
+        ],
+        "id": "method_1",
+        "line_item_ids": [
+          "1000"
+        ],
+        "type": "shipping"
+      },
+      {
+        "destinations": [
+          {
+            "address": {
+              "address_country": "US",
+              "address_locality": "Springfield",
+              "address_region": "CA",
+              "postal_code": "94000",
+              "street_address": "1 Sim Street"
+            },
+            "id": "sim_store",
+            "name": "Simulated Store",
+            "type": "business_location"
+          }
+        ],
+        "groups": [
+          {
+            "id": "group_pickup",
+            "line_item_ids": [
+              "1000"
+            ],
+            "options": [
+              {
+                "id": "instore_pickup",
+                "title": "In-store pickup",
+                "totals": [
+                  {
+                    "amount": 0,
+                    "type": "total"
+                  }
+                ]
+              }
+            ],
+            "selected_option_id": "instore_pickup"
+          }
+        ],
+        "id": "method_pickup",
+        "line_item_ids": [
+          "1000"
+        ],
+        "selected_destination_id": "sim_store",
+        "type": "pickup"
+      }
+    ]
+  },
+  "id": "5004",
+  "line_items": [
+    {
+      "id": "1000",
+      "item": {
+        "id": "SIM-store-ma-0001",
+        "price": 2099,
+        "title": "Sim Product 1"
+      },
+      "quantity": 2,
+      "totals": [
+        {
+          "amount": 4198,
+          "type": "subtotal"
+        },
+        {
+          "amount": 4198,
+          "type": "total"
+        }
+      ]
+    }
+  ],
+  "links": [],
+  "status": "incomplete",
+  "totals": [
+    {
+      "amount": 4198,
+      "type": "subtotal"
+    },
+    {
+      "amount": 0,
+      "type": "tax"
+    },
+    {
+      "amount": 0,
+      "type": "fulfillment"
+    },
+    {
+      "amount": 4198,
+      "type": "total"
+    }
+  ],
+  "ucp": {
+    "capabilities": {
+      "dev.ucp.shopping.buyer_consent": [
+        {
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.checkout": [
+        {
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.discount": [
+        {
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.fulfillment": [
+        {
+          "version": "2026-08-25"
+        }
+      ]
+    },
+    "version": "2026-08-25"
+  }
+}

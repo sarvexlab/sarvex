@@ -1,0 +1,150 @@
+{
+  "buyer": {
+    "consent": {
+      "dev.ucp.consent.marketing": {
+        "description": "Marketing communications to the buyer.",
+        "granted": true,
+        "source": "platform"
+      }
+    },
+    "email": "ada@example.com",
+    "first_name": "Ada",
+    "last_name": "Lovelace"
+  },
+  "continue_url": "http://sim.test/stores/store-matrix/checkout/order-pay/5000/",
+  "currency": "USD",
+  "discounts": {
+    "applied": [
+      {
+        "amount": 839,
+        "code": "SPRING20",
+        "title": "SPRING20"
+      }
+    ]
+  },
+  "fulfillment": {
+    "available_methods": [
+      {
+        "fulfillable_on": "now",
+        "line_item_ids": [
+          "wc-line-1"
+        ],
+        "type": "shipping"
+      }
+    ],
+    "methods": [
+      {
+        "destinations": [
+          {
+            "address_country": "GB",
+            "address_locality": "London",
+            "address_region": "LDN",
+            "first_name": "Ada",
+            "id": "dest_1",
+            "last_name": "Lovelace",
+            "postal_code": "SW1A 1AA",
+            "street_address": "1 Analytical Way",
+            "type": "shipping_address"
+          }
+        ],
+        "groups": [
+          {
+            "id": "group_1",
+            "line_item_ids": [
+              "wc-line-1"
+            ],
+            "options": [
+              {
+                "id": "flat_rate",
+                "title": "Standard Shipping",
+                "totals": [
+                  {
+                    "amount": 500,
+                    "type": "total"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "id": "method_1",
+        "line_item_ids": [
+          "wc-line-1"
+        ],
+        "selected_destination_id": "dest_1",
+        "type": "shipping"
+      }
+    ]
+  },
+  "id": "5000",
+  "line_items": [
+    {
+      "id": "wc-line-1",
+      "item": {
+        "id": "1000",
+        "price": 2099,
+        "title": "Sim Product 1"
+      },
+      "quantity": 2,
+      "totals": [
+        {
+          "amount": 4198,
+          "type": "subtotal"
+        },
+        {
+          "amount": 4198,
+          "type": "total"
+        }
+      ]
+    }
+  ],
+  "links": [],
+  "status": "incomplete",
+  "totals": [
+    {
+      "amount": 4198,
+      "type": "subtotal"
+    },
+    {
+      "amount": 0,
+      "type": "tax"
+    },
+    {
+      "amount": 0,
+      "type": "fulfillment"
+    },
+    {
+      "amount": 3359,
+      "type": "total"
+    },
+    {
+      "amount": -839,
+      "type": "discount"
+    }
+  ],
+  "ucp": {
+    "capabilities": {
+      "dev.ucp.shopping.buyer_consent": [
+        {
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.checkout": [
+        {
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.discount": [
+        {
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.fulfillment": [
+        {
+          "version": "2026-08-25"
+        }
+      ]
+    },
+    "version": "2026-08-25"
+  }
+}

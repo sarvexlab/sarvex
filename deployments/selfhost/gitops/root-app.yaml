@@ -1,0 +1,28 @@
+# The ONE thing applied by hand (via bootstrap-argocd.sh) — an Argo CD
+# "app of apps": everything under gitops/apps/*.yaml becomes an Argo CD
+# Application from here on. After this is applied, "deploy" means "commit
+# and push a change under deployments/selfhost/{helm,gitops}" — Argo CD
+# reconciles it, no further `helm install`/`kubectl apply` by hand, and no
+# console/UI action anywhere (plan's "Automation" section).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sarvex-root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sarvexlab/sarvex.cp
+    targetRevision: main
+    path: deployments/selfhost/gitops/apps
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

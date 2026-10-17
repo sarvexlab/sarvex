@@ -1,0 +1,164 @@
+name: Go Tests
+
+on:
+  pull_request:
+    paths:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+      - 'internal/**'
+      - 'cmd/**'
+      - 'Makefile'
+      - 'scripts/ucp-conformance/**'
+      - '.github/workflows/go-test.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+      - 'internal/**'
+      - 'cmd/**'
+      - 'Makefile'
+      - 'scripts/ucp-conformance/**'
+      - '.github/workflows/go-test.yml'
+
+jobs:
+  unit-tests:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run unit tests
+        run: make test-unit
+
+  integration-tests:
+    # Integration tests require services, so only run on PR (not on push to main)
+    # This can be enabled later if needed for main-branch testing.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # The same Mongo, Redis, NATS JetStream and Vault a self-hosted
+      # deployment runs, started from the compose file `make dev-up` uses.
+      - name: Start infrastructure
+        run: make infra-up
+
+      # MONGO_URI (not MONGODB_URI) is the name the Makefile targets and every
+      # integration/scenario suite read. The compose Mongo is a single-node
+      # replica set with auth, so the URI carries the compose credentials and
+      # directConnection (its member host is a compose-network name). Each
+      # suite appends its own randomly-named database. NATS_URL, VAULT_ADDR
+      # and VAULT_TOKEN default to the compose values.
+      - name: Run integration tests
+        env:
+          MONGO_URI: mongodb://admin:password@localhost:27017/?directConnection=true
+          REDIS_ADDR: localhost:6379
+        run: make test-integration
+
+      - name: Run scenario tests
+        env:
+          MONGO_URI: mongodb://admin:password@localhost:27017/?directConnection=true
+          REDIS_ADDR: localhost:6379
+        run: make test-scenarios
+
+      # The WooCommerce-to-agent journey runs the control and sync planes
+      # in-process against the same services. It went uncompiled for months
+      # while nothing ran it.
+      - name: Run E2E journey tests
+        env:
+          MONGO_URI: mongodb://admin:password@localhost:27017/?directConnection=true
+          REDIS_ADDR: localhost:6379
+        run: make test-e2e-journey
+
+  # The conformance suite onboards a merchant from nothing and then drives
+  # the UCP agent surface against it, so it needs the same infrastructure the
+  # integration job does — but it starts the planes itself, in-process, on
+  # OS-assigned ports. Its own job rather than another step of the one above:
+  # it is the slowest suite, and a failure here means something quite
+  # different from an integration failure.
+  #
+  # Runs only on push to main (post-merge), not on every PR: it's the
+  # slowest gate here and doesn't need to block PR review.
+  conformance-tests:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # The same Mongo, Redis, NATS JetStream and Vault a self-hosted
+      # deployment runs, started from the compose file `make dev-up` uses.
+      - name: Start infrastructure
+        run: make infra-up
+
+      # KINDE_ISSUER_URL must stay unset: it is what keeps the control plane
+      # in dev-token mode, and the suite mints dev tokens. The plane
+      # entrypoints resolve their config relative to the repo root, which is
+      # also the working directory here.
+      - name: Run conformance suite
+        env:
+          MONGO_URI: mongodb://admin:password@localhost:27017/?directConnection=true
+          REDIS_ADDR: localhost:6379
+        run: make test-conformance
+
+  # Wraps the official UCP conformance suite
+  # (github.com/Universal-Commerce-Protocol/conformance) instead of
+  # re-deriving the same checks: it is now the authority on protocol
+  # conformance, and cmd/sarvex/conformance (the job above) narrows to what
+  # it is actually good at — fast, Sarvex-specific failure-path checks the
+  # official suite knows nothing about. Runs once per UCP release
+  # internal/spec vendors (scripts/ucp-conformance/run.sh's
+  # UCP_VERSIONS), against one in-process Sarvex the script starts itself.
+  official-conformance-tests:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Informational for now: this is a brand-new gate against a moving,
+    # independently-versioned external target (see run.sh's own comments on
+    # the upstream bugs it already works around), and its first real
+    # findings need a live dev stack to triage — not something to block
+    # merges on sight unseen. Drop this once the initial findings are
+    # triaged and the job's signal is trusted to gate on.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # The same Mongo, Redis, NATS JetStream and Vault a self-hosted
+      # deployment runs, started from the compose file `make dev-up` uses.
+      - name: Start infrastructure
+        run: make infra-up
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+
+      # Same KINDE_ISSUER_URL-unset rationale as the conformance-tests job
+      # above: it keeps the control plane in dev-token mode, which is what
+      # lets `sarvex conform serve` onboard a merchant without a real IdP.
+      - name: Run official UCP conformance suite
+        env:
+          MONGO_URI: mongodb://admin:password@localhost:27017/?directConnection=true
+          REDIS_ADDR: localhost:6379
+        run: make test-conformance-official

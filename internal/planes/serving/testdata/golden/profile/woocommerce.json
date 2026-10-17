@@ -1,0 +1,148 @@
+{
+  "keys": [
+    {
+      "crv": "P-256",
+      "kid": "key-1",
+      "kty": "EC",
+      "x": "x",
+      "y": "y"
+    }
+  ],
+  "ucp": {
+    "capabilities": {
+      "dev.ucp.shopping.buyer_consent": [
+        {
+          "extends": "dev.ucp.shopping.checkout",
+          "id": "dev.ucp.shopping.buyer_consent",
+          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/buyer_consent.json",
+          "spec": "https://ucp.dev/2026-04-08/specification/buyer-consent/",
+          "version": "2026-04-08"
+        },
+        {
+          "extends": "dev.ucp.shopping.checkout",
+          "id": "dev.ucp.shopping.buyer_consent",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/buyer_consent.json",
+          "spec": "https://ucp.dev/2026-08-25/specification/buyer-consent/",
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.cart": [
+        {
+          "id": "dev.ucp.shopping.cart",
+          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/cart.json",
+          "spec": "https://ucp.dev/2026-04-08/specification/cart",
+          "version": "2026-04-08"
+        },
+        {
+          "id": "dev.ucp.shopping.cart",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/cart.json",
+          "spec": "https://ucp.dev/2026-08-25/specification/cart",
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.catalog": [
+        {
+          "id": "dev.ucp.shopping.catalog",
+          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/catalog.json",
+          "spec": "https://ucp.dev/2026-04-08/specification/catalog",
+          "version": "2026-04-08"
+        },
+        {
+          "id": "dev.ucp.shopping.catalog",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/catalog.json",
+          "spec": "https://ucp.dev/2026-08-25/specification/catalog",
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.checkout": [
+        {
+          "id": "dev.ucp.shopping.checkout",
+          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/checkout.json",
+          "spec": "https://ucp.dev/2026-04-08/specification/checkout",
+          "version": "2026-04-08"
+        },
+        {
+          "id": "dev.ucp.shopping.checkout",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/checkout.json",
+          "spec": "https://ucp.dev/2026-08-25/specification/checkout",
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.discount": [
+        {
+          "extends": [
+            "dev.ucp.shopping.checkout",
+            "dev.ucp.shopping.cart"
+          ],
+          "id": "dev.ucp.shopping.discount",
+          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/discount.json",
+          "spec": "https://ucp.dev/2026-04-08/specification/discount",
+          "version": "2026-04-08"
+        },
+        {
+          "extends": [
+            "dev.ucp.shopping.checkout",
+            "dev.ucp.shopping.cart"
+          ],
+          "id": "dev.ucp.shopping.discount",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/discount.json",
+          "spec": "https://ucp.dev/2026-08-25/specification/discount",
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.fulfillment": [
+        {
+          "extends": "dev.ucp.shopping.checkout",
+          "id": "dev.ucp.shopping.fulfillment",
+          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/fulfillment.json",
+          "spec": "https://ucp.dev/2026-04-08/specification/fulfillment",
+          "version": "2026-04-08"
+        },
+        {
+          "extends": "dev.ucp.shopping.checkout",
+          "id": "dev.ucp.shopping.fulfillment",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/fulfillment.json",
+          "spec": "https://ucp.dev/2026-08-25/specification/fulfillment",
+          "version": "2026-08-25"
+        }
+      ],
+      "dev.ucp.shopping.order": [
+        {
+          "id": "dev.ucp.shopping.order",
+          "schema": "https://ucp.dev/2026-04-08/schemas/shopping/order.json",
+          "spec": "https://ucp.dev/2026-04-08/specification/order",
+          "version": "2026-04-08"
+        },
+        {
+          "id": "dev.ucp.shopping.order",
+          "schema": "https://ucp.dev/2026-08-25/schemas/shopping/order.json",
+          "spec": "https://ucp.dev/2026-08-25/specification/order",
+          "version": "2026-08-25"
+        }
+      ]
+    },
+    "payment_handlers": {
+      "com.google.pay": [
+        {
+          "id": "com.google.pay",
+          "schema": "https://pay.google.com/gp/p/ucp/2026-01-23/schemas/config.json",
+          "spec": "https://pay.google.com/gp/p/ucp/2026-01-23/",
+          "version": "2026-01-23"
+        }
+      ]
+    },
+    "services": {
+      "dev.ucp.shopping": [
+        {
+          "endpoint": "https://serving.test/ucp/woocommerce/store-golden",
+          "id": "dev.ucp.shopping",
+          "schema": "https://ucp.dev/2026-08-25/services/shopping/rest.openapi.json",
+          "spec": "https://ucp.dev/2026-08-25/specification/overview",
+          "transport": "rest",
+          "version": "2026-08-25"
+        }
+      ]
+    },
+    "version": "2026-08-25"
+  }
+}

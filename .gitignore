@@ -1,0 +1,51 @@
+# Binaries for programs and plugins
+setup.sh
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+.idea
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+cmd/registration/registration
+cmd/communication/communication
+__debug_bin
+cmd/controlplane/controlplane
+google_credential.json
+sarvex.cp
+# Built binaries under cmd/. Previously listed one path per command, which
+# missed cmd/simulator/simualtor (transposed) — an 11 MB ELF that was
+# committed and stayed committed. Match on content instead of on name.
+cmd/*/[a-z]*
+!cmd/*/*.go
+!cmd/*/*.md
+!cmd/*/*/
+internal/app/communication/slack/slackNotificationService_test.go
+.env
+internal/service/communication/communication
+internal/service/gateway/gateway
+gateway-cli
+/gateway
+__debug_*
+
+sarvex
+bin/sarvex
+bin/sarvex
+cmd/sim/sim
+.devbin/
+.devlogs/
+.claude/settings.local.json
+loadtest/.manifest.json
+loadtest/*.summary.json
+
+# deployments/selfhost/scripts/bootstrap-cluster.sh's Vault unseal keys —
+# age-encrypted, but still never belong in git.
+deployments/selfhost/.secrets/

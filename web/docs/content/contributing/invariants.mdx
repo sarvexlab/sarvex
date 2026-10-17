@@ -1,0 +1,26 @@
+---
+title: Architecture invariants
+description: The rules that hold across the codebase and what to do when a task would break one.
+---
+
+These are enforced in review and, where possible, mechanically (`internal/archtest`, `.golangci.yml`, `.semgrep/`).
+
+1. **Three isolated planes.** `serving`, `sync` and `control` never import one another. Cross-plane communication is the event bus, or read-only reads of a collection the owning plane writes ([ADR-0004](/contributing/adr/0004-plane-boundary-enforcement-via-depguard)).
+2. **Discovery and catalog reads serve only the cache.** Checkout is the one exception, and only through the sync-plane connector.
+3. **One writer per store, one writer per collection.**
+4. **Two-level tenant isolation.** Account data by `merchant_id`, catalog/serving data by `store_id`, resolved server-side — never from a URL. Fence every query ([ADR-0005](/contributing/adr/0005-tenancy-enforcement-via-query-level-fencing), [Tenancy patterns](/contributing/tenancy-patterns)).
+5. **Authentication is external.** Verify tokens; never mint them or store passwords. Connector calls use HMAC.
+6. **Idempotency at every external edge.** Retries are the normal case.
+7. **Spec version is data.** The scoring rubric and definitions catalogue are versioned loadable content.
+8. **The payment-credential boundary is structural.** No checkout field can hold a raw credential.
+
+## Working rules
+
+- Every change must hold on **every active spec generation** and on **WooCommerce and Magento**; `TestCapabilityMatrix` covers both axes.
+- Spec versions, platforms and surfaces are **added, not edited into** — see [Extending](/developers/extending/add-a-spec-version).
+- The contracts are authoritative: change the YAML and the code together.
+- A bug you find is fixed in the same change, with a regression test.
+
+## Stop and report
+
+If a task would build something out of scope (analytics as a product, governance workflows, LLM remediation, connectors beyond WooCommerce/Magento), violate an invariant above, or diverge from a contract, stop and raise it with the maintainers rather than working around it. Scope is widened through an ADR ([Governance](/contributing/governance)).

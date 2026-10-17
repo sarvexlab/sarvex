@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         colors="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         failOnWarning="true">
+    <testsuites>
+        <testsuite name="Sarvex UCP Magento Module Tests">
+            <directory suffix="Test.php">Test/Unit</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">Model</directory>
+            <directory suffix=".php">Observer</directory>
+            <directory suffix=".php">Controller</directory>
+            <directory suffix=".php">Routing</directory>
+        </include>
+        <exclude>
+            <directory>Test</directory>
+        </exclude>
+    </coverage>
+</phpunit>

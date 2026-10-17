@@ -1,0 +1,49 @@
+# Defaults common to every region. Per-region overrides (replica count,
+# resource sizing, hostnames, Redis/NATS addresses) live in sibling
+# values-<region>.yaml files, e.g. values-local.yaml (k3d) and
+# values-core.yaml / values-<edge-region>.yaml (real clusters) — the
+# add-region.sh script generates a new values-<region>.yaml from this same
+# shape rather than inventing a new one.
+image:
+  repository: ghcr.io/sarvexlabs/sarvex.cp
+  tag: "latest" # overridden per-release by the GitOps repo after each build
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  port: 8083
+
+env: "production" # --env flag; selects configs.<env>.json — see configmap.yaml
+tls: false
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+# Backing services this region's serving plane talks to. Never Mongo,
+# never control/sync directly — only its own regional Redis (session store,
+# rate limiter, serving cache) and NATS (cache-rebuild events), per the
+# plane-isolation invariant.
+redis:
+  address: "redis.sarvex-serving.svc.cluster.local:6379"
+nats:
+  url: "nats://nats.sarvex-core.svc.cluster.local:4222" # a local NATS leaf node in edge regions, the core cluster itself in core
+
+# Secrets (TokenGenKey, BundleVerificationKey, Kinde audience, etc.) are NOT
+# set here — they're injected at pod start by the Vault Agent Injector
+# (see templates/deployment.yaml's vault.hashicorp.com/* annotations) so the
+# same chart+values work in local dev (dev-mode Vault) and production
+# (real Vault) without this file ever holding a secret value.
+vault:
+  address: "http://vault.sarvex-core.svc.cluster.local:8200"
+  role: "sarvex-serving"
+
+# Gateway API HTTPRoute registration — sarvex-gateway's chart looks for
+# Services labeled this way rather than every plane hardcoding the other's
+# existence.
+routing:
+  hostnames: []  # set per-region, e.g. ["ucp.sarvex.example"]

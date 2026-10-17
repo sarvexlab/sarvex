@@ -1,0 +1,18 @@
+# /.well-known/ucp, /ucp/*, and checkout all route to the serving plane —
+# present in every region, core or edge (cmd/root.go's proxyMux rule 1).
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: sarvex-route-serving
+spec:
+  parentRefs:
+    - name: sarvex-gateway
+  hostnames:
+    {{- toYaml .Values.hostnames.serving | nindent 4 }}
+  rules:
+    - matches:
+        - path: { type: PathPrefix, value: /.well-known/ucp }
+        - path: { type: PathPrefix, value: /ucp }
+      backendRefs:
+        - name: sarvex-serving
+          port: 8083

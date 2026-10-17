@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <!--
+        Declares the module/controller-resolution frontName Sarvex_Ucp\Routing\WellKnownRouter
+        sets on the request via Forward — /.well-known/ucp itself is matched by that
+        custom router (registered in frontend/di.xml), never by the standard
+        router's normal /frontName/... URL matching, since ".well-known" is not
+        a valid frontName segment for a request the standard router would parse.
+    -->
+    <router id="standard">
+        <route id="sarvex_ucp" frontName="sarvex_ucp">
+            <module name="Sarvex_Ucp"/>
+        </route>
+    </router>
+</config>

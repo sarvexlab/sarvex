@@ -1,0 +1,86 @@
+name: Console CI
+
+on:
+  pull_request:
+    paths:
+      - 'web/console/**'
+      - 'sarvex-v1-control-plane.yaml'
+      - '.github/workflows/console-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'web/console/**'
+      - 'sarvex-v1-control-plane.yaml'
+      - '.github/workflows/console-ci.yml'
+
+defaults:
+  run:
+    working-directory: web/console
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/console/package-lock.json
+
+      - run: npm ci
+
+      # Regenerate the typed client and fail if the committed copy is stale.
+      # The console builds against src/api/schema.d.ts; we want OpenAPI
+      # drift to be caught here, not on a developer's machine.
+      - name: Regenerate API types and check for drift
+        run: |
+          npm run gen:api
+          if ! git diff --quiet --exit-code -- src/api/schema.d.ts; then
+            echo "::error::src/api/schema.d.ts is out of date with sarvex-v1-control-plane.yaml. Run 'npm run gen:api' and commit."
+            git diff -- src/api/schema.d.ts
+            exit 1
+          fi
+
+      - name: Type-check + production build
+        run: npm run build
+
+      - name: Run tests with coverage gate
+        run: npm run test:coverage
+
+      - name: Upload coverage HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: web/console/coverage
+          if-no-files-found: ignore
+
+  # No dependency-vulnerability scanning ran against the console before this
+  # (see docs/SECURITY-TEST-PLAN.md §5) — separate job so a flagged
+  # advisory doesn't block the build/test gate above. The initial backlog
+  # (11 vulnerabilities, first surfaced in PR #300) is now fully resolved —
+  # 5 fixed via `npm audit fix`, the remaining 6 (a vitest/@vitest/mocker/
+  # esbuild/vite/vite-node chain) via `npm audit fix --force` to
+  # vitest@5.0.2, verified clean (build, typecheck, all 530 tests, and the
+  # coverage thresholds all still pass under vitest 5) — so this is
+  # blocking again rather than continue-on-error.
+  sca:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/console/package-lock.json
+
+      - run: npm ci
+
+      - name: npm audit (high/critical)
+        run: npm audit --audit-level=high

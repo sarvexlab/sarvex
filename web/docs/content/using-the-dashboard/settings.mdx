@@ -1,0 +1,13 @@
+---
+title: Settings
+description: Two bands on one page — Account settings shared across every store, and Store settings for the one you're currently viewing.
+---
+
+**Settings** mirrors the account/store split used everywhere in the console: an **Account** band configures everything shared across every store, a **Store** band configures only the one currently selected.
+
+- The **Account** band covers the same ground as [Account & team](/using-the-dashboard/account-and-team): business name and locale, the account owner and team, notifications, and billing. Each section opens a focused drawer to edit it.
+- The **Store** band covers what's specific to this storefront: its name and platform (WooCommerce or Magento), its business profile (legal business name, support email, fulfillment regions and shipping rates — synced from your store), its domain and where its UCP profile is served, its return-policy URL (what agents link shoppers to), its connector, and its payment handlers.
+
+The connector section shows the plugin version, sync model, and when it last sent a heartbeat, a signal, or completed a full sync — useful context, since a broken connection shows up as a task on your Path regardless. From here you can trigger a full resync, or disconnect the connector to re-pair from scratch (this unsubscribes the plugin and tears down stored credentials — you're routed back through Connect to pair again).
+
+Payment handlers determine how shoppers pay when an agent checks out from this store. Verifying one is a guided task on your Path, not something configured here directly, since it needs your Google Pay & Wallet Console.

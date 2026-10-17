@@ -1,0 +1,27 @@
+---
+title: Authentication
+description: Bearer tokens for humans and integrators, HMAC signatures for store plugins.
+---
+
+Sarvex does **not** issue tokens, run logins, or store passwords. Authentication is external.
+
+## Bearer token (console, operators, integrators)
+
+An external identity provider (Kinde, OAuth 2.0 authorization-code flow with PKCE) issues the JWT. Sarvex services only **verify** it — issuer, audience, JWKS signature and expiry — and read the identity and tenant from its claims.
+
+```bash
+curl https://api.sarvex.example.com/v1/stores -H "Authorization: Bearer $TOKEN"
+```
+
+- `merchant_id` / `store_id` come from the verified claims, never the URL.
+- The `operator` scope is required for `/operator/*`. An operator acts on a specific merchant by sending `X-Operate-As: <merchant>`; every such call is audit-logged.
+- Locally, `make dev-token` mints a dev bearer for curl (only when `KINDE_ISSUER_URL` is unset).
+
+## HMAC signature (store plugins)
+
+The `/connector/*` endpoints are called by the WooCommerce / Magento plugin and use HMAC, not the JWT. See [Connector ingest](/api/connector-ingest).
+
+## Other credentials
+
+- **Stripe webhooks** are verified with the `Stripe-Signature` header.
+- **Agents** calling the UCP endpoints sign requests per RFC 9421 with ECDSA keys published in their UCP profile — see [UCP endpoints](/api/ucp-endpoints).
