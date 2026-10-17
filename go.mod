@@ -9,7 +9,7 @@ require github.com/joho/godotenv v1.5.1
 require (
 	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/google/uuid v1.6.0
-	github.com/labstack/echo/v4 v4.15.4
+	github.com/labstack/echo/v4 v4.16.0
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/redis/go-redis/v9 v9.21.0
 	github.com/spf13/cobra v1.6.1
@@ -70,6 +70,7 @@ require (
 	github.com/hashicorp/vault/api v1.23.0
 	github.com/hibiken/asynq v0.26.0
 	github.com/kinde-oss/kinde-go v0.2.0
+	github.com/nats-io/nats.go v1.52.0
 	github.com/resend/resend-go/v2 v2.28.0
 	github.com/samber/lo v1.53.0
 	go.opentelemetry.io/otel v1.46.0
@@ -101,7 +102,6 @@ require (
 	github.com/hashicorp/go-secure-stdlib/strutil v0.1.2 // indirect
 	github.com/hashicorp/go-sockaddr v1.0.7 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/nats-io/nats.go v1.52.0 // indirect
 	github.com/nats-io/nkeys v0.4.15 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
