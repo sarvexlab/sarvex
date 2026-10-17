@@ -25,7 +25,7 @@ Sarvex is pre-1.0. Only the latest commit on `main` and the most recent tagged r
 
 In scope: the three planes, the connector and plugin protocols (HMAC, pairing), the console, the WooCommerce and Magento plugins, and the deployment manifests in this repository.
 
-Out of scope: vulnerabilities in third-party dependencies that are not reachable from Sarvex (report those upstream), issues requiring a compromised operator account or host, denial of service by volumetric traffic, and the archived code under `internal/archive`, `docs/archive` and `web/console/archive`.
+Out of scope: vulnerabilities in third-party dependencies that are not reachable from Sarvex (report those upstream), issues requiring a compromised operator account or host, denial of service by volumetric traffic.
 
 ## Hardening references
 

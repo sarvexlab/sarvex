@@ -32,12 +32,11 @@ internal/app/communication/slack/slackNotificationService_test.go
 .env
 internal/service/communication/communication
 internal/service/gateway/gateway
-gateway-cli
+/gateway-cli
 /gateway
 __debug_*
 
-sarvex
-bin/sarvex
+/sarvex
 bin/sarvex
 cmd/sim/sim
 .devbin/
