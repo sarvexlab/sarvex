@@ -7,7 +7,7 @@
 package discount
 
 import (
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408"
 )
 
 // Allocation is a breakdown of how a discount amount was allocated to a

@@ -11,12 +11,12 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/serving"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/utils"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/surface"
-	surfaceall "github.com/sarvexlabs/sarvex.cp/internal/planes/sync/surface/all"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/serving"
+	"github.com/sarvexlab/sarvex/internal/pkg/utils"
+	"github.com/sarvexlab/sarvex/internal/planes/sync"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/surface"
+	surfaceall "github.com/sarvexlab/sarvex/internal/planes/sync/surface/all"
 )
 
 // catalogProducts adapts the sync catalog store to the surface runner's

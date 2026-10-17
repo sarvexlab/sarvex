@@ -7,8 +7,8 @@ package connector
 import (
 	"context"
 
-	pkgdomain "github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	pkgdomain "github.com/sarvexlab/sarvex/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // CredentialsValidator is the narrow slice of the validator registry that

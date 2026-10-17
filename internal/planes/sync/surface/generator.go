@@ -5,7 +5,7 @@
 // the artifacts a surface needs and records what it observes about them.
 //
 // The control plane decides who is enrolled on a surface; this package never
-// does. It reads control_store_surfaces (read-only, by name — CLAUDE.md §2.1)
+// does. It reads control_store_surfaces (read-only, by name — sarvex-v1-architecture.md A10.1)
 // to learn which stores are on which surface, generates only for those, and
 // writes the result to sync_surface_artifacts, which it alone writes. The
 // control plane reads that collection back to show the artifact and to

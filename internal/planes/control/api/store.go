@@ -13,8 +13,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/platform"
 )
 
 type storeResponse struct {

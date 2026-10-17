@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // Prescribed tasks — the work a store is given because of where it is,

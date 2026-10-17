@@ -12,9 +12,9 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	ucptype "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/resilience"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	ucptype "github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/resilience"
 )
 
 func TestConnector_CartCreate_ForwardsBuyerAndDiscounts_ReturnsCurrencyAndApplied(t *testing.T) {

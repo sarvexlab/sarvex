@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // fakeFindingRepo is a test double for FindingRepository, recording every

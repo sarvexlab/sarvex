@@ -3,11 +3,11 @@
 
 package domain
 
-import "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+import "github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 
 // StoreBusinessProfile holds merchant-facing store identity and business facts.
 // This is control-plane data owned by the merchant during onboarding.
-// Per CLAUDE.md §2.4: tenant isolation at store_id level, merchant owns this data.
+// Per sarvex-v1-architecture.md A10.4: tenant isolation at store_id level, merchant owns this data.
 type StoreBusinessProfile struct {
 	StoreID         string // Unique store identifier
 	MerchantID      string // Merchant owner (denormalized for queries)

@@ -8,7 +8,7 @@ package journey
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // Signal is an event-driven state transition trigger.
@@ -27,7 +27,7 @@ const (
 )
 
 // Service is the single authority on engagement state per store.
-// Per CLAUDE.md invariant 4: engagement/validation data is per-store.
+// Per sarvex-v1-architecture.md A10.4: engagement/validation data is per-store.
 type Service interface {
 	// Get returns the store's current journey state. OpenTaskCounts and
 	// NextAction are computed from the task service; zero values are returned

@@ -8,14 +8,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireadapt"
-	"github.com/sarvexlabs/sarvex.cp/internal/spec"
-	"github.com/sarvexlabs/sarvex.cp/internal/spec/all"
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408/release"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireadapt"
+	"github.com/sarvexlab/sarvex/internal/spec"
+	"github.com/sarvexlab/sarvex/internal/spec/all"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408/release"
 )
 
 var reg = all.New().Codecs()

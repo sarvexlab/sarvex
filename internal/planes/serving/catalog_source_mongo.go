@@ -14,9 +14,9 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/jwkmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/jwkmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // SigningKeySource provides a store's active public signing key for profile
@@ -63,7 +63,7 @@ type mongoMoney struct {
 // MongoCatalogSource reads store profiles from MongoDB control_store_profiles
 // and products from sync_catalog_products (via sync plane).
 // Capability definitions come from the authoritative catalogue (v1.DefaultCatalogue).
-// Per CLAUDE.md §2.4: serving data is partitioned by store_id, each store owned by one merchant.
+// Per sarvex-v1-architecture.md A10.4: serving data is partitioned by store_id, each store owned by one merchant.
 type MongoCatalogSource struct {
 	db   *mongo.Database
 	cat  catalogue.Catalogue
@@ -178,7 +178,7 @@ func (m *MongoCatalogSource) GetStoreProfile(ctx context.Context, storeID string
 
 // paymentHandlers reads the merchant's payment-handler choice for the store from
 // control_payment_configs (owned and written by the control plane; this is a
-// read-only cross-plane read by collection name, CLAUDE.md §2.1). Fenced by
+// read-only cross-plane read by collection name, sarvex-v1-architecture.md A10.1). Fenced by
 // both the store and its merchant. Returns nil when the store has no payment
 // configuration, or when it cannot be read — a rebuild is never worth failing
 // over it, and nil renders the legacy default rather than dropping every
@@ -214,7 +214,7 @@ func (m *MongoCatalogSource) paymentHandlers(ctx context.Context, storeID, merch
 // (/ucp//store-id), which matches nothing and fails the profile_reachable
 // probe on an endpoint mismatch.
 //
-// Read-only cross-plane read by collection name, the pattern CLAUDE.md §2.1
+// Read-only cross-plane read by collection name, the pattern sarvex-v1-architecture.md A10.1
 // sanctions and the same one GetStoreProfile already uses for
 // control_store_profiles. Returns "" on any error: the caller falls back to
 // the profile document's own value, and a rebuild is never worth failing over

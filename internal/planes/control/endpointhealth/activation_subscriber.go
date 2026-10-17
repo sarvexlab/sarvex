@@ -11,10 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/monitoring"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/monitoring"
 )
 
 // onVerifiedProbeTimeout bounds the out-of-band probe this subscriber
@@ -118,7 +118,7 @@ func (s *ActivationSubscriber) Stop(ctx context.Context) error {
 // service's events — activation.Subscriber decodes *this* package's
 // probe_completed the same way, into its own local struct. Only the topic
 // name is shared, and it comes from internal/pkg/ucp/event_types.go, which
-// CLAUDE.md names as the single source of truth for topics. The two
+// sarvex-v1-architecture.md names as the single source of truth for topics. The two
 // services stay free to evolve their internals independently.
 type activationStateChangedPayload struct {
 	StoreID   string `json:"store_id"`

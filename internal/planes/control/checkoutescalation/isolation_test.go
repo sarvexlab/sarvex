@@ -26,7 +26,7 @@ func TestNoImportPathToServingPlaneOrRedisSessionStore(t *testing.T) {
 	}
 
 	out, err := exec.CommandContext(context.Background(), "go", "list", "-deps",
-		"github.com/sarvexlabs/sarvex.cp/internal/planes/control/checkoutescalation").CombinedOutput()
+		"github.com/sarvexlab/sarvex/internal/planes/control/checkoutescalation").CombinedOutput()
 	if err != nil {
 		t.Fatalf("go list -deps failed: %v\n%s", err, out)
 	}

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 )
 
 // ErrOrderNotFound is returned when no order exists for the given order ID.

@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/domain"
 )
 
 // mongoConnectorRepo implements ConnectorRepository against MongoDB.

@@ -9,10 +9,10 @@ package codec
 import (
 	"encoding/json"
 
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireadapt"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireadapt"
 )
 
 // Codec is the 2026-04-08 codec.

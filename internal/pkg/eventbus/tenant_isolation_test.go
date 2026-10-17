@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/testtenancy"
+	"github.com/sarvexlab/sarvex/internal/testtenancy"
 )
 
 // TestTenantIsolation_EventConsumption is the "cross-tenant event

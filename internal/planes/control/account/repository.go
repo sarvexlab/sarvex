@@ -6,7 +6,7 @@ package account
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // AccountRepository is the persistence interface for merchant account records.

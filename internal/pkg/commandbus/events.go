@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
 )
 
 // AuditRequestedEvent is emitted by the control plane to request catalog re-scoring.

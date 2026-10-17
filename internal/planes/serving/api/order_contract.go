@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/middlewares"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+	"github.com/sarvexlab/sarvex/internal/pkg/middlewares"
+	"github.com/sarvexlab/sarvex/internal/planes/serving"
 )
 
 // This file holds the orders endpoint's wire contract only — the request

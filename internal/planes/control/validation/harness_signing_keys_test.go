@@ -9,10 +9,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // The harness checked only for "signing_keys", 2026-04-08's name for the key

@@ -13,9 +13,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	servingpkg "github.com/sarvexlabs/sarvex.cp/internal/pkg/serving"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	servingpkg "github.com/sarvexlab/sarvex/internal/pkg/serving"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
 )
 
 // ArtifactRoute is the public path surface artifacts are served under. It is

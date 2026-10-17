@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
 )
 
 // FindingRouter converts consistency findings into tasks for operators/merchants.

@@ -3,7 +3,7 @@
 
 // The identity provider abstraction.
 //
-// Authentication is external (CLAUDE.md §2.4): the IdP issues the JWT;
+// Authentication is external (sarvex-v1-architecture.md A10.4): the IdP issues the JWT;
 // Sarvex only verifies. Two implementations:
 //
 //   - simulator (default): mints a JWT-shaped token locally so the

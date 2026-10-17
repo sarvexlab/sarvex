@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/domain"
 )
 
 // captureHandler records the principal injected by middleware into captured.

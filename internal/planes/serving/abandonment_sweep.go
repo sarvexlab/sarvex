@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
 )
 
 // This file implements R4: a scheduled sweep, independent of the checkout

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
 )
 
 // ReadinessDimensions breaks a readiness result into the four rubric

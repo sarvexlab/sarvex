@@ -10,12 +10,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	v1cat "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/account"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/facts"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/store"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	v1cat "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
+	"github.com/sarvexlab/sarvex/internal/planes/control/account"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/facts"
+	"github.com/sarvexlab/sarvex/internal/planes/control/store"
 )
 
 // ── Fakes ────────────────────────────────────────────────────────────────────

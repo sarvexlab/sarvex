@@ -30,8 +30,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/activation"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/activation"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // CheckContext is everything a prerequisite check may look at. It is

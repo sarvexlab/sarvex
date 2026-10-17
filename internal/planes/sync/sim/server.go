@@ -10,10 +10,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/connector"
+	"github.com/sarvexlab/sarvex/internal/platform"
 )
 
 // The simulated store model lives in internal/pkg/simstore, shared with every
@@ -42,7 +42,7 @@ var ErrStoreNotFound = simstore.ErrStoreNotFound
 // registered from the platform registry), so a store's platform decides which
 // wire shape its connector pulls it through, never a second copy of its data.
 //
-// It also plays the plugin's Role 2 "profile doorway" (CLAUDE.md §4b) for
+// It also plays the plugin's Role 2 "profile doorway" (sarvex-v1-architecture.md) for
 // whichever store's storefront_url points here: GET /.well-known/ucp calls
 // the real, HMAC-signed GET /connector/profile on the sync plane and serves
 // the bytes back, caching the last successful response in memory so a
@@ -139,7 +139,7 @@ func (s *Server) serveSurface(w http.ResponseWriter, r *http.Request) {
 // failure (sequence allocation, network, non-200 upstream) falls back to
 // the last successful response if one has been cached this process's
 // lifetime, matching the "never 30X/5xx/vanish" degradation invariant
-// (CLAUDE.md §2 invariant 8) instead of surfacing the transient failure.
+// (sarvex-v1-architecture.md A10 invariant 8) instead of surfacing the transient failure.
 func (s *Server) getProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	storeID := r.PathValue("store_id")

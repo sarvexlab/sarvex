@@ -176,7 +176,7 @@ type buildReqFn func() (*http.Request, error)
 type handleRespFn func(body []byte, statusCode int) error
 
 func (c *httpClient) doWithRetry(ctx context.Context, buildReq buildReqFn, handle handleRespFn) error {
-	tracer := otel.Tracer("github.com/sarvexlabs/sarvex.cp/shopify")
+	tracer := otel.Tracer("github.com/sarvexlab/sarvex/shopify")
 	var lastErr error
 	backoff := 250 * time.Millisecond
 

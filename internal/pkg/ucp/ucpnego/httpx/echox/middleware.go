@@ -47,13 +47,13 @@ import (
 	"fmt"
 	"net/http"
 
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpnego/httpx"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpnego/negotiate"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpnego/httpx"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpnego/negotiate"
 )
 
 // Middleware returns an Echo middleware that runs UCP negotiation on

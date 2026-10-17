@@ -14,13 +14,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/negotiation"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/negotiation"
+	"github.com/sarvexlab/sarvex/internal/planes/serving"
 )
 
 // versionHarness drives the checkout, cart and order handlers at a chosen

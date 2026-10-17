@@ -6,7 +6,7 @@ package connector
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
 )
 
 // ConnectorRepository is the persistence interface for connector records.

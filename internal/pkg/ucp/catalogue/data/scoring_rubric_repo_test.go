@@ -14,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	v1cat "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
+	v1cat "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
 )
 
 func setupTestDB(t *testing.T) *mongo.Database {

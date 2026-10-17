@@ -6,7 +6,7 @@ package domain
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/contracts/apierror"
+	"github.com/sarvexlab/sarvex/internal/pkg/contracts/apierror"
 )
 
 // MerchantID is the opaque per-tenant identifier resolved from the auth principal.

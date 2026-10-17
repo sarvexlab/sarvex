@@ -13,9 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/ledger"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/planes/control/ledger"
 )
 
 // fakeStore is an in-memory ledger.Store standing in for Mongo in these

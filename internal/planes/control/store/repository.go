@@ -6,7 +6,7 @@ package store
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // StoreRepository is the persistence interface for store records.

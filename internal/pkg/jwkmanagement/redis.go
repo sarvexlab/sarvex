@@ -17,8 +17,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 
-	kp "github.com/sarvexlabs/sarvex.cp/internal/pkg/keypair"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpsig"
+	kp "github.com/sarvexlab/sarvex/internal/pkg/keypair"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpsig"
 )
 
 // redisKeypairRecord holds either a plaintext private key scalar

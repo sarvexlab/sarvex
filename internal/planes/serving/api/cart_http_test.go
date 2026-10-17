@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // code performs the request and returns its status, closing the body.

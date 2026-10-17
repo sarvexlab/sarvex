@@ -9,14 +9,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
-	ucptype "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/resilience"
-	syncsim "github.com/sarvexlabs/sarvex.cp/internal/planes/sync/sim"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
-	woosim "github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce/sim"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
+	ucptype "github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/resilience"
+	syncsim "github.com/sarvexlab/sarvex/internal/planes/sync/sim"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
+	woosim "github.com/sarvexlab/sarvex/internal/platform/woocommerce/sim"
 )
 
 // This test proves the persistent sim store is genuinely pullable by the

@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // ─── helpers ────────────────────────────────────────────────────────────────

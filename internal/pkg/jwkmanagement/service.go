@@ -10,8 +10,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/keypair"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/keypair"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 type Mode string

@@ -5,7 +5,7 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	"github.com/sarvexlabs/sarvex.cp/cmd"
+	"github.com/sarvexlab/sarvex/cmd"
 )
 
 func main() {

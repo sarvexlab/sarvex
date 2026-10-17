@@ -13,10 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commandbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/commandbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // memRemediationStore is an in-memory RemediationStore with the Mongo store's
@@ -212,7 +212,7 @@ func TestHandleRemediationsApplied_AppliesOnlyTheApprovedRecords(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "No description provided.", fixed.Description, "the product itself carries the fix")
 
-	// Redelivery (CLAUDE.md §2.6): nothing new is written.
+	// Redelivery (sarvex-v1-architecture.md A10.6): nothing new is written.
 	require.NoError(t, svc.handleRemediationsAppliedWith(ctx, applyCommand(t, "wb-1", descID, titleID), rubric))
 	assert.Len(t, conn.updates, 1)
 }

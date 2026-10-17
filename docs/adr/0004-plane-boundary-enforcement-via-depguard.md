@@ -2,7 +2,7 @@
 
 The three-plane isolation invariant is mechanically enforced via `depguard` linter with explicit per-plane deny rules. Planes must not import packages from other planes; cross-plane communication flows only through the event bus.
 
-The plane-isolation invariant is stated throughout the codebase (CLAUDE.md, architecture, plane doc.go files) but was previously unenforced at the toolchain level. Over the course of initial development, multiple cross-plane imports accumulated despite the stated rule, creating a structural risk: as the codebase grows, such violations become harder to detect in review alone.
+The plane-isolation invariant is stated throughout the codebase (sarvex-v1-architecture.md, architecture, plane doc.go files) but was previously unenforced at the toolchain level. Over the course of initial development, multiple cross-plane imports accumulated despite the stated rule, creating a structural risk: as the codebase grows, such violations become harder to detect in review alone.
 
 `depguard` is already present in the Go linter toolchain (`.golangci.yml`) but was disabled. Enabling it with explicit per-plane rules provides mechanical enforcement at lint time, which runs in CI before merge.
 

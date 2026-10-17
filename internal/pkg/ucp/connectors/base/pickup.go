@@ -4,7 +4,7 @@
 package base
 
 import (
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 )
 
 // PickupInfo is what a connector learned about a store's in-store pickup: a

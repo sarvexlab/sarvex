@@ -6,7 +6,7 @@ package base
 import (
 	"errors"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 )
 
 // NewEscalationResponse constructs a CheckoutResponse with status requires_escalation.

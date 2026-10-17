@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireintersect"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireintersect"
 )
 
 // Capability must satisfy wireintersect.Capability so the generic

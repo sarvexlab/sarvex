@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	servingpkg "github.com/sarvexlabs/sarvex.cp/internal/pkg/serving"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
-	"github.com/sarvexlabs/sarvex.cp/internal/testtenancy"
+	servingpkg "github.com/sarvexlab/sarvex/internal/pkg/serving"
+	"github.com/sarvexlab/sarvex/internal/planes/serving"
+	"github.com/sarvexlab/sarvex/internal/testtenancy"
 )
 
 // newTestRedisCache builds a real serving.RedisCache against the same Redis

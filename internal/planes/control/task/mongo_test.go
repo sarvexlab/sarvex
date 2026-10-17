@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"

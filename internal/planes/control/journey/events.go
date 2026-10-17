@@ -6,7 +6,7 @@ package journey
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
 )
 
 // journeyUpdatedPayload is the event payload for control.journey.updated.

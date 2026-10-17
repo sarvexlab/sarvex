@@ -13,9 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/channel"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/planes/control/channel"
 )
 
 // channel.NewInMemoryStoreForTest (testutil_test.go, package channel)

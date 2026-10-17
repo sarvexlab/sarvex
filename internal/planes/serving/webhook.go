@@ -12,14 +12,14 @@ import (
 	"strconv"
 	"time"
 
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
 	"github.com/google/uuid"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireadapt"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireadapt"
 )
 
 // webhookMaxAttempts/webhookRetryDelay bound a delivery's retry loop: enough

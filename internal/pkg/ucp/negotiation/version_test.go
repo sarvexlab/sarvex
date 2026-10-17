@@ -6,10 +6,10 @@ package negotiation
 import (
 	"testing"
 
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 func TestSelectVersion_SingleServable(t *testing.T) {

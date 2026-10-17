@@ -24,11 +24,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpnego/httpx"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpnego/httpx"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 func main() {

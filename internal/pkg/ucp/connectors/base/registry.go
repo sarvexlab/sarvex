@@ -16,8 +16,8 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	pkgucp "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
+	pkgucp "github.com/sarvexlab/sarvex/internal/pkg/ucp"
 )
 
 // CredentialsProvider resolves a store's decrypted platform credentials at

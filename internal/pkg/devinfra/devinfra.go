@@ -14,8 +14,8 @@ package devinfra
 import (
 	"os"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/jwkmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/jwkmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
 )
 
 const (

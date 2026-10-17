@@ -11,10 +11,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commandbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/commandbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // SurfaceService is the production implementation of Service.

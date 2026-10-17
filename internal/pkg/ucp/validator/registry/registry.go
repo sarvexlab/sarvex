@@ -10,9 +10,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	pkgucp "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/validator"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
+	pkgucp "github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/validator"
 )
 
 // ValidatorFactory is a function signature that creates a new validator for a merchant.

@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // Regression tests for architecture G1 (checkout cancel) and Complete's

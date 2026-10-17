@@ -55,7 +55,7 @@ const (
 // substring match on "gemini" then "google"), duplicated rather than
 // imported for the same reason internal/planes/control/channel duplicates
 // it — this is a control-plane package and must never import a serving-
-// plane package (CLAUDE.md §2.1).
+// plane package (sarvex-v1-architecture.md A10.1).
 func deriveSurface(agentPlatformHost string) Surface {
 	host := strings.ToLower(agentPlatformHost)
 	switch {

@@ -11,7 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	ucpagent "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/agent"
+	ucpagent "github.com/sarvexlab/sarvex/internal/pkg/ucp/agent"
 )
 
 func newCheckoutCmd() *cobra.Command {

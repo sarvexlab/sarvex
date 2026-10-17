@@ -5,7 +5,7 @@
 // part in an agent surface: surface ids and the record a surface's
 // Sarvex-generated artifact leaves behind.
 //
-// The planes never import one another (CLAUDE.md §2.1), so anything more than
+// The planes never import one another (sarvex-v1-architecture.md A10.1), so anything more than
 // one of them has to agree on lives here, as data. A surface's behaviour does
 // not: its control-plane half lives under internal/planes/control/surface/<id>
 // and its sync-plane half under internal/planes/sync/surface/<id>.
@@ -26,7 +26,7 @@ var All = []string{DirectAgent}
 
 // CollectionArtifacts is the sync plane's per-store, per-surface artifact
 // collection. The sync plane is its one writer; the control plane reads it
-// by name, read-only (CLAUDE.md §2.1), to show an artifact and to recognise
+// by name, read-only (sarvex-v1-architecture.md A10.1), to show an artifact and to recognise
 // a verification signal.
 const CollectionArtifacts = "sync_surface_artifacts"
 

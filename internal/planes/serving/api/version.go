@@ -9,15 +9,15 @@ import (
 	"io"
 	"net/http"
 
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/middlewares"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/negotiation"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireadapt"
+	"github.com/sarvexlab/sarvex/internal/pkg/middlewares"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/negotiation"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireadapt"
 )
 
 // Every UCP resource is rendered at the HTTP edge in the generation negotiated

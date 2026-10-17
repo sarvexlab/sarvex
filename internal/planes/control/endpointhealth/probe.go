@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // ProbeResult is the outcome of one synthetic check against one store.

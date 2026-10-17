@@ -12,9 +12,9 @@ import (
 	"github.com/hibiken/asynq"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/concurrency"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/monitoring"
+	"github.com/sarvexlab/sarvex/internal/pkg/concurrency"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/planes/control/monitoring"
 )
 
 const (

@@ -11,10 +11,10 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 var errPlatformNotFound = errors.New("connector not found for store")
@@ -265,7 +265,7 @@ func TestOrchestratorEmitsJourneySignalOnPass(t *testing.T) {
 	}
 
 	// Asserted against the constant, not a literal: internal/pkg/ucp is the
-	// single source of truth for bus topic names (CLAUDE.md §0). The literal
+	// single source of truth for bus topic names (sarvex-v1-architecture.md). The literal
 	// this replaced ("journey.signal") had drifted from the topic the
 	// orchestrator actually publishes on.
 	evt := bus.publishedEvents[0]

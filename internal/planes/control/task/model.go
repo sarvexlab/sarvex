@@ -6,7 +6,7 @@ package task
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 type TaskModel struct {

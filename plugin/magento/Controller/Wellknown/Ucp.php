@@ -16,7 +16,7 @@ use Sarvex\Ucp\Model\ProfileClient;
 
 /**
  * Serves /.well-known/ucp from the merchant's own domain — the profile
- * doorway half of CLAUDE.md §4's two-role plugin contract. Fetches the
+ * doorway half of sarvex-v1-architecture.md's two-role plugin contract. Fetches the
  * profile live from Sarvex on every request, falling back to the last-
  * known-good cached copy if Sarvex is unreachable. Always returns a plain
  * 200 (or 503 if there is truly nothing to serve), never a redirect;

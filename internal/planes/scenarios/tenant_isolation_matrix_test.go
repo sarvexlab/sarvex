@@ -10,9 +10,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
-	"github.com/sarvexlabs/sarvex.cp/internal/testtenancy"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/testtenancy"
 )
 
 // TestScenario_TenantIsolation_Matrix extends

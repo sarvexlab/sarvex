@@ -6,11 +6,11 @@ package api
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/activation"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/endpointhealth"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/surface"
+	"github.com/sarvexlab/sarvex/internal/planes/control/activation"
+	"github.com/sarvexlab/sarvex/internal/planes/control/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/endpointhealth"
+	"github.com/sarvexlab/sarvex/internal/planes/control/surface"
 )
 
 // The adapters here exist so that activation, surface and endpointhealth

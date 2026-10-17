@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/email"
+	"github.com/sarvexlab/sarvex/internal/pkg/email"
 )
 
 // fakeEmailClient records every send instead of transmitting it.

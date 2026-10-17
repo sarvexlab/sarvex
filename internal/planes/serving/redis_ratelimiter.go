@@ -67,7 +67,7 @@ func NewRedisRateLimiter(client *redis.Client, log *slog.Logger) *RedisRateLimit
 // Redis error it fails OPEN (allows the request) rather than closed: a
 // cache outage shouldn't also take down the serving plane's whole
 // agent-facing read path, and the serving cache itself already degrades
-// the same way (CLAUDE.md §2.2 makes availability here the priority).
+// the same way (sarvex-v1-architecture.md A10.2 makes availability here the priority).
 func (rl *RedisRateLimiter) Allowed(ctx context.Context, merchantID, endpoint string) bool {
 	rate, ok := endpointLimits[endpoint]
 	if !ok {

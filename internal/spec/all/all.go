@@ -9,9 +9,9 @@ package all
 import (
 	"sync"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/spec"
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408/release"
-	v20260825 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260825/release"
+	"github.com/sarvexlab/sarvex/internal/spec"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408/release"
+	v20260825 "github.com/sarvexlab/sarvex/internal/spec/v20260825/release"
 )
 
 var (

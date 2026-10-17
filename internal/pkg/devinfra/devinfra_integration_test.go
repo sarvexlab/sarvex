@@ -17,11 +17,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/devinfra"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	_ "github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus/natsjetstream"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/jwkmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/devinfra"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	_ "github.com/sarvexlab/sarvex/internal/pkg/eventbus/natsjetstream"
+	"github.com/sarvexlab/sarvex/internal/pkg/jwkmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
 )
 
 // These tests run against the real NATS JetStream and Vault from

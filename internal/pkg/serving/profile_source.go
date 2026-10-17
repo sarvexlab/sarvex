@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // CacheProfileSource is the concrete ucp.ProfileSource backed by the serving
@@ -21,7 +21,7 @@ import (
 // control plane reads the last-known-good rendered profile from the cache and
 // hands it to the plugin, which serves it verbatim at /.well-known/ucp.
 //
-// Per CLAUDE.md §8, the doorway must never fail: a missing snapshot returns no
+// Per sarvex-v1-architecture.md: a missing snapshot returns no
 // body (the plugin then serves its own last-known-good copy) rather than an
 // error.
 type CacheProfileSource struct {

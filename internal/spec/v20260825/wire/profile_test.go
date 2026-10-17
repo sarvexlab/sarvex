@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	ucpwire "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	ucpwire "github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // TestProfileKeysFieldName pins the one deliberate field rename this

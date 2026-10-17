@@ -15,7 +15,7 @@ import (
 
 	"github.com/hibiken/asynq"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 func handlerTestLogger() *slog.Logger {

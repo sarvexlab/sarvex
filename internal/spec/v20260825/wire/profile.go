@@ -13,7 +13,7 @@
 package wire
 
 import (
-	ucpwire "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	ucpwire "github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // Profile is a 2026-08-25 profile document.

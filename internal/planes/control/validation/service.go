@@ -8,11 +8,11 @@ package validation
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // Service drives validation runs and exposes conformance records.
-// All methods are scoped to a specific store (per CLAUDE.md invariant 4: catalog/validation data is per-store).
+// All methods are scoped to a specific store (per sarvex-v1-architecture.md A10.4: catalog/validation data is per-store).
 type Service interface {
 	GetStatus(ctx context.Context, merchantID domain.MerchantID, storeID domain.StoreID) (domain.ValidationStatus, error)
 	TriggerRun(ctx context.Context, merchantID domain.MerchantID, storeID domain.StoreID) (domain.JobAccepted, error)

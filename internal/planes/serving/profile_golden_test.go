@@ -6,9 +6,9 @@ package serving
 import (
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/golden"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform"
+	"github.com/sarvexlab/sarvex/internal/pkg/golden"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/platform"
 )
 
 // TestProfileGoldens freezes the /.well-known/ucp document rendered for a store

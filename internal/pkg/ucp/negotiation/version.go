@@ -4,10 +4,10 @@
 package negotiation
 
 import (
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 )
 
 // SelectVersion returns the highest version in servable that does not

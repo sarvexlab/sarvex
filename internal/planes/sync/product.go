@@ -6,7 +6,7 @@ package sync
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // CatalogProduct is the normalised, platform-independent product entity —
@@ -62,7 +62,7 @@ type CatalogProduct struct {
 
 	// CatalogueVersion pins the readiness slot (Completeness..Issues above)
 	// to the UCP definitions catalogue version the score stage ran against
-	// (CLAUDE.md §2.6: "spec version is data, not code").
+	// (sarvex-v1-architecture.md A10.6: "spec version is data, not code").
 	CatalogueVersion string `bson:"catalogue_version" json:"catalogue_version"`
 
 	// ScoredForSurfaces are the surface ids whose scoped rules were part of the

@@ -9,7 +9,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // ConsistencySource provides data for detecting divergence. All methods are

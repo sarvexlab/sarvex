@@ -9,7 +9,7 @@
 //
 // This is deliberately narrow: a closed enum plus a lookup function, no
 // aggregation, no revenue totals, no reporting, no persistence of its own.
-// CLAUDE.md §0 places "analytics as a product" out of scope for V1; a
+// sarvex-v1-architecture.md "analytics as a product" out of scope for V1; a
 // merchant-facing revenue-loss ledger would cross that line, this package
 // stops well short of it.
 package checkoutcause

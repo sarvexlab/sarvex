@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	mongoopts "go.mongodb.org/mongo-driver/v2/mongo/options"

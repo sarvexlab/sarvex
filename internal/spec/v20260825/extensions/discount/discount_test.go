@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	v20260825 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260825"
+	v20260825 "github.com/sarvexlab/sarvex/internal/spec/v20260825"
 )
 
 func TestCartWithDiscountRoundTrip(t *testing.T) {

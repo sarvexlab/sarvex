@@ -11,9 +11,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/journey"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/journey"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
 )
 
 // taskIDParam returns the task_id path param, decoded.

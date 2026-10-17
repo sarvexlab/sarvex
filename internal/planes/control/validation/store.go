@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // MemoryConformanceStore is an in-memory conformance record store (for testing/development).

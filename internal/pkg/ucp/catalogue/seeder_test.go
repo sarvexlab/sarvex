@@ -15,7 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/data"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/data"
 )
 
 func setupTestDBForSeeder(t *testing.T) *mongo.Database {

@@ -30,7 +30,7 @@ export default defineConfig({
     ],
   },
   // The API reference is generated from the repository's contracts, which
-  // stay the single source of truth (CLAUDE.md §3) — never copied here.
+  // stay the single source of truth (sarvex-v1-architecture.md) — never copied here.
   openapi: {
     enabled: true,
     route: "/api/control-plane",

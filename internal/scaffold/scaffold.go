@@ -10,7 +10,7 @@
 // passes the boundary check and serves exactly what its template serves; the
 // person adding it then changes what actually differs. Nothing outside the new
 // module and the registration root is touched, so no established version or
-// platform changes (CLAUDE.md §8).
+// platform changes (sarvex-v1-architecture.md).
 //
 // The template is passed in, never named here: cmd/scaffold takes it from the
 // registries (the latest generation, the default platform).
@@ -28,10 +28,10 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
 )
 
-const module = "github.com/sarvexlabs/sarvex.cp/"
+const module = "github.com/sarvexlab/sarvex/"
 
 // Repository paths, relative to the root.
 const (
@@ -159,7 +159,7 @@ func Platform(root, from, to, display string, known []string) (Result, error) {
 		Next: []string{
 			fmt.Sprintf("Add %s to the platform enum in sarvex-v1-control-plane.yaml and a store_credentials_%s schema beside the others (internal/platform's tests fail until you do), then cd web/console && npm run gen:api and give it a label in src/platforms.ts and src/locales/en.ts (typecheck fails until you do).", to, to),
 			fmt.Sprintf("Change %s/%s to talk to %s: client, mapper, types, config schema, validator and sim/ (the copy still speaks the template's store API).", platformDir, to, display),
-			fmt.Sprintf("Build the merchant-side plugin in %s/%s (signalling + /.well-known/ucp doorway only, CLAUDE.md §4).", pluginDir, to),
+			fmt.Sprintf("Build the merchant-side plugin in %s/%s (signalling + /.well-known/ucp doorway only, sarvex-v1-architecture.md).", pluginDir, to),
 			"Create the new platform's goldens: UPDATE_GOLDENS=1 go test ./internal/planes/... and review every new file under testdata/golden (no existing golden may change).",
 			"Run make test-unit and make test-scenarios.",
 			fmt.Sprintf("Label the PR platform-change/%s.", to),
@@ -276,7 +276,7 @@ func pluginStub(name, display string) string {
 	return fmt.Sprintf(`# %s plugin
 
 The merchant-side plugin for %s stores (registry name `+"`%s`"+`). It has the
-same two roles as every Sarvex plugin, and nothing else (CLAUDE.md §4):
+same two roles as every Sarvex plugin, and nothing else (sarvex-v1-architecture.md):
 
 1. **Signalling** — on a product, order or settings change, POST a thin,
    HMAC-signed signal (type, id, sequence) to `+"`/connector/signals`"+`.

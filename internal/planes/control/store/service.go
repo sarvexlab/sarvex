@@ -7,8 +7,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/jwkmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/jwkmanagement"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // Service manages store lifecycle.

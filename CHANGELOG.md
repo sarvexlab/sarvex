@@ -6,7 +6,7 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 
 ### Changed (breaking)
 
-- The project is renamed back to **Sarvex** (from Conductor); every identifier below that was renamed to `conductor`/`Conductor`/`CONDUCTOR` is now `sarvex`/`Sarvex`/`SARVEX` again (headers `X-Sarvex-*`, WordPress options `sarvex_ucp_*`, PHP namespaces `Sarvex\UCP`, env vars `SARVEX_*`, `@sarvex/console`, Go module `github.com/sarvexlabs/sarvex.cp`, `cmd/sarvex`, Helm charts and file names). Existing installs must be upgraded and re-paired together with the server.
+- The project is renamed back to **Sarvex** (from Conductor); every identifier below that was renamed to `conductor`/`Conductor`/`CONDUCTOR` is now `sarvex`/`Sarvex`/`SARVEX` again (headers `X-Sarvex-*`, WordPress options `sarvex_ucp_*`, PHP namespaces `Sarvex\UCP`, env vars `SARVEX_*`, `@sarvex/console`, Go module `github.com/sarvexlab/sarvex`, `cmd/sarvex`, Helm charts and file names). Existing installs must be upgraded and re-paired together with the server.
 - The project is now **Conductor** (formerly Sarvex) and is released under the Apache License 2.0.
 - Wire and configuration identifiers were renamed. Existing plugin installs must be upgraded and re-paired together with the server:
   - HTTP headers `X-Sarvex-*` → `X-Conductor-*`

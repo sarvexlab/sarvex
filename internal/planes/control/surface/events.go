@@ -6,7 +6,7 @@ package surface
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
 )
 
 // StateChangedPayload is the event payload for

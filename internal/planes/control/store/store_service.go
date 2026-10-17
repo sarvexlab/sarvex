@@ -12,9 +12,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/jwkmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/jwkmanagement"
 )
 
 // signingKeyTTL is the validity window for a freshly provisioned store signing

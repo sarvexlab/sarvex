@@ -8,7 +8,7 @@ rules:
   # almost entirely false positives against the intended pattern); it flags
   # the actually-forbidden thing: `merchant_id` — the tenant/account
   # identifier itself — sourced from a URL path/query param, which
-  # CLAUDE.md §2.4 permits only via "authorized operator scope"
+  # sarvex-v1-architecture.md A10.4 permits only via "authorized operator scope"
   # (the `/operator/merchants/:merchant_id/**` routes, gated by the
   # `requireOperator` middleware in handler.go) and excludes here.
   - id: merchant-id-from-url-param
@@ -17,7 +17,7 @@ rules:
     message: >-
       merchant_id must be resolved server-side from the verified principal
       (Kinde JWT claim, HMAC credential, or authorized operator scope) —
-      never from a URL path or query parameter directly. This is CLAUDE.md
+      never from a URL path or query parameter directly. This is sarvex-v1-architecture.md
       §2.4 (two-level tenant isolation) and a stop-and-report condition per
       §6, not a style nit. If this genuinely is an operator-scoped route
       (merchant_id is the *target* of an operator action, not the caller's
@@ -32,13 +32,13 @@ rules:
       exclude:
         - "**/*_test.go"
         # Sanctioned exception: every route here is registered with
-        # `requireOperator` in handler.go, matching CLAUDE.md §2.4's
+        # `requireOperator` in handler.go, matching sarvex-v1-architecture.md A10.4's
         # "authorized operator scope" resolution path.
         - "**/internal/planes/control/api/operator.go"
 
   # Scoped to Sarvex's own checkout-facing schema — internal/pkg/ucp/types/**
   # is deliberately excluded. Verified by reading the code (not assumed):
-  # those packages pin the external ucp.dev wire spec (CLAUDE.md §3) and
+  # those packages pin the external ucp.dev wire spec (sarvex-v1-architecture.md) and
   # *must* model the full CardCredential shape (Number/CVC/Cryptogram) to
   # faithfully represent what a handler's raw-card path can carry on the
   # wire — the invariant is enforced one layer up, in
@@ -59,7 +59,7 @@ rules:
       A field shaped like a raw card number/CVV/PAN was found in Sarvex's
       own checkout/payment-config schema (not the external ucp.dev spec
       mirror under internal/pkg/ucp/types, which is excluded from this
-      rule). CLAUDE.md §2.8: the checkout schema must have no field able to
+      rule). sarvex-v1-architecture.md A10.8: the checkout schema must have no field able to
       hold a raw credential — Sarvex sees only opaque references +
       handler_id. Stop and report per §6 rather than fixing in place; this
       may be intentional pass-through plumbing that needs the same

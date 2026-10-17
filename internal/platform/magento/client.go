@@ -242,7 +242,7 @@ func (c *httpClient) doWithRetry(ctx context.Context, buildReq buildReqFn, handl
 // one attempt, for writes that are not idempotent at the store (placing an
 // order) and so must never be replayed after a lost response.
 func (c *httpClient) doWithRetryN(ctx context.Context, maxRetries int, buildReq buildReqFn, handle handleRespFn) error {
-	tracer := otel.Tracer("github.com/sarvexlabs/sarvex.cp/magento")
+	tracer := otel.Tracer("github.com/sarvexlab/sarvex/magento")
 	var lastErr error
 	backoff := 250 * time.Millisecond
 

@@ -14,16 +14,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/account"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/api"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/catalog"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/channel"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/journey"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/operator"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/validation"
+	"github.com/sarvexlab/sarvex/internal/planes/control/account"
+	"github.com/sarvexlab/sarvex/internal/planes/control/api"
+	"github.com/sarvexlab/sarvex/internal/planes/control/catalog"
+	"github.com/sarvexlab/sarvex/internal/planes/control/channel"
+	"github.com/sarvexlab/sarvex/internal/planes/control/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/journey"
+	"github.com/sarvexlab/sarvex/internal/planes/control/operator"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/planes/control/validation"
 )
 
 // A6: control-plane read API tests for the Channel Dashboard — range cap,

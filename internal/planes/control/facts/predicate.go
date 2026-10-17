@@ -3,7 +3,7 @@
 
 // Package facts implements the business-facts completeness predicate: it checks
 // the persisted merchant- and store-level business facts against the
-// catalogue-defined required set (architecture §3 Domain 1 / CLAUDE.md §2.6:
+// catalogue-defined required set (architecture §3 Domain 1 / sarvex-v1-architecture.md A10.6:
 // "spec version is data, not code"). Consumed internally by the
 // checklist/journey service, which turns a missing fact into an open item —
 // that wiring is out of scope here; this package only exposes the predicate.
@@ -14,10 +14,10 @@ import (
 	"errors"
 	"fmt"
 
-	v1cat "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/account"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/store"
+	v1cat "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
+	"github.com/sarvexlab/sarvex/internal/planes/control/account"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/store"
 )
 
 // Result is the outcome of a completeness check.

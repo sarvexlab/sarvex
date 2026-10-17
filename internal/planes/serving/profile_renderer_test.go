@@ -11,10 +11,10 @@ import (
 	"strings"
 	"testing"
 
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 func testLogger() *slog.Logger {

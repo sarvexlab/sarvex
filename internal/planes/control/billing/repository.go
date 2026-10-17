@@ -6,7 +6,7 @@ package billing
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // BillingRepository is the persistence interface for merchant billing records.

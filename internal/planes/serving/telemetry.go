@@ -13,11 +13,11 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/safego"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/negotiation"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpsig"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/safego"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/negotiation"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpsig"
 )
 
 // TelemetryRecordedEvent is emitted for every agent request that reaches

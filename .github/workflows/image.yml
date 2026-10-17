@@ -2,7 +2,7 @@ name: Container image
 
 # Builds the single Sarvex binary image (all three planes; --service
 # selects which one runs) and publishes it to GitHub Container Registry. The
-# Helm charts under deployments/selfhost/helm pull ghcr.io/sarvexlabs/sarvex.cp;
+# Helm charts under deployments/selfhost/helm pull ghcr.io/sarvexlab/sarvex;
 # Argo CD (deployments/selfhost/gitops) rolls the cluster to the tag set in
 # the chart values. Pull requests build without pushing.
 

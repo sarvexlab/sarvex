@@ -74,7 +74,7 @@ from the auth store at send time. `src/api/auth.ts` provides typed wrappers
 
 ## Auth
 
-Authentication is external (see CLAUDE.md §2.4). The console verifies
+Authentication is external (see sarvex-v1-architecture.md A10.4). The console verifies
 nothing itself — it just attaches the IdP's JWT and reads the principal
 from `GET /auth/me`. Two providers, env-switched:
 
@@ -168,7 +168,7 @@ control plane directly at `VITE_API_BASE`.
 
 **Deploys are driven by Cloudflare Workers Builds (Git integration), not
 by anyone running `wrangler` locally or from this repo's CI.** Cloudflare
-watches `main` on `sarvexlab/sarvex.cp` and builds/deploys on every
+watches `main` on `sarvexlab/sarvex` and builds/deploys on every
 push — nothing here needs a `CLOUDFLARE_API_TOKEN` or `wrangler login`.
 
 ### One-time setup in the Cloudflare dashboard
@@ -176,7 +176,7 @@ push — nothing here needs a `CLOUDFLARE_API_TOKEN` or `wrangler login`.
 1. **Workers & Pages → Create → Workers → Import a repository** (or, on an
    existing Worker, **Settings → Builds → Connect** — this is the "connect
    to Git" flow you already use for the other CF-deployed app). Pick
-   `sarvexlab/sarvex.cp`, branch `main`.
+   `sarvexlab/sarvex`, branch `main`.
 2. **Build configuration:**
    - Root directory: `web/console`
    - Build command: `npm run build`

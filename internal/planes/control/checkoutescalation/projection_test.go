@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
 )
 
 // ─── fakes ──────────────────────────────────────────────────────────────────

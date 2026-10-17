@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
 )
 
 // CheckState is one check's current state within a store's composite

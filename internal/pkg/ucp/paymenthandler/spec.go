@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
 )
 
 // Configuration status values, matching the control-plane contract's
@@ -23,7 +23,7 @@ const (
 // parameter listed here is PUBLIC by construction — it is published in the
 // store's /.well-known/ucp profile so agents can tokenize against it. A
 // handler needing secret material (processor API keys) must not be modelled
-// as a Param: the payment-credential boundary (CLAUDE.md §2.8) keeps secrets
+// as a Param: the payment-credential boundary (sarvex-v1-architecture.md A10.8) keeps secrets
 // out of Sarvex entirely, so unknown parameter keys are rejected rather than
 // stored.
 type Param struct {

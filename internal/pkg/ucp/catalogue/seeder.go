@@ -10,8 +10,8 @@ import (
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
-	cataloguedata "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/data"
-	v1cat "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
+	cataloguedata "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/data"
+	v1cat "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
 )
 
 // ScoringRubricSeeder handles seeding scoring rubrics into MongoDB.

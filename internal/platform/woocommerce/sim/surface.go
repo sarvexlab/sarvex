@@ -20,10 +20,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/resilience"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/resilience"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 )
 
 // localPickupMethodID is WooCommerce's Local Pickup shipping method id.

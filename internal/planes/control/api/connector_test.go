@@ -6,8 +6,8 @@ package api_test
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // stubConnectorService is a controllable connector.Service for component tests.

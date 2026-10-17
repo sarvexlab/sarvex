@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpnego/negotiate"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpnego/negotiate"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // BusinessNegotiator is the transport-neutral business side of UCP.

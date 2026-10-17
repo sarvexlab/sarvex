@@ -16,12 +16,12 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/crypto/bcrypt"
 
-	pkgdomain "github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	controldomain "github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/journey"
+	pkgdomain "github.com/sarvexlab/sarvex/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	controldomain "github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/journey"
 )
 
 type ConnectorService struct {

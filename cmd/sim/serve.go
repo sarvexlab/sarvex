@@ -13,7 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/sim"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/sim"
 )
 
 func newServeCmd() *cobra.Command {

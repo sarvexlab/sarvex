@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/ledger"
+	"github.com/sarvexlab/sarvex/internal/planes/control/ledger"
 )
 
 // A2: classification test, table-driven over EVERY failure code enumerated

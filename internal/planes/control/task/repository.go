@@ -7,7 +7,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 type TaskRepository interface {

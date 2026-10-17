@@ -9,11 +9,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 )
 
 // stubStoreProvider is a minimal ucp.StoreProvider for tests that only need

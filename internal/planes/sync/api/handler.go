@@ -13,9 +13,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/utils"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/connector"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/utils"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/connector"
 )
 
 // Handler is the control-plane HTTP handler interface.

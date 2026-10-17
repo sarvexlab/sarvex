@@ -14,11 +14,11 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/engagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/engagement"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
 )
 
 // ValidationMilestoneRaiser raises the "run pre-validation" prescribed task

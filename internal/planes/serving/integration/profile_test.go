@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+	"github.com/sarvexlab/sarvex/internal/planes/serving"
 )
 
 // TestProfile_ServesCachedProfile verifies profile serving from cache.

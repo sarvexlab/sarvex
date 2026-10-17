@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/webbaseline"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/webbaseline"
 )
 
 type fakeStore struct {

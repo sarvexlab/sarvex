@@ -13,9 +13,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	ucptype "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/frozen/shopify"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	ucptype "github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/platform/frozen/shopify"
 )
 
 // newTestConnector creates a connector pointing at a mock Shopify server.

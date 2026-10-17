@@ -10,8 +10,8 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/jwkmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/keypair"
+	"github.com/sarvexlab/sarvex/internal/pkg/jwkmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/keypair"
 	"github.com/stretchr/testify/assert"
 )
 

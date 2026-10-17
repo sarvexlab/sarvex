@@ -36,7 +36,7 @@ deployments/selfhost/
 - **Edge region** (1+ k3s nodes): `serving` only, plus a local Redis replica.
   No Mongo, no Vault, no control/sync — matches the architecture invariant
   that the serving plane's discovery/catalog reads never leave the cache
-  (`CLAUDE.md` §2.2).
+  (sarvex-v1-architecture.md A10.2).
 
 ## Script order (day 0 → day N+1)
 
@@ -55,6 +55,6 @@ wrap these — see the root `Makefile`.
 ## Images
 
 `.github/workflows/image.yml` builds `build/package/Dockerfile` and pushes
-`ghcr.io/sarvexlabs/sarvex.cp` on every merge to `main` (tags: `latest`,
+`ghcr.io/sarvexlab/sarvex` on every merge to `main` (tags: `latest`,
 `sha-<commit>`) and on `v*` tags. The charts' `image.tag` selects what the
 cluster runs.

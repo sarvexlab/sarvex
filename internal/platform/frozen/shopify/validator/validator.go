@@ -8,8 +8,8 @@ import (
 	"log/slog"
 	"strings"
 
-	ucpvalidator "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/validator"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/frozen/shopify"
+	ucpvalidator "github.com/sarvexlab/sarvex/internal/pkg/ucp/validator"
+	"github.com/sarvexlab/sarvex/internal/platform/frozen/shopify"
 )
 
 // Validator is the Shopify implementation of configuration.Validator.

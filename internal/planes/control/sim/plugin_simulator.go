@@ -39,8 +39,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/platform"
 )
 
 // pairingEvent carries what BeginPairing produces.

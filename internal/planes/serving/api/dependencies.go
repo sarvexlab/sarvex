@@ -10,21 +10,21 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform"
+	"github.com/sarvexlab/sarvex/internal/platform"
 
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/jwkmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/negotiation"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpsig"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/utils"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/jwkmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/negotiation"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpsig"
+	"github.com/sarvexlab/sarvex/internal/pkg/utils"
+	"github.com/sarvexlab/sarvex/internal/planes/serving"
 )
 
 // ServingDependencies holds all injectable dependencies for the serving handler.

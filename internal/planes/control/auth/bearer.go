@@ -12,7 +12,7 @@ import (
 
 	kindejwt "github.com/kinde-oss/kinde-go/jwt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // KindeConfig holds the Kinde issuer and audience required for JWT verification.

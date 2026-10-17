@@ -8,12 +8,12 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireadapt"
-	"github.com/sarvexlabs/sarvex.cp/internal/spec/all"
-	"github.com/sarvexlabs/sarvex.cp/internal/spec/spectest"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireadapt"
+	"github.com/sarvexlab/sarvex/internal/spec/all"
+	"github.com/sarvexlab/sarvex/internal/spec/spectest"
 )
 
 // Registering one more generation is new code plus one registration line, and

@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/connector"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/connector"
 )
 
 // resolveConnector recovers storeID's connector_id and plaintext pairing

@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // TestConnector_PairingFlow exercises the full connector pairing sequence:
@@ -136,7 +136,7 @@ func TestConnector_Disconnect(t *testing.T) {
 // The connector-ingest tests that used to live here — TestConnector_PluginEndpoints,
 // TestConnector_HMACReplay and TestConnector_HMACBadSignature — drove
 // /v1/connector/{signals,heartbeat,profile} against the *control* plane's
-// handler. Those routes are served by the sync plane (CLAUDE.md §5;
+// handler. Those routes are served by the sync plane (sarvex-v1-architecture.md;
 // internal/planes/sync/api/handler.go), so every one of them 404'd here.
 //
 // They were not deleted so much as relocated to where the routes actually are:

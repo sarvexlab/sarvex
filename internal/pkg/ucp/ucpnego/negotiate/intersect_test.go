@@ -6,7 +6,7 @@ package negotiate
 import (
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 func cap(name, ver string, extends ...string) (string, wire.Capability) {

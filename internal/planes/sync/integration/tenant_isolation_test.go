@@ -10,11 +10,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/connector"
-	syncdomain "github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
-	"github.com/sarvexlabs/sarvex.cp/internal/testtenancy"
+	"github.com/sarvexlab/sarvex/internal/planes/sync"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/connector"
+	syncdomain "github.com/sarvexlab/sarvex/internal/planes/sync/domain"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/testtenancy"
 )
 
 // TestTenantIsolation_CatalogStore_Matrix extends
@@ -95,7 +95,7 @@ func TestTenantIsolation_CatalogStore_Matrix(t *testing.T) {
 // TestAuth_TenantIsolation's connector-isolation assertion (control
 // integration suite) to the sync plane's own read of the same
 // control_connectors collection (internal/planes/sync/connector —
-// CLAUDE.md's documented cross-plane read: sync reads control_connectors
+// sarvex-v1-architecture.md documented cross-plane read: sync reads control_connectors
 // read-only). GetByStoreID is intentionally store_id-scoped only (a store
 // belongs to exactly one merchant — architecture invariant #4), so this
 // test's job is confirming that scoping still holds at N-tenant scale, not

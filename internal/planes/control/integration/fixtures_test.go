@@ -13,10 +13,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/google/uuid"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/account"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/store"
+	"github.com/sarvexlab/sarvex/internal/planes/control/account"
+	"github.com/sarvexlab/sarvex/internal/planes/control/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/store"
 )
 
 // seedStore writes a store directly to MongoDB and returns its ID.

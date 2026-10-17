@@ -7,14 +7,14 @@
 package release
 
 import (
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/generation"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireadapt"
-	"github.com/sarvexlabs/sarvex.cp/internal/spec"
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408"
-	"github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408/codec"
-	"github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408/profile"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/generation"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireadapt"
+	"github.com/sarvexlab/sarvex/internal/spec"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408"
+	"github.com/sarvexlab/sarvex/internal/spec/v20260408/codec"
+	"github.com/sarvexlab/sarvex/internal/spec/v20260408/profile"
 )
 
 // New returns the 2026-04-08 generation.

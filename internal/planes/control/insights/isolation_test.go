@@ -11,7 +11,7 @@ import (
 )
 
 // TestNoImportPathToServingPlane enforces the plane-isolation invariant
-// (CLAUDE.md §2.1, internal/planes/doc.go) for this package: it consumes
+// (sarvex-v1-architecture.md A10.1, internal/planes/doc.go) for this package: it consumes
 // serving-plane event *payloads* over the bus (JSON), and must never
 // import the serving plane's Go code to get them — see model.go's doc
 // comment on why Surface is redeclared here rather than imported.
@@ -19,7 +19,7 @@ import (
 // check for that package.
 func TestNoImportPathToServingPlane(t *testing.T) {
 	out, err := exec.CommandContext(context.Background(), "go", "list", "-deps",
-		"github.com/sarvexlabs/sarvex.cp/internal/planes/control/insights").CombinedOutput()
+		"github.com/sarvexlab/sarvex/internal/planes/control/insights").CombinedOutput()
 	if err != nil {
 		t.Fatalf("go list -deps failed: %v\n%s", err, out)
 	}

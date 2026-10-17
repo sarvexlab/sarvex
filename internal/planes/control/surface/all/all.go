@@ -9,8 +9,8 @@ package all
 import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/surface"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/surface/directagent"
+	"github.com/sarvexlab/sarvex/internal/planes/control/surface"
+	"github.com/sarvexlab/sarvex/internal/planes/control/surface/directagent"
 )
 
 // Registrations returns every registered surface.

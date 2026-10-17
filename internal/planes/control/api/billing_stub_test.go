@@ -6,8 +6,8 @@ package api_test
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/billing"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/billing"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // activeBillingStub is billing.StubService with Get overridden to report an

@@ -6,7 +6,7 @@ package sync
 import (
 	"fmt"
 
-	servingpkg "github.com/sarvexlabs/sarvex.cp/internal/pkg/serving"
+	servingpkg "github.com/sarvexlab/sarvex/internal/pkg/serving"
 )
 
 // ProductTransformer converts CatalogProduct (sync plane) to CacheProduct (serving plane).

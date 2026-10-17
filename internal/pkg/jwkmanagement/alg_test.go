@@ -8,7 +8,7 @@ import (
 	"encoding/base64"
 	"testing"
 
-	kp "github.com/sarvexlabs/sarvex.cp/internal/pkg/keypair"
+	kp "github.com/sarvexlab/sarvex/internal/pkg/keypair"
 )
 
 // A store's published JWK said "alg": "es256". JWK alg values are

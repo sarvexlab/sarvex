@@ -6,7 +6,7 @@ package operator
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
 )
 
 // rebuildRequestedPayload is the body of serving.rebuild.requested, matching

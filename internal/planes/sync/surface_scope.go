@@ -33,7 +33,7 @@ func (noSurfaces) ApplicableSurfaces(context.Context, string, string) (map[strin
 
 // controlSurfacesCollection is the control plane's per-store, per-surface
 // enrollment collection. The sync plane only reads it, by name, and never
-// imports control-plane code (CLAUDE.md §2.1: collections have one writer and
+// imports control-plane code (sarvex-v1-architecture.md A10.1: collections have one writer and
 // any number of read-only cross-plane readers).
 const controlSurfacesCollection = "control_store_surfaces"
 

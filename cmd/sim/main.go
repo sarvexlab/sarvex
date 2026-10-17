@@ -59,7 +59,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/devinfra"
+	"github.com/sarvexlab/sarvex/internal/pkg/devinfra"
 	"log/slog"
 	"os"
 
@@ -68,11 +68,11 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	mongoopts "go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
-	ucpagent "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/agent"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/sim"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
+	ucpagent "github.com/sarvexlab/sarvex/internal/pkg/ucp/agent"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/sim"
 )
 
 // deps bundles the shared connections every subcommand needs. Built fresh

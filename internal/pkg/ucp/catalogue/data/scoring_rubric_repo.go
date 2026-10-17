@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	mongoopts "go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	v1 "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
+	v1 "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
 )
 
 // ScoringRubricRepo provides MongoDB access to scoring rubrics.

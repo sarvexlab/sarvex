@@ -6,7 +6,7 @@ package v1
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // DefaultCatalogue returns the default UCP definitions catalogue.

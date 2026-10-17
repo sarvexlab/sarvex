@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	v1cat "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	v1cat "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
 )
 
 // UpsertRule makes the in-memory ontology a valid SeedOntology target.

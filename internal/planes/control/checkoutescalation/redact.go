@@ -11,7 +11,7 @@ import "strings"
 // pattern-based rather than an allowlist of known-safe fields: the checkout
 // lifecycle events (internal/planes/serving/checkout_lifecycle_events.go)
 // don't carry raw payment credentials or PANs today (the checkout schema
-// has no field able to hold one — CLAUDE.md §2 invariant 8), but this list
+// has no field able to hold one — sarvex-v1-architecture.md A10 invariant 8), but this list
 // exists so a future field added to any of those events without updating
 // this list still can't leak by accident — it must not be relied on to
 // convert an unsafe event contract into a safe one.

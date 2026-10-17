@@ -4,8 +4,8 @@
 package negotiation
 
 import (
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireintersect"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireintersect"
 )
 
 // NegotiationResult holds the active capabilities after intersection.

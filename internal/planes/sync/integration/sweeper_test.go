@@ -16,10 +16,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/concurrency"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	syncplane "github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
+	"github.com/sarvexlab/sarvex/internal/pkg/concurrency"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	syncplane "github.com/sarvexlab/sarvex/internal/planes/sync"
 )
 
 // threadSafeRecordingBus captures published events for assertion. Unlike

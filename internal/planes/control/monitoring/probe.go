@@ -14,10 +14,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/safego"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/safego"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // drainAndClose reads resp.Body to completion before closing it. Closing an

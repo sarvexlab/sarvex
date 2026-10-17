@@ -8,8 +8,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // ErrProfileNotFound is returned when a store has no persisted profile yet.

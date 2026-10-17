@@ -6,7 +6,7 @@ package v1
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // Catalogue is the root of the UCP definitions catalogue.
@@ -43,7 +43,7 @@ const (
 
 // RequiredBusinessFact declares one Google-required business fact: the tenancy
 // level it is captured at and the field name it is stored/read under. This is
-// loadable content (CLAUDE.md §2.6: "spec version is data, not code") — the
+// loadable content (sarvex-v1-architecture.md A10.6: "spec version is data, not code") — the
 // business-facts completeness predicate reads this list rather than hardcoding
 // which fields are required.
 type RequiredBusinessFact struct {

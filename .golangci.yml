@@ -128,38 +128,38 @@ linters:
           files:
             - "**/internal/planes/serving/**"
           deny:
-            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
+            - pkg: "github.com/sarvexlab/sarvex/internal/planes/sync"
               desc: "serving plane must not import the sync plane (ADR-0004); cross-plane communication is the event bus"
-            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/control"
+            - pkg: "github.com/sarvexlab/sarvex/internal/planes/control"
               desc: "serving plane must not import the control plane (ADR-0004); cross-plane communication is the event bus"
         # Sync plane: cannot import serving or control planes
         sync-plane:
           files:
             - "**/internal/planes/sync/**"
           deny:
-            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+            - pkg: "github.com/sarvexlab/sarvex/internal/planes/serving"
               desc: "sync plane must not import the serving plane (ADR-0004); cross-plane communication is the event bus"
-            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/control"
+            - pkg: "github.com/sarvexlab/sarvex/internal/planes/control"
               desc: "sync plane must not import the control plane (ADR-0004); cross-plane communication is the event bus"
         # Control plane: cannot import serving or sync planes
         control-plane:
           files:
             - "**/internal/planes/control/**"
           deny:
-            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+            - pkg: "github.com/sarvexlab/sarvex/internal/planes/serving"
               desc: "control plane must not import the serving plane (ADR-0004); cross-plane communication is the event bus"
-            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
+            - pkg: "github.com/sarvexlab/sarvex/internal/planes/sync"
               desc: "control plane must not import the sync plane (ADR-0004); cross-plane communication is the event bus"
         # Internal/pkg: cannot import any plane (shared package isolation)
         shared-packages:
           files:
             - "**/internal/pkg/**"
           deny:
-            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+            - pkg: "github.com/sarvexlab/sarvex/internal/planes/serving"
               desc: "shared packages must not import a plane (ADR-0004); dependencies point inward"
-            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
+            - pkg: "github.com/sarvexlab/sarvex/internal/planes/sync"
               desc: "shared packages must not import a plane (ADR-0004); dependencies point inward"
-            - pkg: "github.com/sarvexlabs/sarvex.cp/internal/planes/control"
+            - pkg: "github.com/sarvexlab/sarvex/internal/planes/control"
               desc: "shared packages must not import a plane (ADR-0004); dependencies point inward"
 
 formatters:

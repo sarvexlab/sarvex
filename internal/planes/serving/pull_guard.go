@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // errServingPull is returned by every store-API pull method on a connector

@@ -34,7 +34,7 @@ func RegisterNATSBackend(f NATSBackendFactory) {
 // newBackend constructs the NATS JetStream publisher/subscriber pair.
 func newBackend(cfg Config) (*backend, error) {
 	if natsBackendFactory == nil {
-		return nil, fmt.Errorf("eventbus: the NATS JetStream backend is not registered; blank-import github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus/natsjetstream")
+		return nil, fmt.Errorf("eventbus: the NATS JetStream backend is not registered; blank-import github.com/sarvexlab/sarvex/internal/pkg/eventbus/natsjetstream")
 	}
 	pub, sub, err := natsBackendFactory(cfg)
 	if err != nil {

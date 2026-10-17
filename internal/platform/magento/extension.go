@@ -6,8 +6,8 @@ package magento
 import (
 	"strings"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // shippingState is what a checkout response needs to know about fulfillment:

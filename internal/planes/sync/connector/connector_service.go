@@ -10,10 +10,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	controldomain "github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	controldomain "github.com/sarvexlab/sarvex/internal/planes/sync/domain"
 )
 
 type ConnectorService struct {

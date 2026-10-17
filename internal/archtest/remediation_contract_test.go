@@ -11,13 +11,13 @@ import (
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/catalog"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
+	"github.com/sarvexlab/sarvex/internal/planes/control/catalog"
+	"github.com/sarvexlab/sarvex/internal/planes/sync"
 )
 
 // The sync plane writes remediation records (sync.Remediation) and the control
 // plane reads them by collection name into its own read model
-// (catalog.RemediationModel) — planes never share a type (CLAUDE.md §2.1), so
+// (catalog.RemediationModel) — planes never share a type (sarvex-v1-architecture.md A10.1), so
 // this test is what holds the two shapes together.
 func TestRemediationRecordContract(t *testing.T) {
 	syncKeys := bsonKeys(reflect.TypeFor[sync.Remediation]())

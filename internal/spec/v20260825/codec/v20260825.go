@@ -26,10 +26,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireadapt"
-	v20260825 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260825"
-	consent25 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260825/extensions/buyerconsent"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireadapt"
+	v20260825 "github.com/sarvexlab/sarvex/internal/spec/v20260825"
+	consent25 "github.com/sarvexlab/sarvex/internal/spec/v20260825/extensions/buyerconsent"
 )
 
 // Codec is the 2026-08-25 codec.

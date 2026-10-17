@@ -11,8 +11,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // Option is a functional option for NewConnector.
@@ -523,7 +523,7 @@ func (c *Connector) UpdateProduct(ctx context.Context, storeID string, itemID st
 }
 
 // ─── Store-API pull methods ────────────────────────────────────────────────
-// Shopify is frozen for CI-testing only (CLAUDE.md §6) — these are minimal
+// Shopify is frozen for CI-testing only (sarvex-v1-architecture.md) — these are minimal
 // compile-compliance stubs, not a feature addition. No pull-sync support is
 // implemented or planned for Shopify.
 

@@ -7,13 +7,13 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 
 	"github.com/samber/lo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/paymenthandler"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/paymenthandler"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // PaymentValidator validates payment handler configuration against the catalogue.

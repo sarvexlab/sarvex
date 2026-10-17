@@ -6,7 +6,7 @@ package domain
 import (
 	"time"
 
-	pkgdomain "github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
+	pkgdomain "github.com/sarvexlab/sarvex/internal/pkg/domain"
 )
 
 // Platform identifies a connectable system. For commerce backends it is the

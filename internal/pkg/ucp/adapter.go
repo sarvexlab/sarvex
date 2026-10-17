@@ -7,14 +7,14 @@ import (
 	"context"
 	"errors"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // ErrStoreProfileNotFound is returned by a StoreProviderFunc when the store
 // has no cached/published profile yet (e.g. paired but not yet imported, or
 // an unknown store_id). Distinguished from other errors so callers like
 // negotiation.WithStoreConfigProvider can respond 404 rather than 500 — the
-// serving plane's discovery/read paths never call live (CLAUDE.md invariant
+// serving plane's discovery/read paths never call live (sarvex-v1-architecture.md invariant
 // #2), so an unpopulated cache is an expected, well-defined state, not a
 // server failure.
 var ErrStoreProfileNotFound = errors.New("ucp: store profile not found")

@@ -7,11 +7,11 @@ import (
 	"log/slog"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/negotiation"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpsig"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/negotiation"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpsig"
+	"github.com/sarvexlab/sarvex/internal/planes/serving"
 )
 
 // RequestPipeline builds the middleware stack for serving-plane requests.

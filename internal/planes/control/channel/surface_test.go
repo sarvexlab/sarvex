@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/channel"
+	"github.com/sarvexlab/sarvex/internal/planes/control/channel"
 )
 
 // TestSurfaceEnumExtension_NoMigrationRequired is R9: a brand-new Surface

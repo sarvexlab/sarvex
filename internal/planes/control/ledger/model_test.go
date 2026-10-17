@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/ledger"
+	"github.com/sarvexlab/sarvex/internal/planes/control/ledger"
 )
 
 // A7: forward-only status transitions — open -> acknowledged -> resolved,

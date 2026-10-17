@@ -4,6 +4,6 @@
 package catalog
 
 // Re-export commandbus types for API compatibility.
-import "github.com/sarvexlabs/sarvex.cp/internal/pkg/commandbus"
+import "github.com/sarvexlab/sarvex/internal/pkg/commandbus"
 
 type CommandEmitter = commandbus.CommandEmitter

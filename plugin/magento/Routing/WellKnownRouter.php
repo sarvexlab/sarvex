@@ -14,7 +14,7 @@ use Magento\Framework\App\RouterInterface;
 
 /**
  * Matches the literal /.well-known/ucp path so it can be served from the
- * merchant's own domain with a bare 200 (never a redirect) — CLAUDE.md §4's
+ * merchant's own domain with a bare 200 (never a redirect) — sarvex-v1-architecture.md's
  * profile-doorway constraint. Magento's standard router only resolves
  * /frontName/controller/action paths, so a dedicated router registered
  * ahead of it (see etc/frontend/di.xml) is the only way to serve a

@@ -8,11 +8,11 @@ package scenarios_test
 import (
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // TestScenario_CheckoutSession_Create exercises the first step of checkout:
@@ -95,7 +95,7 @@ func TestScenario_CheckoutSession_IdempotencyKey(t *testing.T) {
 // TestScenario_CheckoutSession_PaymentHandlerTransparency verifies payment
 // is handler-transparent: Sarvex accepts opaque tokens, never stores credentials.
 func TestScenario_CheckoutSession_PaymentHandlerTransparency(t *testing.T) {
-	// Design rule: payment credential boundary (§2.7 of CLAUDE.md)
+	// Design rule: payment credential boundary (sarvex-v1-architecture.md)
 	//   - Checkout service has NO fields capable of storing raw payment credentials
 	//   - Credential material flows: agent → handler → processor
 	//   - Sarvex sees opaque references and verification artifacts only

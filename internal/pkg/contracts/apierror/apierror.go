@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package apierror is the error envelope every Sarvex HTTP API outside the
-// UCP surface answers with (CLAUDE.md §3):
+// UCP surface answers with (sarvex-v1-architecture.md):
 //
 //	{ "error": { "code", "message", "details" } }
 //

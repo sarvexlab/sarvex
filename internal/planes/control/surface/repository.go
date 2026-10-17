@@ -7,7 +7,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // ErrNotFound is returned when a store has no enrollment record for a
@@ -16,7 +16,7 @@ import (
 var ErrNotFound = errors.New("surface: enrollment not found")
 
 // Repository persists enrollment records. Every read is scoped by
-// (merchant_id, store_id) together (CLAUDE.md invariant 4).
+// (merchant_id, store_id) together (sarvex-v1-architecture.md A10.4).
 type Repository interface {
 	Get(ctx context.Context, merchantID domain.MerchantID, storeID domain.StoreID, surfaceID string) (*EnrollmentModel, error)
 	ListByStore(ctx context.Context, merchantID domain.MerchantID, storeID domain.StoreID) ([]*EnrollmentModel, error)

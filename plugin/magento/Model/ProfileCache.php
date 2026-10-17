@@ -10,7 +10,7 @@ use Magento\Framework\App\CacheInterface;
 
 /**
  * Last-known-good profile cache backing the /.well-known/ucp doorway's
- * resilience fallback (CLAUDE.md §4: served with a plain 200 even if
+ * resilience fallback (sarvex-v1-architecture.md: served with a plain 200 even if
  * Sarvex is briefly unreachable). This is a resilience cache, not durable
  * storage — losing it on a cache flush just means one degraded fetch,
  * unlike the signal sequence counters in Config, which must survive one.

@@ -56,7 +56,7 @@ def go_modules():
          "{{if not .Standard}}{{with .Module}}{{.Path}}|{{.Version}}|{{.Dir}}{{end}}{{end}}", "./..."],
         text=True, stderr=subprocess.DEVNULL)
     for line in sorted(set(out.splitlines())):
-        if line and not line.startswith("github.com/sarvexlabs/"):
+        if line and not line.startswith("github.com/sarvexlab/"):
             yield line.split("|")
 
 

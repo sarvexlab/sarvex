@@ -1,7 +1,7 @@
 # Plan — one module per spec version, one module per e-commerce platform
 
 Status: **approved — Phases 0–4 landed** (decisions in §7, open items in §8)
-Scope: backend (`internal/`), simulator, CLAUDE.md. Frontend and PHP plugins are untouched except where noted.
+Scope: backend (`internal/`), simulator, sarvex-v1-architecture.md. Frontend and PHP plugins are untouched except where noted.
 
 ## 1. Goal
 
@@ -28,7 +28,7 @@ The repo already moved partway: there are registries (`platforms.All`, `wireadap
 | V6 | **Profile rendering branches on version.** `if ucpVersion == V20260408 { SigningKeys } else { Keys }`. | `serving/profile_renderer.go:93` | Profile shape is a per-version contract living in shared code. |
 | V7 | **Connectors stamp a spec-version envelope.** `checkoutResponseMeta()` etc. build `ucp.version` + capability map at `ducp.UCPVersion_20240408` (misnamed constant). Near-identical copies in each connector. | `connectors/{woocommerce,magento,shopify}/profile.go`, `internal/pkg/ucp/profile.go:6` | Platform code knows about spec versions — the two axes are entangled. |
 | V8 | **A version is scattered across five places** with four registries: `types/vX` (schema), `wire/vX` (envelope — except 04-08, whose envelope is `catalogue/v1/wire` and is imported by ~30 shared files as *the* envelope), `generation/vX` (profile decode), `wireadapt/vX` (checkout/cart/order), `serving/api/catalog_contract_vX.go`; plus `types.registry`, `types.Servable`, `types.CheckoutServable`. | `internal/pkg/ucp/{types,wire,generation,wireadapt,catalogue/v1/wire}` | No single unit to add, test, or delete. |
-| V9 | Stale docs: `serving/api/dependencies.go:106-111` and `negotiation/service.go:106` still say checkout is pinned to 04-08; `types.CheckoutServable == Servable` today. | — | Fix in passing (CLAUDE.md §8: no pre-existing bugs). |
+| V9 | Stale docs: `serving/api/dependencies.go:106-111` and `negotiation/service.go:106` still say checkout is pinned to 04-08; `types.CheckoutServable == Servable` today. | — | Fix in passing (sarvex-v1-architecture.md: no pre-existing bugs). |
 
 ### 2.2 Platforms
 
@@ -122,7 +122,7 @@ A test asserts every `plugin/<name>` directory belongs to a registered platform 
 
 Shared code then has exactly one way to reach a version (`spec.Registry.Get(negotiated)`) and one way to reach a platform (`platform.Registry.Get(store.Platform)`). Defaults come from the registry (`Registry.Baseline()` = oldest servable), never from a constant.
 
-The advertised capability set for a store = `Version.Serves() ∩ Platform.Capabilities`, which is what CLAUDE.md §8 already demands ("make the profile/checkout not advertise it there").
+The advertised capability set for a store = `Version.Serves() ∩ Platform.Capabilities`, which is what sarvex-v1-architecture.md ("make the profile/checkout not advertise it there").
 
 ## 4. How requirement 4 (no regressions) is enforced
 
@@ -162,7 +162,7 @@ The advertised capability set for a store = `Version.Serves() ∩ Platform.Capab
 - Also fixed: the sync simulator's `integration`-tagged tests did not compile (a test fake went with the archived integration).
 - Every golden is byte-identical across the phase.
 
-Adding a platform now touches: `internal/platform/<name>/` (new), one entry in `platform.All`, `plugin/<name>` (new), and the contract's platform enum + credentials schema — the last is the authoritative contract (CLAUDE.md §3), and a test fails until it agrees. P4 (connectors emitting spec-version types) is Phase 2's.
+Adding a platform now touches: `internal/platform/<name>/` (new), one entry in `platform.All`, `plugin/<name>` (new), and the contract's platform enum + credentials schema — the last is the authoritative contract (sarvex-v1-architecture.md), and a test fails until it agrees. P4 (connectors emitting spec-version types) is Phase 2's.
 
 **Phase 2 — Introduce the Sarvex-owned canonical model.** ✅ Done
 - `internal/pkg/commerce/model` is the canonical model: Sarvex's own copy of the shapes the money path uses (checkout parts, cart, order, fulfillment, messages, payment, buyer consent, discounts), taken from 2026-04-08 by reachability. It imports no spec version; nor do `connectors/base` or any platform module.
@@ -190,7 +190,7 @@ What remains of the version axis moves to Phase 4:
 - **Canaries (§4.5).** `internal/spec/spectest` is a test-only generation (`9999-12-31`); `TestCanaryGenerationChangesNoExistingOutput` checks every existing generation's resources, catalog reads and profile document byte-for-byte with it registered, and `TestCapabilityMatrix_CanariesChangeNothing` runs every existing platform × generation of the capability matrix — with the canary generation registered and a canary platform's simulated store served beside the real ones (`sim.Server.AddSurface`) — against the existing goldens.
 
 **Phase 5 — Docs + scaffolding.** ✅ Done
-- CLAUDE.md §5/§8 and `sarvex-v1-architecture.md` describe the new layout (updated as each phase landed).
+- sarvex-v1-architecture.md `sarvex-v1-architecture.md` describe the new layout (updated as each phase landed).
 - `docs/HOWTO-add-spec-version.md` and `docs/HOWTO-add-platform.md` walk through adding each.
 - `make new-spec-version V=YYYY-MM-DD` / `make new-platform P=name [D=Display]` (`cmd/scaffold`, `internal/scaffold`) copy the registry's latest generation / default platform into a new module with every spelling of its name rewritten, and add the registration line (a platform also gets `plugin/<name>`). Both templates come from the registries, so the tool names no version or platform. A fresh scaffold builds and passes the boundary check; what is left fails a named test — the contract's platform enum and credentials schema, the console's platform labels (typecheck), the new module's goldens, and for a platform `TestSimSurfacesDoNotOverlap` until its simulated store speaks its own API.
 - **Fixed:** the simulator registered every platform's simulated store on one mux, so two platforms with a route in common (a fresh scaffold, or two real platforms whose APIs share a path) panicked the whole simulator. Each surface now has its own mux, the first claiming a path serves it, and `TestSimSurfacesDoNotOverlap` keeps the registered ones apart. Two tests pinned today's generations (the operator presence's supported versions, and the profile renderer's top-level version as `2026-08-25`), so adding any generation failed them; they read the registry now. The console named WooCommerce and Magento in three places; one table (`web/console/src/platforms.ts`), typed over the contract's enum, replaces them.
@@ -203,7 +203,7 @@ Suggested order: 0 → 1 → 2 → 3 → 4 → 5. Phase 1 is independent of 2–
 |------|------------|
 | A large `git mv` breaks import paths in many files | Moves happen in dedicated PRs with no logic edits; `gopls`/`gofmt -r` rewrites; goldens must be byte-identical. |
 | Canonical-model rewrite changes money-path behaviour | Aliases first (Phase 2 step 1), then per-resource replacement, each gated by goldens + `make test-integration` + `make test-e2e-journey`. |
-| Contract drift vs `sarvex-v1-control-plane.yaml` | The only control-plane-visible change is the platform enum source; the enum values stay the same strings. No endpoint or field changes. If the OpenAPI enum must become open-ended, stop and report (CLAUDE.md §6). |
+| Contract drift vs `sarvex-v1-control-plane.yaml` | The only control-plane-visible change is the platform enum source; the enum values stay the same strings. No endpoint or field changes. If the OpenAPI enum must become open-ended, stop and report (sarvex-v1-architecture.md). |
 | Plane-isolation invariant | New packages live under `internal/pkg`, `internal/spec` or `internal/platform`, never under `internal/planes`; Phase 1 extends the boundary test to assert no plane imports another. |
 | Frozen connectors | Moved under `platform/frozen/` without feature changes; they keep compiling and keep their CI scenarios, but are not in `platform/all`. |
 
@@ -216,7 +216,7 @@ Suggested order: 0 → 1 → 2 → 3 → 4 → 5. Phase 1 is independent of 2–
 
 ## 8. Open items found along the way
 
-The plane-isolation rule added in Phase 1 found existing cross-plane imports (CLAUDE.md §2.1). Two were fixed in Phase 1 (sync used serving's cache types and control's error envelope); the rest are resolved below.
+The plane-isolation rule added in Phase 1 found existing cross-plane imports (sarvex-v1-architecture.md A10.1). Two were fixed in Phase 1 (sync used serving's cache types and control's error envelope); the rest are resolved below.
 
 1. ✅ **`control/api/entry.go` and `sync/api/entry.go` imported `internal/planes/serving`** for `NewRedisCache` / `NewCacheProfileSource`. Fixed by moving the serving cache (read interface, snapshot types, Redis client, profile source) into `internal/pkg/serving`, with aliases left in the serving plane. The move also exposed two different `ErrNotFound` sentinels — the Redis cache returned one, the control plane's operator service checked the other — so a store with no snapshot yet was reported as an error; there is now one.
 2. ✅ **`sync/service.go` imported `internal/planes/control/catalog`** to insert remediation records into `control_catalog_remediations`. **Decided: the sync plane owns remediation records.** The collection is now `sync_catalog_remediations`, written only by sync: its score stage creates one record per remediable issue and retires it when the issue resolves, and its apply-remediations handler (the existing `global.apply.remediation` command) applies each approved record's fix to that record's product, writes it back to the store, and marks the record applied. The control plane reads the collection by name, read-only; its `Insert`/`MarkApplied` are gone. A contract test (`internal/archtest`) holds sync's record shape and control's read model together. Fixed along the way: nothing created records in production (the writer was wired `nil`), so the console's remediation list was always empty; nothing ever marked a record applied, so the same fix could be applied repeatedly; sync wrote a `trust` value outside the contract's `high|low` enum; and the apply handler looked records up as rubric ids and wrote the fix into every product of the store. No data migration is needed: `control_catalog_remediations` never had a production writer. ✅ Reverting a write-back now undoes it: the control plane sends `global.revert.remediation`, and the sync plane restores each field's prior value (recorded when the fix was applied) on the product and in the store, reopens the records and re-scores. (It used to only flag the write-back.)

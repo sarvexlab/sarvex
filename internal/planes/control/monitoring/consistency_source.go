@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/serving"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/catalog"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/store"
+	"github.com/sarvexlab/sarvex/internal/pkg/serving"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/planes/control/catalog"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/store"
 )
 
 // ServingCacheReader is the narrow read-only slice of serving cache

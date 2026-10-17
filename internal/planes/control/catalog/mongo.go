@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // ── ReadinessRepository ───────────────────────────────────────────────────────
@@ -132,7 +132,7 @@ type mongoRemediationRepo struct {
 }
 
 // remediationsCollection is the sync plane's remediation collection, read here
-// by name (a plane never imports another — CLAUDE.md §2.1).
+// by name (a plane never imports another — sarvex-v1-architecture.md A10.1).
 const remediationsCollection = "sync_catalog_remediations"
 
 // NewMongoRemediationRepository returns the read-only remediation view.

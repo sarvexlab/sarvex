@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/checkoutcause"
+	"github.com/sarvexlab/sarvex/internal/pkg/checkoutcause"
 )
 
 // SweepConfig configures Sweeper's two time-derived transitions. Both are

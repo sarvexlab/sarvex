@@ -18,7 +18,7 @@ type httpMetrics struct {
 }
 
 func WithOTELMetrics(mp metric.MeterProvider, serviceName string) echo.MiddlewareFunc {
-	meterName := fmt.Sprintf("github.com/sarvexlabs/sarvex.cp/%s", serviceName)
+	meterName := fmt.Sprintf("github.com/sarvexlab/sarvex/%s", serviceName)
 	meter := mp.Meter(meterName)
 
 	// Create instruments

@@ -3,7 +3,7 @@
 
 package ucp
 
-import "github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
+import "github.com/sarvexlab/sarvex/internal/pkg/domain"
 
 const GooglePay_20260123 = "2026-01-23"
 

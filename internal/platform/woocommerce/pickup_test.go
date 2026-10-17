@@ -13,9 +13,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	ucptype "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	ucptype "github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 )
 
 // pickupStore fakes the WooCommerce REST surface pickup detection reads, and

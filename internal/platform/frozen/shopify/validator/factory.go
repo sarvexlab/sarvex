@@ -6,8 +6,8 @@ package validator
 import (
 	"log/slog"
 
-	ucpvalidator "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/validator"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/validator/registry"
+	ucpvalidator "github.com/sarvexlab/sarvex/internal/pkg/ucp/validator"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/validator/registry"
 )
 
 // Factory returns a registry.ValidatorFactory for Shopify.

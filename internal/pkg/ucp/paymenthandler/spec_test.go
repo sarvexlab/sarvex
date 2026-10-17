@@ -6,7 +6,7 @@ package paymenthandler
 import (
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
 )
 
 func TestLookup_ByIDAndName(t *testing.T) {

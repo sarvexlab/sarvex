@@ -13,9 +13,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpnego/httpx"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpnego/negotiate"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpnego/httpx"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpnego/negotiate"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // TestEndToEnd_Success runs the full handshake: platform serves its

@@ -9,14 +9,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
-	ucptype "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/resilience"
-	syncsim "github.com/sarvexlabs/sarvex.cp/internal/planes/sync/sim"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/magento"
-	magentosim "github.com/sarvexlabs/sarvex.cp/internal/platform/magento/sim"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
+	ucptype "github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/resilience"
+	syncsim "github.com/sarvexlab/sarvex/internal/planes/sync/sim"
+	"github.com/sarvexlab/sarvex/internal/platform/magento"
+	magentosim "github.com/sarvexlab/sarvex/internal/platform/magento/sim"
 )
 
 // TestRealMagentoConnector_PullsFromSimStore proves the persistent sim store

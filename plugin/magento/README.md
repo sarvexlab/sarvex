@@ -1,6 +1,6 @@
 # Sarvex UCP Magento Module
 
-The Sarvex UCP Magento module (`Sarvex_Ucp`) integrates your Magento 2 store with Sarvex's Google UCP checkout platform. It mirrors `plugin/woocommerce`'s scope exactly (see CLAUDE.md §4 — "the plugin has two roles, keep it thin"):
+The Sarvex UCP Magento module (`Sarvex_Ucp`) integrates your Magento 2 store with Sarvex's Google UCP checkout platform. It mirrors `plugin/woocommerce`'s scope exactly (see sarvex-v1-architecture.md — "the plugin has two roles, keep it thin"):
 
 1. **Signal Sending** — Notifies Sarvex when products or inventory change
 2. **Profile Proxy** — Serves the UCP profile at `/.well-known/ucp`
@@ -64,7 +64,7 @@ Whenever a product save or a stock item save **commits** (bound to `catalog_prod
 {"sku": "...", "entity_kind": "product"}
 ```
 
-Sarvex pulls the full product/inventory details from your store in response — the signal contains only the SKU and entity kind, never product data, PII, or payment credentials (*thin events, fat pull*, per CLAUDE.md §4).
+Sarvex pulls the full product/inventory details from your store in response — the signal contains only the SKU and entity kind, never product data, PII, or payment credentials (*thin events, fat pull*, per sarvex-v1-architecture.md).
 
 ### Profile Serving
 
@@ -89,7 +89,7 @@ location = /.well-known/ucp {
 
 - **HMAC Signing** — All requests to Sarvex are signed with HMAC-SHA256 (`Sarvex\Ucp\Model\Hmac`), byte-identical to the WooCommerce plugin's scheme, so Sarvex's signature verification is platform-agnostic.
 - **Credential Storage** — Store ID, Connector ID, and the endpoint URL are stored in `core_config_data`; the HMAC secret is stored **encrypted** via Magento's config encryption.
-- **Sequence counters** — Persisted in `core_config_data` (not the object cache), so an admin `cache:flush` cannot reset them and cause Sarvex's inbound sequence-based de-dup (CLAUDE.md invariant 6) to treat a genuinely new signal as an already-seen retry.
+- **Sequence counters** — Persisted in `core_config_data` (not the object cache), so an admin `cache:flush` cannot reset them and cause Sarvex's inbound sequence-based de-dup (sarvex-v1-architecture.md A10.6) to treat a genuinely new signal as an already-seen retry.
 - **Data in Signals** — Product/inventory signals contain only the SKU and entity type. No payment credentials or PII.
 
 ## Module Structure

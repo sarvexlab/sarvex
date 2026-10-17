@@ -1763,7 +1763,7 @@ paths:
               schema: { $ref: '#/components/schemas/notification_preferences' }
 
   # ─────────────────────── Journey ───────────────────────
-  # Journey state is per-store (CLAUDE.md invariant 4: catalog/serving/engagement data
+  # Journey state is per-store (sarvex-v1-architecture.md A10.4: catalog/serving/engagement data
   # partitions by store_id, not merchant_id — a merchant may operate more than one store).
   # ─────────────────────── Store UCP activation ───────────────────────
   # The store's own lifecycle. No path, parameter, or schema below names an

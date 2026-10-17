@@ -6,8 +6,8 @@ package connector
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/domain"
 )
 
 // ProxyHealthModel is the embedded sub-document for plugin reverse proxy health.

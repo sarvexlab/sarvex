@@ -14,14 +14,14 @@ import (
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/concurrency"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/email"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/utils"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/billing"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/monitoring"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/store"
+	"github.com/sarvexlab/sarvex/internal/pkg/concurrency"
+	"github.com/sarvexlab/sarvex/internal/pkg/email"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/utils"
+	"github.com/sarvexlab/sarvex/internal/planes/control/billing"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/monitoring"
+	"github.com/sarvexlab/sarvex/internal/planes/control/store"
 )
 
 // This file wires the endpoint-health probe and evaluator workers as

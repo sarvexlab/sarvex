@@ -9,17 +9,17 @@ import (
 	"log/slog"
 	"strings"
 
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/paymenthandler"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/paymenthandler"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // ProfileRenderer builds spec-compliant UCP business profiles from store config using the catalogue.
-// Per CLAUDE.md §2b: represents full UCP capability surface, implements checkout-first subset.
+// Per sarvex-v1-architecture.md: represents full UCP capability surface, implements checkout-first subset.
 //
 // NOTE: spec_url fields in the catalogue (services, capabilities, extensions, payment handlers, scoring rubric)
 // are currently placeholder URLs (e.g., https://ucp.dev/published/2026-06-15/specification/).

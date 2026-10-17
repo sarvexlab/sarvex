@@ -1,9 +1,9 @@
 # Default owners. Replace with individual maintainers as they are added to
 # MAINTAINERS.md.
-*                       @sarvexlabs/maintainers
-/internal/planes/       @sarvexlabs/maintainers
-/internal/spec/         @sarvexlabs/maintainers
-/plugin/                @sarvexlabs/maintainers
-/deployments/           @sarvexlabs/maintainers
-/LICENSE                @sarvexlabs/maintainers
-/NOTICE                 @sarvexlabs/maintainers
+*                       @sarvexlab/maintainers
+/internal/planes/       @sarvexlab/maintainers
+/internal/spec/         @sarvexlab/maintainers
+/plugin/                @sarvexlab/maintainers
+/deployments/           @sarvexlab/maintainers
+/LICENSE                @sarvexlab/maintainers
+/NOTICE                 @sarvexlab/maintainers

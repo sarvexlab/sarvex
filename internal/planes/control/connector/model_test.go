@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 func TestConnectorModel_ToDomain_CarriesAllTimestamps(t *testing.T) {

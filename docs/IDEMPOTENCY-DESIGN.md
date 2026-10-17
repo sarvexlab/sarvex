@@ -430,7 +430,7 @@ if !ok {
 
 ## References
 
-- **CLAUDE.md**: Sarvex architecture invariants (§2.6 idempotency requirement)
+- **sarvex-v1-architecture.md**: Sarvex architecture invariants (A10.6 idempotency requirement)
 - **sarvex-v1-architecture.md**: Three-plane design, atomicity assumptions
 - **IDEMPOTENCY-RUNBOOK.md**: Operational guide for replay, double-charge detection
 - **RFC 9421**: HTTP message signatures

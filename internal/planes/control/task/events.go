@@ -6,7 +6,7 @@ package task
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
 )
 
 // taskUpdatedPayload is the event payload for control.task.updated. Thin

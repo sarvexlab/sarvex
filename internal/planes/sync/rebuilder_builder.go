@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
-	servingpkg "github.com/sarvexlabs/sarvex.cp/internal/pkg/serving"
+	servingpkg "github.com/sarvexlab/sarvex/internal/pkg/serving"
 )
 
 // ProductSnapshot holds the products and metadata from the catalog store.

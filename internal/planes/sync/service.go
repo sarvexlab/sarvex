@@ -16,12 +16,12 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commandbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/concurrency"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/commandbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/concurrency"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // defaultSweepInterval is how often the reconciliation sweeper's scheduler
@@ -315,7 +315,7 @@ func (s *syncService) handleAuditRequested(ctx context.Context, event eventbus.D
 // re-scores the product through the one score stage, and marks the record
 // applied under the command's write-back id.
 //
-// Redelivery is the normal case (CLAUDE.md §2.6): records already applied are
+// Redelivery is the normal case (sarvex-v1-architecture.md A10.6): records already applied are
 // skipped, so a repeated command changes nothing. A record whose fix cannot be
 // applied (a manual fix, a missing product, a failed store write) stays open
 // and is not marked.

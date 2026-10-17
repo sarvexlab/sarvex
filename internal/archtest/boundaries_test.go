@@ -17,7 +17,7 @@ import (
 	"strings"
 	"testing"
 
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 )
 
 // TestVersionAndPlatformBoundaries enforces that spec-generation-specific and
@@ -31,7 +31,7 @@ import (
 // code). A file that reaches a version or platform it does not own — by
 // import, by a string literal holding the version date or platform name, or by
 // an identifier naming it — is a violation. So is a plane importing another
-// plane (CLAUDE.md §2.1).
+// plane (sarvex-v1-architecture.md A10.1).
 //
 // Any violation fails: there is no allowlist. (There was one while the tree
 // was brought into line; it shrank to nothing and was removed.) Version- or
@@ -121,7 +121,7 @@ func knownPlatforms(t *testing.T, root string) []string {
 	return out
 }
 
-const module = "github.com/sarvexlabs/sarvex.cp/"
+const module = "github.com/sarvexlab/sarvex/"
 
 var (
 	versionPkg  = regexp.MustCompile(`^internal/spec/(v\d{8})(/|$)`)
@@ -198,7 +198,7 @@ func scanFile(path, rel string, versions []version, platforms []string, got map[
 		}
 		importNames[name] = true
 		if from, to := planeOf(rel), planeOf(strings.TrimPrefix(p, module)); from != "" && to != "" && from != to {
-			// CLAUDE.md §2.1: planes talk over the bus or read collections,
+			// sarvex-v1-architecture.md A10.1: planes talk over the bus or read collections,
 			// never by importing each other.
 			got[violation{"plane-import", rel, to}] = 1
 		}

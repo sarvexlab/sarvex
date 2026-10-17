@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	ucpwire "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	ucpwire "github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // A 2026-04-08 profile publishes its keys as "signing_keys", and only there.

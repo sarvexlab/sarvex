@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/email"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/account"
+	"github.com/sarvexlab/sarvex/internal/pkg/email"
+	"github.com/sarvexlab/sarvex/internal/planes/control/account"
 )
 
 func TestEmailMailer_SendInviteLink(t *testing.T) {

@@ -8,14 +8,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/golden"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/negotiation"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408"
+	"github.com/sarvexlab/sarvex/internal/pkg/golden"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/negotiation"
+	"github.com/sarvexlab/sarvex/internal/planes/serving"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408"
 )
 
 // notNegotiated is the golden directory for requests that carried no

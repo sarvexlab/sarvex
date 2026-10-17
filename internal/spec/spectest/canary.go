@@ -7,11 +7,11 @@
 package spectest
 
 import (
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/generation"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireadapt"
-	"github.com/sarvexlabs/sarvex.cp/internal/spec"
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/generation"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireadapt"
+	"github.com/sarvexlab/sarvex/internal/spec"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 )
 
 // CanaryVersion is a generation no UCP release has; it sorts after every real

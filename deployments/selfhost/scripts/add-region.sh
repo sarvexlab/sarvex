@@ -81,7 +81,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/sarvexlab/sarvex.cp
+    repoURL: https://github.com/sarvexlab/sarvex
     targetRevision: main
     path: deployments/selfhost/helm/sarvex-serving
     helm:
@@ -103,7 +103,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/sarvexlab/sarvex.cp
+    repoURL: https://github.com/sarvexlab/sarvex
     targetRevision: main
     path: deployments/selfhost/helm/sarvex-gateway
     helm:

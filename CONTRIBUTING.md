@@ -16,7 +16,7 @@ By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). Report 
 You need Go 1.26+, Node.js (current LTS), and Docker for the local stack.
 
 ```bash
-git clone https://github.com/sarvexlabs/sarvex.cp && cd sarvex.cp
+git clone https://github.com/sarvexlab/sarvex && cd sarvex.cp
 go build ./...
 make test-unit                      # no external services
 make dev-up                         # full local stack (Mongo, Redis, NATS, Vault, planes)
@@ -28,7 +28,7 @@ PHP plugins: `plugin/woocommerce` runs with PHPUnit 9 (`composer require --dev p
 
 ## The rules reviews enforce
 
-These come from the architecture ([`CLAUDE.md`](CLAUDE.md) §2 has the full list). Breaking one blocks a merge.
+These come from the architecture ([A10 of the architecture](sarvex-v1-architecture.md#a10-backend-invariants) has the full list). Breaking one blocks a merge.
 
 1. **Three isolated planes.** `internal/planes/{serving,sync,control}` never import one another. They communicate over the event bus or by *read-only* access to a collection the other plane owns. `internal/archtest` and `.golangci.yml` enforce this.
 2. **One writer per collection.** Every collection has exactly one writing component. Others read.

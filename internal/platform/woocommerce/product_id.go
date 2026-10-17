@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // productIDCache memoises SKU → WooCommerce product id per connector instance.

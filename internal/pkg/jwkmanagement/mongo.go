@@ -15,8 +15,8 @@ import (
 
 	"github.com/google/uuid"
 
-	kp "github.com/sarvexlabs/sarvex.cp/internal/pkg/keypair"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpsig"
+	kp "github.com/sarvexlab/sarvex/internal/pkg/keypair"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpsig"
 )
 
 // mongoService persists keypairs in MongoDB, with the private key always

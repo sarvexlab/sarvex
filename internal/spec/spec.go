@@ -13,9 +13,9 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/generation"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireadapt"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/generation"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireadapt"
 )
 
 // Version is everything Sarvex needs from one spec generation.

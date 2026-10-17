@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
 )
 
 // PaymentHandlerSchemaRegistry maps payment handler types to their config schema URLs and cached schemas.

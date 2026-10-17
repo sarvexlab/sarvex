@@ -13,7 +13,7 @@
 // event field it needs arrives as JSON on the bus, and Surface here is an
 // independent closed-string-enum copy of serving.Surface's values, not an
 // import of that type — importing the serving plane from a control-plane
-// package would violate the plane-isolation invariant (CLAUDE.md §2.1,
+// package would violate the plane-isolation invariant (sarvex-v1-architecture.md A10.1,
 // enforced the same way checkoutescalation's isolation_test.go enforces it
 // for that package). See consumer_test.go's own import-boundary test for
 // the same check applied here.

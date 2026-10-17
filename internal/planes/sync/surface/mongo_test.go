@@ -15,8 +15,8 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/surfaces"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/surface"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/surfaces"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/surface"
 )
 
 // connectTestMongo skips (rather than fails) when MONGO_URI is unset, like the

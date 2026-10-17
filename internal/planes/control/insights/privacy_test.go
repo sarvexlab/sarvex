@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/insights"
+	"github.com/sarvexlab/sarvex/internal/planes/control/insights"
 )
 
 // TestStore_TenancyIsolation is A6/R13's fast, always-run counterpart to

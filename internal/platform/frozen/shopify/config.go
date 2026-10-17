@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/configs"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/configs"
 )
 
 // MerchantConfig holds all per-merchant Shopify credentials and settings.

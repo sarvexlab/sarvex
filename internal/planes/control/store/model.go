@@ -6,7 +6,7 @@ package store
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // StoreModel is the MongoDB document stored in control_stores collection.

@@ -15,7 +15,7 @@ package negotiate
 import (
 	"sort"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // Result is the outcome of intersecting two profiles.

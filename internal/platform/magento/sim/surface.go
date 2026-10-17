@@ -8,7 +8,7 @@
 // estimate-shipping-methods, payment-information) and order GET — over the
 // same platform-neutral simstore.Store model every simulated platform serves:
 // one simulated merchant catalog, one wire adapter per platform, matching how
-// Sarvex models "merchant -> store -> connector" (CLAUDE.md §0).
+// Sarvex models "merchant -> store -> connector" (sarvex-v1-architecture.md).
 package sim
 
 import (
@@ -23,10 +23,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/resilience"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/magento"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/resilience"
+	"github.com/sarvexlab/sarvex/internal/platform/magento"
 )
 
 // Surface is Magento's simstore.Surface.

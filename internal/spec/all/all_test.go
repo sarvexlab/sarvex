@@ -6,7 +6,7 @@ package all_test
 import (
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	"github.com/sarvexlab/sarvex/internal/spec/all"
 )
 
 // Every registered generation serves something, reads and writes its profile

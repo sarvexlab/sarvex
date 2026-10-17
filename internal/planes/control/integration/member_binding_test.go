@@ -13,8 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/account"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/account"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // TestMemberBinding_Invite_CreatesInvitedMember verifies that POST /operator/merchants/{merchant_id}/members

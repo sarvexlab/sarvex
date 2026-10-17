@@ -15,10 +15,10 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/generation"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408/profile"
-	v20260825 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260825/profile"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/generation"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408/profile"
+	v20260825 "github.com/sarvexlab/sarvex/internal/spec/v20260825/profile"
 )
 
 func dualRegistry() *generation.Registry {

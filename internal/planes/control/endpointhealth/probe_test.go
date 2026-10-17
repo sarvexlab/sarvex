@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpsig"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpsig"
 )
 
 func testIdentity(t *testing.T) *Identity {

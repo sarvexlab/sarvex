@@ -6,7 +6,7 @@ package validator
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
 )
 
 // ValidationResult represents the result of a configuration validation.

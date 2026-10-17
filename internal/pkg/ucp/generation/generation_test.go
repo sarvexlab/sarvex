@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/generation"
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408/profile"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/generation"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408/profile"
 )
 
 func sampleProfile(version string) json.RawMessage {

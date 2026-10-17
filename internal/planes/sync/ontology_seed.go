@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	mongoopts "go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	v1cat "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
+	v1cat "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
 )
 
 // OntologyRuleUpserter is the write seam SeedOntology needs. The sync plane is

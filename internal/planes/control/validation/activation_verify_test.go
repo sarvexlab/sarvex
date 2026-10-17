@@ -8,9 +8,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/activation"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/planes/control/activation"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // stubActivationService records whether the orchestrator asked it to verify,

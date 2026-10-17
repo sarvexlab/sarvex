@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	v20260825 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260825"
-	consent25 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260825/extensions/buyerconsent"
+	v20260825 "github.com/sarvexlab/sarvex/internal/spec/v20260825"
+	consent25 "github.com/sarvexlab/sarvex/internal/spec/v20260825/extensions/buyerconsent"
 )
 
 // consentPurposes maps the four purposes 2026-04-08's buyer consent has (its

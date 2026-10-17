@@ -10,8 +10,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	v1cat "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	v1cat "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
 )
 
 // ScoringRule represents a single rule in the scoring rubric.
@@ -51,7 +51,7 @@ type ScoringRubric struct {
 
 	// CatalogueVersion is the UCP definitions catalogue version this rubric
 	// was loaded from — every ReadinessResult is pinned to this value
-	// (CLAUDE.md §2.6: "spec version is data, not code").
+	// (sarvex-v1-architecture.md A10.6: "spec version is data, not code").
 	CatalogueVersion string `bson:"catalogue_version"`
 
 	// DimensionWeights are the overall-score composition weights, keyed by

@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
 )
 
 func newDeleteTestService(store *fakeCatalogStore, bus *fakeEventBus, readiness *fakeReadinessAggregateStore, rem RemediationStore) *syncService {

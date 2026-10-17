@@ -8,7 +8,7 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // EnrollmentModel is the MongoDB document stored in the
@@ -20,7 +20,7 @@ import (
 // so the same hierarchy is expressed as a composite _id plus indexed
 // merchant_id/store_id fields — exactly the shape control_checklist_items
 // already uses for per-store, per-item records. Reads are scoped by
-// (merchant_id, store_id) together, per CLAUDE.md invariant 4.
+// (merchant_id, store_id) together, per sarvex-v1-architecture.md A10.4.
 type EnrollmentModel struct {
 	// ID is "{merchant_id}:{store_id}:{surface_id}".
 	ID               string                   `bson:"_id"`

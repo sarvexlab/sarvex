@@ -12,8 +12,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/email"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/api"
+	"github.com/sarvexlab/sarvex/internal/pkg/email"
+	"github.com/sarvexlab/sarvex/internal/planes/control/api"
 )
 
 const contactTestToken = "contact-shared-secret"

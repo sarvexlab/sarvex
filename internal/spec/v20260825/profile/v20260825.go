@@ -9,11 +9,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	v20260825 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260825"
+	v20260825 "github.com/sarvexlab/sarvex/internal/spec/v20260825"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	ucpwire "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
-	"github.com/sarvexlabs/sarvex.cp/internal/spec/v20260825/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	ucpwire "github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/spec/v20260825/wire"
 )
 
 // Generation implements generation.Generation for the UCP 2026-08-25

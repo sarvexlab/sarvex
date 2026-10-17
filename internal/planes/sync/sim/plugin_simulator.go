@@ -37,8 +37,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/domain"
 )
 
 // connectorState tracks active connector info for sending signed requests.

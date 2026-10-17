@@ -4,7 +4,7 @@
 package checkoutescalation
 
 import (
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/checkoutcause"
+	"github.com/sarvexlab/sarvex/internal/pkg/checkoutcause"
 )
 
 // Diagnose classifies a terminal-failed, abandoned, or stalled-escalation

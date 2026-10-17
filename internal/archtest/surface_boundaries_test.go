@@ -15,7 +15,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/surfaces"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/surfaces"
 )
 
 // TestSurfaceBoundaries enforces that an agent surface's behaviour stays in

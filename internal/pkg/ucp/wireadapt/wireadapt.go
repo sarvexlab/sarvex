@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
 )
 
 // Resource names the kind of UCP resource being translated.

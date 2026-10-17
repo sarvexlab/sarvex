@@ -66,7 +66,7 @@ class Config
     /**
      * Returns the next sequence number for $kind ("signal" or "profile"),
      * persisted in core_config_data so it survives an admin cache flush —
-     * unlike Magento's object cache, which CLAUDE.md invariant 6 (inbound
+     * unlike Magento's object cache, which sarvex-v1-architecture.md A10.6 (inbound
      * signals de-dup by sequence) cannot tolerate being reset, since a
      * reset counter would make Sarvex treat a genuinely new signal as an
      * already-seen retry.

@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	syncsim "github.com/sarvexlabs/sarvex.cp/internal/planes/sync/sim"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/surface"
-	surfaceall "github.com/sarvexlabs/sarvex.cp/internal/planes/sync/surface/all"
+	syncsim "github.com/sarvexlab/sarvex/internal/planes/sync/sim"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/surface"
+	surfaceall "github.com/sarvexlab/sarvex/internal/planes/sync/surface/all"
 )
 
 // TestCapabilityMatrix_SurfaceArtifacts holds every registered surface artifact

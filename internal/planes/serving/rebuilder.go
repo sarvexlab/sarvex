@@ -9,9 +9,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // CacheWriter provides write access to the serving cache for snapshot swaps.
@@ -27,7 +27,7 @@ type CacheWriter interface {
 
 // CatalogSource provides product and business-fact data for cache rebuilding and store profile management.
 // Reads from the catalog store (sync plane authority for products, control plane authority for profiles).
-// Per CLAUDE.md §2.4: serving data is partitioned by store_id, each store owned by one merchant.
+// Per sarvex-v1-architecture.md A10.4: serving data is partitioned by store_id, each store owned by one merchant.
 type CatalogSource interface {
 	// GetStoreProfile returns the business profile and store configuration for a store (legal entity, shipping, signing keys, etc).
 	GetStoreProfile(ctx context.Context, storeID string) (*StoreProfileData, error)
@@ -38,7 +38,7 @@ type CatalogSource interface {
 }
 
 // StoreProfileData holds store configuration and business facts used to build the serving-cache profile.
-// Each store is owned by one merchant; per CLAUDE.md §2.4 tenant isolation.
+// Each store is owned by one merchant; per sarvex-v1-architecture.md A10.4 tenant isolation.
 type StoreProfileData struct {
 	StoreID            string
 	Platform           string                       // "shopify" | "bigcommerce" | "magento" | "commercetools" | "woocommerce"
@@ -119,7 +119,7 @@ func (r *CacheRebuilder) WithProfileRenderer(pr *ProfileRenderer) *CacheRebuilde
 }
 
 // RebuildSnapshot rebuilds and atomically swaps a store's serving cache snapshot.
-// Per CLAUDE.md §2.4: serving data is partitioned by store_id, each store owned by one merchant.
+// Per sarvex-v1-architecture.md A10.4: serving data is partitioned by store_id, each store owned by one merchant.
 // Called by the event listener when a rebuild is requested (e.g., after catalog change).
 func (r *CacheRebuilder) RebuildSnapshot(ctx context.Context, storeID string) error {
 	start := time.Now()
@@ -172,7 +172,7 @@ func (r *CacheRebuilder) RebuildSnapshot(ctx context.Context, storeID string) er
 }
 
 // buildSnapshot constructs a CacheSnapshot from catalog data.
-// Per CLAUDE.md §2.4: each snapshot is keyed by store_id with merchant_id denormalized for compat.
+// Per sarvex-v1-architecture.md A10.4: each snapshot is keyed by store_id with merchant_id denormalized for compat.
 func (r *CacheRebuilder) buildSnapshot(
 	storeID string,
 	profile *StoreProfileData,

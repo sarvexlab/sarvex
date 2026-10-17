@@ -19,9 +19,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/domain"
 )
 
 // NewHMACResolver returns an HMACResolver that verifies HMAC-signed connector requests.

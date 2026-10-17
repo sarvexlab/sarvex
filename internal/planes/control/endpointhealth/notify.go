@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/email"
+	"github.com/sarvexlab/sarvex/internal/pkg/email"
 )
 
 // QuietHours is a merchant's configured do-not-disturb window. Critical

@@ -12,7 +12,7 @@ import (
 
 	"github.com/samber/lo"
 
-	v1cat "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
+	v1cat "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
 )
 
 // Resolution tiers for AttributeMapping.Tier. Kept as plain strings (not

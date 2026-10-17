@@ -9,7 +9,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // ReconciliationSweeper performs scheduled full-catalog diffs to catch lost ingest signals.

@@ -1,5 +1,5 @@
 image:
-  repository: ghcr.io/sarvexlabs/sarvex.cp
+  repository: ghcr.io/sarvexlab/sarvex
   tag: "latest"
   pullPolicy: IfNotPresent
 

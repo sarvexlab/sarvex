@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 )
 
 // UnmarshalConfig unmarshals the generic config into a WooCommerce woocommerce.MerchantConfig.

@@ -5,7 +5,7 @@
 # add-region.sh script generates a new values-<region>.yaml from this same
 # shape rather than inventing a new one.
 image:
-  repository: ghcr.io/sarvexlabs/sarvex.cp
+  repository: ghcr.io/sarvexlab/sarvex
   tag: "latest" # overridden per-release by the GitOps repo after each build
   pullPolicy: IfNotPresent
 

@@ -14,9 +14,9 @@ import (
 	"path/filepath"
 	"time"
 
-	controlapi "github.com/sarvexlabs/sarvex.cp/internal/planes/control/api"
-	servingapi "github.com/sarvexlabs/sarvex.cp/internal/planes/serving/api"
-	syncapi "github.com/sarvexlabs/sarvex.cp/internal/planes/sync/api"
+	controlapi "github.com/sarvexlab/sarvex/internal/planes/control/api"
+	servingapi "github.com/sarvexlab/sarvex/internal/planes/serving/api"
+	syncapi "github.com/sarvexlab/sarvex/internal/planes/sync/api"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -25,7 +25,7 @@ import (
 	// JetStream backend must be registered explicitly here, once, for this
 	// single binary that hosts all three planes (--service selects which
 	// one runs).
-	_ "github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus/natsjetstream"
+	_ "github.com/sarvexlab/sarvex/internal/pkg/eventbus/natsjetstream"
 )
 
 const (

@@ -9,9 +9,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/safego"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/safego"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
 )
 
 // CatalogQueryKind identifies which discovery read operation produced a
@@ -29,7 +29,7 @@ const (
 // describing what an agent actually asked for. This event carries the
 // structured, derived signal only — matched product ids, query kind,
 // surface — and deliberately never the raw free-text `q=` search string:
-// CLAUDE.md's privacy invariant and R12 of the Behavior Insights task both
+// sarvex-v1-architecture.md privacy invariant and R12 of the Behavior Insights task both
 // require that no free-text query content be persisted, so it is simply
 // never captured here rather than sanitized after the fact.
 type CatalogQueryRecordedEvent struct {

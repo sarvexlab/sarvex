@@ -11,10 +11,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/account"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/auth"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/billing"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/account"
+	"github.com/sarvexlab/sarvex/internal/planes/control/auth"
+	"github.com/sarvexlab/sarvex/internal/planes/control/billing"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 type contextKey string

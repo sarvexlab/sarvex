@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/magento"
+	"github.com/sarvexlab/sarvex/internal/platform/magento"
 )
 
 // UnmarshalConfig unmarshals the generic config into a Magento magento.MerchantConfig.

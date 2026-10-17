@@ -9,15 +9,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // MongoProfileRepository implements ProfileRepository using MongoDB.
@@ -130,7 +130,7 @@ func (m *MongoProfileRepository) SaveBusinessProfile(ctx context.Context, profil
 	// Filter by store_id AND merchant_id so a merchant can never overwrite a store
 	// profile owned by another merchant: a mismatched merchant produces no match and
 	// the upsert insert collides with the existing _id (= store_id). Tenant isolation
-	// per CLAUDE.md §2.4 enforced atomically at the data layer.
+	// per sarvex-v1-architecture.md A10.4 enforced atomically at the data layer.
 	opts := options.UpdateOne().SetUpsert(true)
 	_, err := m.coll.UpdateOne(ctx, bson.M{"_id": profile.StoreID, "merchant_id": profile.MerchantID}, update, opts)
 	if err != nil {

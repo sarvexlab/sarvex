@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/frozen/shopify"
+	"github.com/sarvexlab/sarvex/internal/platform/frozen/shopify"
 )
 
 // UnmarshalConfig unmarshals the generic config into a shopify.MerchantConfig.

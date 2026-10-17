@@ -6,7 +6,7 @@ package activation
 import (
 	"fmt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
 )
 
 // KnownCapabilities is the closed set of UCP capability identifiers a store

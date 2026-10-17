@@ -14,8 +14,8 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/surfaces"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/surface"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/surfaces"
+	"github.com/sarvexlab/sarvex/internal/planes/control/surface"
 )
 
 // The control plane reads sync_surface_artifacts by name; this proves the

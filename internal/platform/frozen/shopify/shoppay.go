@@ -3,7 +3,7 @@
 
 package shopify
 
-import "github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
+import "github.com/sarvexlab/sarvex/internal/pkg/domain"
 
 // Shop Pay is Shopify's own payment handler: the token it yields can only be
 // redeemed by a Shopify checkout. It therefore belongs to this module rather

@@ -15,10 +15,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform"
-	"github.com/sarvexlabs/sarvex.cp/internal/scaffold"
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/platform"
+	"github.com/sarvexlab/sarvex/internal/scaffold"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 )
 
 func main() {

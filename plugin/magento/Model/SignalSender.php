@@ -10,7 +10,7 @@ use Magento\Framework\HTTP\Client\Curl;
 use Psr\Log\LoggerInterface;
 
 /**
- * Sends lean, id-only change signals to Sarvex — CLAUDE.md §4 Role 1
+ * Sends lean, id-only change signals to Sarvex — sarvex-v1-architecture.md Role 1
  * ("thin events, fat pull"): Sarvex pulls the full entity itself in
  * response. Signals carry only a SKU and entity kind, never product data,
  * PII, or payment credentials. A failed send is logged and swallowed

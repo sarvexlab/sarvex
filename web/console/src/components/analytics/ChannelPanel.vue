@@ -16,7 +16,7 @@
 //
 // Scoping note: every request here is scoped to the currently selected
 // store (stores.currentStoreId) rather than left combined across stores —
-// consistent with V1's one-store-per-merchant reality (CLAUDE.md §0), and
+// consistent with V1's one-store-per-merchant reality (sarvex-v1-architecture.md), and
 // keeps the funnel/daily/comparison numbers attributable to one store even
 // though none of them carry a store_id echo of their own on every row.
 //

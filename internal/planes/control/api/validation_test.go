@@ -13,10 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/api"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/operator"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/validation"
+	"github.com/sarvexlab/sarvex/internal/planes/control/api"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/operator"
+	"github.com/sarvexlab/sarvex/internal/planes/control/validation"
 )
 
 // TestGetValidationStatus_OK tests successful retrieval of validation status.

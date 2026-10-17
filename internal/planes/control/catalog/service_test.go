@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	pkgdomain "github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/catalog"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	pkgdomain "github.com/sarvexlab/sarvex/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/catalog"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // ── Fake repositories ─────────────────────────────────────────────────────────

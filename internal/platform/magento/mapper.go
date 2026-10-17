@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // mapper is a stateless collection of translation functions from Magento

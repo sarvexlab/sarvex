@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpnego/negotiate"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpnego/negotiate"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // SuccessEnvelope is the shape of the `ucp` object in a successful

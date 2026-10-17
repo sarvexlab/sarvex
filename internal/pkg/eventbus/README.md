@@ -38,7 +38,7 @@ func (e *MerchantCreated) Payload() []byte        { return e.payload }
 ## Constructing a bus
 
 ```go
-import _ "github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus/natsjetstream" // registers the backend
+import _ "github.com/sarvexlab/sarvex/internal/pkg/eventbus/natsjetstream" // registers the backend
 
 bus, err := eventbus.New(eventbus.Config{
     ConsumerGroup: "my-service",

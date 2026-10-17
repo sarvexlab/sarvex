@@ -7,7 +7,7 @@
 package all
 
 import (
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/surface"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/surface"
 )
 
 // Generators returns every registered surface artifact generator. No bundled

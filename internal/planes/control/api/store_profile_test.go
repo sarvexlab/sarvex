@@ -14,12 +14,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/api"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/store"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/planes/control/api"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/store"
 )
 
 // ── Stubs ───────────────────────────────────────────────────────────────────
@@ -252,7 +252,7 @@ func TestUpdateStoreProfile_OK(t *testing.T) {
 
 	// Event emitted for the serving plane. Asserted against the constant in
 	// internal/pkg/ucp, the single source of truth for bus topic names
-	// (CLAUDE.md §0) — the literal this replaced ("store.profile_updated")
+	// (sarvex-v1-architecture.md) — the literal this replaced ("store.profile_updated")
 	// was a stale second copy of a name that had since changed.
 	require.Len(t, bus.events, 1)
 	assert.Equal(t, ucp.EventStoreProfileUpdated, bus.events[0].EventType())

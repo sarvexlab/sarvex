@@ -21,15 +21,15 @@ import (
 	"net/http"
 	"time"
 
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpnego/httpx"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpnego/httpx/echox"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpnego/negotiate"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpnego/httpx"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpnego/httpx/echox"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpnego/negotiate"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 func main() {

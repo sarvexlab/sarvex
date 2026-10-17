@@ -6,8 +6,8 @@ package codec
 import (
 	"encoding/json"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408"
 )
 
 // DecodeCatalogSearch implements wireadapt.Codec: a 2026-04-08 search_request

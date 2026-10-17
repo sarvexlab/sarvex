@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	v1cat "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
+	v1cat "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
 )
 
 // fakeFieldCatalogue is a minimal FieldCatalogue test double: a fixed target

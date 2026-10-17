@@ -4,13 +4,13 @@
 package serving
 
 import (
-	servingpkg "github.com/sarvexlabs/sarvex.cp/internal/pkg/serving"
+	servingpkg "github.com/sarvexlab/sarvex/internal/pkg/serving"
 )
 
 // The serving cache — its types, its read interface, the Redis client and the
 // profile source built on it — lives in internal/pkg/serving, because the sync
 // plane (the cache's one writer) and the control plane (the profile doorway)
-// construct it too, and no plane may import another (CLAUDE.md §2.1). These
+// construct it too, and no plane may import another (sarvex-v1-architecture.md A10.1). These
 // aliases keep the serving plane's own code unchanged.
 
 var (

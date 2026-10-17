@@ -7,7 +7,7 @@
 // a per-merchant/per-month/per-currency rollup in lockstep with the raw
 // entries, and serves both as a read-only control-plane API. It is
 // deliberately narrow — no console, no alerting, no remediation, no
-// cross-merchant aggregation (CLAUDE.md §0) — a merchant reads this and
+// cross-merchant aggregation (sarvex-v1-architecture.md) — a merchant reads this and
 // sees, in order of money, what they lost and why.
 package ledger
 

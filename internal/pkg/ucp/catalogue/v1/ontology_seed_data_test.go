@@ -6,7 +6,7 @@ package v1
 import (
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/surfaces"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/surfaces"
 )
 
 func TestOntologySeedTargetsAreCatalogueFields(t *testing.T) {

@@ -14,11 +14,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform"
+	"github.com/sarvexlab/sarvex/internal/platform"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // MerchantResolver answers the one question the agent cannot answer from
@@ -28,7 +28,7 @@ import (
 //
 // Deliberately narrow, and deliberately an interface: the only production
 // implementation is the sync plane's connector repository, but this package
-// is shared protocol machinery (CLAUDE.md §5) and must not import a plane.
+// is shared protocol machinery (sarvex-v1-architecture.md) and must not import a plane.
 // Callers adapt whatever they have at their own composition boundary — the
 // same pattern internal/planes/control/api/activation_adapters.go uses.
 type MerchantResolver interface {
@@ -51,7 +51,7 @@ func (f MerchantResolverFunc) MerchantForStore(ctx context.Context, storeID stri
 // via the control plane's order-tracking endpoint.
 //
 // It talks to the serving and control planes over HTTP only, never via a Go
-// import, matching the plane-isolation invariant (CLAUDE.md §2.1) — which is
+// import, matching the plane-isolation invariant (sarvex-v1-architecture.md A10.1) — which is
 // also why the wire shapes it decodes are declared here rather than imported
 // from the serving plane.
 type Agent struct {
@@ -258,7 +258,7 @@ type CatalogSearchProduct struct {
 // reconciled ucp.dev search_response shape (products/pagination), not
 // Sarvex's own {"data":[...],"page":{...}} list envelope: serving-plane
 // UCP endpoints conform to ucp.dev, not Sarvex's own OpenAPI conventions
-// (CLAUDE.md §3).
+// (sarvex-v1-architecture.md).
 type CatalogSearchResult struct {
 	Products   []CatalogSearchProduct `json:"products"`
 	Pagination struct {

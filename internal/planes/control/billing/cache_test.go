@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/billing"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/billing"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // countingPlanReader counts calls to Get so tests can assert on cache hits vs.

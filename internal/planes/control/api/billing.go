@@ -10,8 +10,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/billing"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/billing"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 func (h *handler) getBilling(c echo.Context) error {

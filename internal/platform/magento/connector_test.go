@@ -18,9 +18,9 @@ import (
 	"testing"
 	"time"
 
-	ucptype "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/resilience"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/magento"
+	ucptype "github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/resilience"
+	"github.com/sarvexlab/sarvex/internal/platform/magento"
 )
 
 // newTestConnector creates a connector pointing at a mock Magento server.

@@ -19,7 +19,7 @@ import (
 // stage creates and retires records as issues appear and resolve, and the
 // apply-remediations command marks them applied. The control plane reads it by
 // name, read-only, to list remediations and validate an apply request
-// (CLAUDE.md §2.1, §2.3).
+// (sarvex-v1-architecture.md A10.1, §2.3).
 const remediationsCollection = "sync_catalog_remediations"
 
 // ErrRemediationsNotFound is returned by GetByIDs when any requested id is not

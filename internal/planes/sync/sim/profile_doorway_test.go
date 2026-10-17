@@ -15,7 +15,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/devinfra"
+	"github.com/sarvexlab/sarvex/internal/pkg/devinfra"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -26,9 +26,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/connector"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/connector"
 )
 
 const testPairingCode = "test-pairing-code-abc123"

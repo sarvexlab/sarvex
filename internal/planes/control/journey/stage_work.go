@@ -7,8 +7,8 @@ import (
 	"context"
 	"slices"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
 )
 
 // What each stage of the funnel puts on the merchant's Path.

@@ -6,7 +6,7 @@ package surface
 import (
 	"fmt"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // Event is an enrollment-transition trigger.

@@ -9,9 +9,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/domain"
 )
 
 // CLI implements the runtime `sim seed/mutate/fix/status` commands: it

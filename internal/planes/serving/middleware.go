@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/negotiation"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/negotiation"
 )
 
 // RateLimiter enforces per-merchant per-endpoint rate limits. MemoryRateLimiter

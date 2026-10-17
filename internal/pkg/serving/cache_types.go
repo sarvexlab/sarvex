@@ -6,7 +6,7 @@ package serving
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // CacheProduct is the serving-plane projection of a product.

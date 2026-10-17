@@ -8,7 +8,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // ErrorCode is a UCP-defined error code string. We keep these as

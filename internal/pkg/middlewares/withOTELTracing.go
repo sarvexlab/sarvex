@@ -15,7 +15,7 @@ import (
 const OTELTracerKey = "otel_tracer"
 
 func WithOTELTracing(tracerProvider trace.TracerProvider, serviceName string) echo.MiddlewareFunc {
-	tracerName := fmt.Sprintf("github.com/sarvexlabs/sarvex.cp/%s", serviceName)
+	tracerName := fmt.Sprintf("github.com/sarvexlab/sarvex/%s", serviceName)
 	tracer := tracerProvider.Tracer(tracerName)
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {

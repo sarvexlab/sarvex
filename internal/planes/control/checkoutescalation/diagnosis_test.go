@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/checkoutcause"
+	"github.com/sarvexlab/sarvex/internal/pkg/checkoutcause"
 )
 
 // TestDiagnose_TableDrivenAcrossEveryFailureCause is A4: table-driven

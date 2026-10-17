@@ -7,7 +7,7 @@ package auth
 import (
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // PrincipalResolver resolves authentication credentials to a Principal.

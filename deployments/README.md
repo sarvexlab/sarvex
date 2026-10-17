@@ -42,6 +42,6 @@ same variables.
 
 `build/package/Dockerfile` builds the single binary (`--service` selects the
 plane). `.github/workflows/image.yml` publishes it to
-`ghcr.io/sarvexlabs/sarvex.cp`.
+`ghcr.io/sarvexlab/sarvex`.
 
 `otel-collector-config.yaml` configures the local collector.

@@ -7,7 +7,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 var ErrNotImplemented = errors.New("not implemented")

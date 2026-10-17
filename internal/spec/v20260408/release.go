@@ -3,7 +3,7 @@
 
 package v20260408
 
-import "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
+import "github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
 
 // Release is this generation's version.
 const Release types.Version = "2026-04-08"

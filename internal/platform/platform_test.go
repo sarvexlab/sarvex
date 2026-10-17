@@ -15,8 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
+	"github.com/sarvexlab/sarvex/internal/platform"
 )
 
 const repoRoot = "../.."
@@ -61,7 +61,7 @@ func TestPluginsMatchRegisteredPlatforms(t *testing.T) {
 }
 
 // The control-plane contract (sarvex-v1-control-plane.yaml) is authoritative
-// (CLAUDE.md §3), so a registered platform must be one the contract accepts
+// (sarvex-v1-architecture.md), so a registered platform must be one the contract accepts
 // and must have its credentials schema there.
 func TestControlPlaneContractListsEveryPlatform(t *testing.T) {
 	raw, err := os.ReadFile(filepath.Join(repoRoot, "sarvex-v1-control-plane.yaml"))

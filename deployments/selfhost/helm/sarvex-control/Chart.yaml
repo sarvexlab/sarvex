@@ -4,7 +4,7 @@ description: >
   The control plane (console/operator REST + WebSocket API) — CORE region
   only. Never deployed to an edge region: it's the interactive plane, not
   on the agent-facing read path, and it's the one writer for account/store/
-  connector data (CLAUDE.md §2.3 "one writer per store").
+  connector data (sarvex-v1-architecture.md A10.3 "one writer per store").
 type: application
 version: 0.1.0
 appVersion: "1.0.0"

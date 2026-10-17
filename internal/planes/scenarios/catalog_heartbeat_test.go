@@ -16,14 +16,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 const testHMACSecret = "integration-test-hmac-secret-32b"
@@ -97,7 +97,7 @@ func TestScenario_CatalogHeartbeat_SignalToScore(t *testing.T) {
 	require.NotEmpty(t, events, "should emit events for accepted signal")
 
 	// Find the signal_received event. The topic name comes from
-	// internal/pkg/ucp, the single source of truth for bus topics (CLAUDE.md
+	// internal/pkg/ucp, the single source of truth for bus topics (sarvex-v1-architecture.md
 	// §0) — the literal this used to carry ("connector.signal_received") had
 	// lost the "sync." prefix and so matched nothing.
 	var signalEvent eventbus.DomainEvent

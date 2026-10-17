@@ -8,8 +8,8 @@ import (
 	"log/slog"
 	"net/url"
 
-	ucpvalidator "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/validator"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	ucpvalidator "github.com/sarvexlab/sarvex/internal/pkg/ucp/validator"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 )
 
 // Validator is the WooCommerce implementation of configuration.Validator.

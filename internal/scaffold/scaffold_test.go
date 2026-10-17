@@ -12,11 +12,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/types"
-	"github.com/sarvexlabs/sarvex.cp/internal/scaffold"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/types"
+	"github.com/sarvexlab/sarvex/internal/scaffold"
 )
 
-const mod = "github.com/sarvexlabs/sarvex.cp/"
+const mod = "github.com/sarvexlab/sarvex/"
 
 // repo writes files (repo-relative path → contents) under a fresh root.
 func repo(t *testing.T, files map[string]string) string {
@@ -40,8 +40,8 @@ func read(t *testing.T, root, path string) string {
 const specAll = `package all
 
 import (
-	"github.com/sarvexlabs/sarvex.cp/internal/spec"
-	v20260101 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260101/release"
+	"github.com/sarvexlab/sarvex/internal/spec"
+	v20260101 "github.com/sarvexlab/sarvex/internal/spec/v20260101/release"
 )
 
 func New() *spec.Registry {
@@ -60,7 +60,7 @@ const Release = "2026-01-01"
 `,
 		"internal/spec/v20260101/codec/v20260101.go": `package codec
 
-import v20260101 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260101"
+import v20260101 "github.com/sarvexlab/sarvex/internal/spec/v20260101"
 
 var at = v20260101.Release
 `,
@@ -107,9 +107,9 @@ func TestSpecVersion_Refuses(t *testing.T) {
 const platformGo = `package platform
 
 import (
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/alpha"
-	alphasim "github.com/sarvexlabs/sarvex.cp/internal/platform/alpha/sim"
-	alphavalidator "github.com/sarvexlabs/sarvex.cp/internal/platform/alpha/validator"
+	"github.com/sarvexlab/sarvex/internal/platform/alpha"
+	alphasim "github.com/sarvexlab/sarvex/internal/platform/alpha/sim"
+	alphavalidator "github.com/sarvexlab/sarvex/internal/platform/alpha/validator"
 )
 
 func All() []Platform {

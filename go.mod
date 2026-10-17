@@ -1,4 +1,4 @@
-module github.com/sarvexlabs/sarvex.cp
+module github.com/sarvexlab/sarvex
 
 go 1.26.0
 

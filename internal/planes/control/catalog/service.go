@@ -7,7 +7,7 @@ package catalog
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // Service provides read access to catalog readiness and triggers remediations.

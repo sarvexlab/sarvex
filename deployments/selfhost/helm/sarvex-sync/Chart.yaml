@@ -4,7 +4,7 @@ description: >
   The sync plane (/connector/* HMAC ingest, mapping, scoring, catalog store,
   feed, order-intent, connector registry) — CORE region only. This is the
   only component allowed to call a merchant's live backend (checkout is the
-  one spec-mandated exception, CLAUDE.md §2.2), so it stays where the
+  one spec-mandated exception, sarvex-v1-architecture.md A10.2), so it stays where the
   MongoDB replica set and Vault-managed HMAC/API-key secrets live.
 type: application
 version: 0.1.0

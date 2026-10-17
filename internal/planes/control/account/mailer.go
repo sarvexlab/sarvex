@@ -6,7 +6,7 @@ package account
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/email"
+	"github.com/sarvexlab/sarvex/internal/pkg/email"
 )
 
 // Mailer sends transactional emails. Implementations may be real (Resend)

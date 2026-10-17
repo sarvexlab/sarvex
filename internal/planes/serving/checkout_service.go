@@ -13,14 +13,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
 	"github.com/google/uuid"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	pkgucp "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	cataloguev1 "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	pkgucp "github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	cataloguev1 "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // Checkout-service errors. The HTTP handler (api package) maps these to
@@ -980,7 +980,7 @@ func sessionMerchantID(instance pkgucp.StoreProvider, storeID string) string {
 // Payment binds to the full spec type on these endpoints, which faithfully
 // models raw card fields so it can decode them; without this, a platform
 // sending a PAN here would have it persisted in the session store and handed to
-// the connector, breaking the payment-credential boundary (CLAUDE.md §2.8) that
+// the connector, breaking the payment-credential boundary (sarvex-v1-architecture.md A10.8) that
 // checkout-complete enforces structurally (OpaquePaymentCredential).
 func sanitizePayment(p *model.Payment) *model.Payment {
 	if p == nil {

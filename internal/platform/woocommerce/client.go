@@ -179,7 +179,7 @@ func (c *httpClient) doWithRetry(ctx context.Context, buildReq buildReqFn, handl
 
 // doWithRetryEx is the internal version that accepts a noRetry flag.
 func (c *httpClient) doWithRetryEx(ctx context.Context, buildReq buildReqFn, handle handleRespFn, noRetry bool) error {
-	tracer := otel.Tracer("github.com/sarvexlabs/sarvex.cp/woocommerce")
+	tracer := otel.Tracer("github.com/sarvexlab/sarvex/woocommerce")
 	var lastErr error
 	backoff := 250 * time.Millisecond
 

@@ -338,5 +338,5 @@ Don't stop MongoDB between tests. The integration tests create/drop their own te
 
 - Architecture: `sarvex-v1-backend-architecture.md`
 - Sequences: `sarvex-v1-sequence-diagrams.md`
-- Build order: `CLAUDE.md` §5
+- Build order: sarvex-v1-architecture.md
 - Phase status: `.claude/projects/*/memory/phase_*.md`

@@ -9,8 +9,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/operator"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/operator"
 )
 
 // GET /stores/:store_id/validation/status — get current validation state for a store.

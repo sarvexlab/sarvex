@@ -6,7 +6,7 @@ package testtenancy_test
 import (
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/testtenancy"
+	"github.com/sarvexlab/sarvex/internal/testtenancy"
 )
 
 func TestLoadConfig_Defaults(t *testing.T) {

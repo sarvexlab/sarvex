@@ -11,11 +11,11 @@ import (
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	cataloguedata "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/data"
-	v1cat "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue/v1"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/paymenthandler"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
+	cataloguedata "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/data"
+	v1cat "github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue/v1"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/paymenthandler"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
 )
 
 // Catalogue is the public interface for accessing UCP definitions.
@@ -46,7 +46,7 @@ type Catalogue interface {
 	ScoringRubric() *v1cat.ScoringRubric
 
 	// RequiredBusinessFacts returns the Google-required set of merchant/store
-	// business facts. Loadable content (CLAUDE.md §2.6): the business-facts
+	// business facts. Loadable content (sarvex-v1-architecture.md A10.6): the business-facts
 	// completeness predicate reads this rather than hardcoding required fields.
 	RequiredBusinessFacts() []v1cat.RequiredBusinessFact
 
@@ -171,7 +171,7 @@ func (l *loader) AllCapabilities() []wire.Capability {
 // actually has endpoints for, and therefore the only ones a store's profile
 // may declare.
 //
-// This is deliberately narrower than the catalogue. Per CLAUDE.md §0 the
+// This is deliberately narrower than the catalogue. Per sarvex-v1-architecture.md
 // catalogue represents the *full* UCP capability surface — identity_linking
 // is in it, correctly — while V1 implements the checkout-first subset. The
 // profile is a promise to agents about what they can call, so it must reflect

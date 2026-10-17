@@ -10,13 +10,13 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // checkoutOnlyCredentials resolves a store's backend API credentials for the
 // serving plane's checkout path — the one live merchant call the architecture
-// permits (CLAUDE.md §2.2: "Checkout is the one spec-mandated exception: it
+// permits (sarvex-v1-architecture.md A10.2: "Checkout is the one spec-mandated exception: it
 // calls the merchant backend live").
 //
 // The serving plane previously had no way to resolve credentials at all: its
@@ -33,7 +33,7 @@ import (
 // (connector.ConnectorService.GetStoreCredentials): the connector record the
 // control plane owns, decrypted through secretmanagement. It is a read-only
 // read of another plane's collection by name, which is the sanctioned
-// cross-plane pattern (CLAUDE.md §2.1) — importing sync's connector package
+// cross-plane pattern (sarvex-v1-architecture.md A10.1) — importing sync's connector package
 // would not be.
 //
 // Resolved fresh per call and never cached, so a credential rotation at

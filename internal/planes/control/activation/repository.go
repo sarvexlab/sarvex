@@ -7,7 +7,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // ErrNotFound is returned when no activation record exists for a store.
@@ -15,7 +15,7 @@ var ErrNotFound = errors.New("activation: not found")
 
 // Repository persists activation records. Reads are always scoped by
 // (merchant_id, store_id) together — a store_id alone is never a sufficient
-// key (CLAUDE.md invariant 4).
+// key (sarvex-v1-architecture.md A10.4).
 type Repository interface {
 	Get(ctx context.Context, merchantID domain.MerchantID, storeID domain.StoreID) (*ActivationModel, error)
 	Upsert(ctx context.Context, m *ActivationModel) error

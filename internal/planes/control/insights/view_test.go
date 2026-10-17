@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/insights"
+	"github.com/sarvexlab/sarvex/internal/planes/control/insights"
 )
 
 func productRow(storeID, date, productID string, count int64, surface string) insights.ProductDemandDaily {

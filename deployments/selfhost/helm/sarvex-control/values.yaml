@@ -1,7 +1,7 @@
 # Core region only — see Chart.yaml. Same shape as sarvex-serving/values.yaml
 # (image/replica/resources/vault), plus this plane's own backing services.
 image:
-  repository: ghcr.io/sarvexlabs/sarvex.cp
+  repository: ghcr.io/sarvexlab/sarvex
   tag: "latest"
   pullPolicy: IfNotPresent
 

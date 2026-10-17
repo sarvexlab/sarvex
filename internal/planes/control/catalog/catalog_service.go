@@ -12,8 +12,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 
-	pkgdomain "github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	pkgdomain "github.com/sarvexlab/sarvex/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // CatalogService is the production implementation of Service.

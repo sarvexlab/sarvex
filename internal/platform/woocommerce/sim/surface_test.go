@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
 )
 
 // newTestHandler serves the WooCommerce surface alone, over repo, the way the

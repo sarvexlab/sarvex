@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
 )
 
 // rebuildRequestedEvent is a serving.rebuild.requested as the sync plane

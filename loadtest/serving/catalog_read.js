@@ -1,5 +1,5 @@
 // Serving-plane read-path load test: .well-known/ucp, catalog/search,
-// catalog/:itemId — all pure Redis reads (CLAUDE.md invariant #2: discovery
+// catalog/:itemId — all pure Redis reads (sarvex-v1-architecture.md A10: discovery
 // and catalog reads never call the store/control plane live).
 //
 // Two scenarios:

@@ -15,8 +15,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/resilience"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/resilience"
 )
 
 // defaultCatalogPageSize is used by FetchCatalog when the caller passes

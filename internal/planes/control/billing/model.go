@@ -6,7 +6,7 @@ package billing
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // BillingRecordModel is the MongoDB document in the control_billing_records collection.

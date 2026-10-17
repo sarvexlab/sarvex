@@ -8,8 +8,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
 )
 
 // fakePlanReader returns a fixed plan for every merchant, or an error if err is set.

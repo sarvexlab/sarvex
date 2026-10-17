@@ -8,7 +8,7 @@ package operator
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // Service is the operator-elevation surface for cross-merchant and admin actions.

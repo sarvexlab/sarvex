@@ -10,8 +10,8 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
 )
 
 // Service defines the lifecycle contract for the Serving Plane background workers.
@@ -118,7 +118,7 @@ func (s *servingService) registerSubscriptions() error {
 		// Every catalog change asks for a rebuild before one happens. That is
 		// the only signal telling the serving plane its snapshot is behind —
 		// it cannot read the catalog to work this out (the read path serves
-		// only the cache, CLAUDE.md §2.2), and the sync plane's own
+		// only the cache, sarvex-v1-architecture.md A10.2), and the sync plane's own
 		// subscription to this topic is a different consumer group, so both
 		// receive it.
 		{topic: ucp.EventRebuildRequested, handler: s.handleRebuildRequested},

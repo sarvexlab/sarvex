@@ -6,8 +6,8 @@ package api
 import (
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/auth"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/auth"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/domain"
 )
 
 type contextKey string

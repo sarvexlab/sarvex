@@ -9,11 +9,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/sim"
-	specall "github.com/sarvexlabs/sarvex.cp/internal/spec/all"
-	"github.com/sarvexlabs/sarvex.cp/internal/spec/spectest"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/sim"
+	specall "github.com/sarvexlab/sarvex/internal/spec/all"
+	"github.com/sarvexlab/sarvex/internal/spec/spectest"
 )
 
 // canarySurface is a test-only platform's simulated store: one route of its

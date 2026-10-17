@@ -14,15 +14,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/account"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/api"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/catalog"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/journey"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/operator"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/validation"
+	"github.com/sarvexlab/sarvex/internal/planes/control/account"
+	"github.com/sarvexlab/sarvex/internal/planes/control/api"
+	"github.com/sarvexlab/sarvex/internal/planes/control/catalog"
+	"github.com/sarvexlab/sarvex/internal/planes/control/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/journey"
+	"github.com/sarvexlab/sarvex/internal/planes/control/operator"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/planes/control/validation"
 )
 
 const (
@@ -126,7 +126,7 @@ func TestRoutes_StubHandlersReturn501(t *testing.T) {
 		{http.MethodPost, "/v1/connectors/c1/resync", mb},
 		// Connector *ingest* (POST /connector/signals, /connector/heartbeat,
 		// GET /connector/profile) is not served here: those three HMAC routes
-		// belong to the sync plane (CLAUDE.md §5) and are tested in
+		// belong to the sync plane (sarvex-v1-architecture.md) and are tested in
 		// internal/planes/sync/api. The /connectors/* routes above are the
 		// merchant-facing console reads, which do live here.
 		// Catalog routes are implemented; see catalog_test.go.

@@ -6,8 +6,8 @@ package commandbus
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
 )
 
 // CommandEmitter sends cross-plane commands from the control plane to the sync plane.

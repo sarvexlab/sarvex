@@ -9,10 +9,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408"
-	consent04 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408/extensions/buyerconsent"
-	discount04 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408/extensions/discount"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408"
+	consent04 "github.com/sarvexlab/sarvex/internal/spec/v20260408/extensions/buyerconsent"
+	discount04 "github.com/sarvexlab/sarvex/internal/spec/v20260408/extensions/discount"
 )
 
 // This codec renders the canonical model by adding only an envelope, which is

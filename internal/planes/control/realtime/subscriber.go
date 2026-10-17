@@ -11,10 +11,10 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/journey"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/journey"
 )
 
 // journeyUpdatedPayload mirrors the wire shape of control.journey.updated
@@ -126,7 +126,7 @@ func (s *Subscriber) Handle(_ context.Context, e eventbus.DomainEvent) error {
 
 // HandleTaskUpdated processes one control.task.updated event. It only
 // broadcasts if the task's store currently has an active journey record —
-// per CLAUDE.md's "task belongs to the store" relevance rule, that's the
+// per sarvex-v1-architecture.md "task belongs to the store" relevance rule, that's the
 // signal a live console session could actually be watching this store's
 // Path. A store with no journey yet (never paired, or since disconnected)
 // gets no push. Errors are logged but not propagated, same as Handle.

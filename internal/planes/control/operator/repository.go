@@ -6,7 +6,7 @@ package operator
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // ManualStepRepository is the persistence interface for manual steps.

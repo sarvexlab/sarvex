@@ -7,7 +7,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/golden"
+	"github.com/sarvexlab/sarvex/internal/pkg/golden"
 )
 
 // The capability matrix freezes what every (platform, spec generation) pair

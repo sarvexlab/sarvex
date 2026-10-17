@@ -1,6 +1,6 @@
 # How to add a UCP spec version
 
-A UCP spec generation (e.g. `2026-08-25`) is one self-contained module, `internal/spec/vYYYYMMDD`, registered by one line in `internal/spec/all`. Adding one is new code plus that line: no established generation, platform or plane changes (CLAUDE.md §8, `docs/plans/version-platform-modularity.md`).
+A UCP spec generation (e.g. `2026-08-25`) is one self-contained module, `internal/spec/vYYYYMMDD`, registered by one line in `internal/spec/all`. Adding one is new code plus that line: no established generation, platform or plane changes (sarvex-v1-architecture.md, `docs/plans/version-platform-modularity.md`).
 
 ## 1. Scaffold it
 
@@ -26,7 +26,7 @@ Rules:
 - **Everything version-specific lives in the module.** Callers go through the registry (`spec.Registry`: `Latest`, `Baseline`, `Serving(capability)`, `Servable`, `Codecs`, `Generations`) and never `switch` on a version. If shared code seems to need an `if version == …`, the difference belongs in this codec.
 - **The canonical model is not this generation's shape.** If the generation can say something the canonical model cannot, translate it in the codec. Widening the canonical model is a separate decision, because connectors persist it into merchant orders.
 - **Record every gap** between the published schema and its prose, and every deliberate departure, in `DISCREPANCIES.md`.
-- A capability the generation cannot support yet is left out of `Serves()`. Then the profile and negotiation do not advertise it there (CLAUDE.md §8).
+- A capability the generation cannot support yet is left out of `Serves()`. Then the profile and negotiation do not advertise it there (sarvex-v1-architecture.md).
 
 ## 3. Goldens and tests
 

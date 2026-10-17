@@ -27,7 +27,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // Signal is a state-transition trigger. Each one names evidence that

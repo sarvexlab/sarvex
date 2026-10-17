@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
 )
 
 // isCheckoutRequest reports whether r targets a checkout endpoint —
@@ -38,7 +38,7 @@ func WithStoreConfigProvider(provider ucp.StoreProviderFunc) echo.MiddlewareFunc
 				// The store exists but has no cached snapshot yet (paired but
 				// not yet imported, or an unknown store_id) — a 404, not a
 				// server failure. Discovery/read paths never call live
-				// (CLAUDE.md invariant #2), so this is the expected shape of
+				// (sarvex-v1-architecture.md A10), so this is the expected shape of
 				// "nothing to show yet."
 				return echo.NewHTTPError(http.StatusNotFound, "store not found")
 			}

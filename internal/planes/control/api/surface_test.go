@@ -12,24 +12,24 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/account"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/activation"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/api"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/catalog"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/connector"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/journey"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/operator"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/surface"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/surface/directagent"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/validation"
+	"github.com/sarvexlab/sarvex/internal/planes/control/account"
+	"github.com/sarvexlab/sarvex/internal/planes/control/activation"
+	"github.com/sarvexlab/sarvex/internal/planes/control/api"
+	"github.com/sarvexlab/sarvex/internal/planes/control/catalog"
+	"github.com/sarvexlab/sarvex/internal/planes/control/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/journey"
+	"github.com/sarvexlab/sarvex/internal/planes/control/operator"
+	"github.com/sarvexlab/sarvex/internal/planes/control/surface"
+	"github.com/sarvexlab/sarvex/internal/planes/control/surface/directagent"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/planes/control/validation"
 )
 
 // These tests run the real activation and surface services behind the HTTP

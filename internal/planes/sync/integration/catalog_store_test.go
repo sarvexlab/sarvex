@@ -10,7 +10,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync"
+	"github.com/sarvexlab/sarvex/internal/planes/sync"
 )
 
 // TestCatalogStore_UpsertListGet_StoreScoped exercises the real write/read

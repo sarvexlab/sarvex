@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/surfaces"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/surfaces"
 )
 
 // ErrNoRecord is returned when no artifact record matches.

@@ -7,7 +7,7 @@ package connector
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/domain"
 )
 
 // Service manages connector lifecycle and the plugin ingest edge.

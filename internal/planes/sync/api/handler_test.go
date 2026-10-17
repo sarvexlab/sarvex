@@ -5,7 +5,7 @@ package api_test
 
 // The sync plane's HTTP surface is the connector-ingest edge and nothing
 // else: three HMAC-signed routes the WooCommerce plugin calls
-// (CLAUDE.md §5). This file tests those.
+// (sarvex-v1-architecture.md). This file tests those.
 //
 // It replaces a verbatim copy of the *control* plane's route tests that had
 // been left in this directory: same test names, same helpers, importing
@@ -23,16 +23,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/connector"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/connector"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	syncapi "github.com/sarvexlabs/sarvex.cp/internal/planes/sync/api"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/domain"
+	syncapi "github.com/sarvexlab/sarvex/internal/planes/sync/api"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/domain"
 )
 
 const validSignature = "valid-signature"
@@ -131,7 +131,7 @@ func TestSyncRoutes_AreRegistered(t *testing.T) {
 
 // TestSyncRoutes_RequireHMAC asserts every ingest route rejects an
 // unsigned request. These are the plugin's only way in, and they are
-// HMAC-authenticated rather than bearer-authenticated (CLAUDE.md §2.5) —
+// HMAC-authenticated rather than bearer-authenticated (sarvex-v1-architecture.md A10.5) —
 // an unsigned call must never reach a handler.
 func TestSyncRoutes_RequireHMAC(t *testing.T) {
 	e := newSyncTestEcho(&stubIngestService{})
@@ -194,7 +194,7 @@ func TestFetchProfile_NotModified(t *testing.T) {
 // TestAcceptSignal_Accepted and the heartbeat equivalent cover the plugin's
 // two write paths on the happy path: a well-formed signed request is accepted
 // with 204 and no body. Thin events, fat pull — the response carries nothing
-// because Sarvex pulls the entity itself (CLAUDE.md §4).
+// because Sarvex pulls the entity itself (sarvex-v1-architecture.md).
 func TestAcceptSignal_Accepted(t *testing.T) {
 	e := newSyncTestEcho(&stubIngestService{})
 

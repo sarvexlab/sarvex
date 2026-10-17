@@ -8,13 +8,13 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // JourneyModel is the MongoDB document stored in the control_journey collection.
 // _id is the store_id — one document per store. MerchantID is denormalized onto
 // every document so reads can be scoped by (merchant_id, store_id) together —
-// per CLAUDE.md invariant 4, a store_id alone must never be a sufficient key for
+// per sarvex-v1-architecture.md A10.4, a store_id alone must never be a sufficient key for
 // a tenant-scoped read.
 type JourneyModel struct {
 	ID             string               `bson:"_id"`

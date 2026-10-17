@@ -11,12 +11,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/catalogue"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/activation"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/catalogue"
+	"github.com/sarvexlab/sarvex/internal/planes/control/activation"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
 )
 
 // Prescribed-task source refs owned by validation. Task ids are derived
@@ -113,7 +113,7 @@ type TestResults struct {
 //
 // Records are keyed by store, not merchant: validation runs against a
 // store's own serving-plane endpoints, and a merchant may have several
-// stores at different points in the journey (CLAUDE.md invariant 4).
+// stores at different points in the journey (sarvex-v1-architecture.md A10.4).
 type ConformanceStore interface {
 	// SaveRecord stores a conformance record under record.StoreID.
 	SaveRecord(ctx context.Context, record *domain.ConformanceRecord) error

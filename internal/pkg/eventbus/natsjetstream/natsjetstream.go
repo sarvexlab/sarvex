@@ -11,7 +11,7 @@
 // github.com/nats-io/nats.go. Anything that actually needs the bus to work
 // at runtime must blank-import this package so its init() registers the backend factory:
 //
-//	import _ "github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus/natsjetstream"
+//	import _ "github.com/sarvexlab/sarvex/internal/pkg/eventbus/natsjetstream"
 package natsjetstream
 
 import (
@@ -25,7 +25,7 @@ import (
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/nats-io/nats.go"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
 )
 
 func init() {

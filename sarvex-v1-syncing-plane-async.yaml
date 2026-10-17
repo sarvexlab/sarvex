@@ -174,7 +174,7 @@ channels:
       (CatalogService.Search/Lookup — architecture invariant A10.2, cache
       only, never a live store call) with the structured, derived signal
       only: matched/looked-up product ids, query kind, surface. Never the
-      raw free-text `q=` search string — CLAUDE.md's privacy invariant
+      raw free-text `q=` search string — sarvex-v1-architecture.md privacy invariant
       (R12 of the Agent Behavior Insights task) requires that no free-text
       query content be persisted, so it is simply never captured here
       rather than sanitized after the fact. Fire-and-forget, bounded

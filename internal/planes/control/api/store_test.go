@@ -9,18 +9,18 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/platform"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
+	"github.com/sarvexlab/sarvex/internal/platform"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/api"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/journey"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/store"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/task"
+	"github.com/sarvexlab/sarvex/internal/planes/control/api"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/journey"
+	"github.com/sarvexlab/sarvex/internal/planes/control/store"
+	"github.com/sarvexlab/sarvex/internal/planes/control/task"
 )
 
 // createOnlyStoreService returns a fixed store from Create; every other

@@ -10,7 +10,7 @@ Reversing the direction of derivation—generating the YAML from the code—make
 
 **Treat the YAML as authoritative with CI enforcement**: Require every code change to update the spec in the same PR, enforced by a CI check (like the frontend's existing drift check). Enforces contract-first discipline but requires fixing current drift before the check can be enabled.
 
-**Keep both hand-authored and stop silently when they disagree**: Treat disagreement as a stop-and-report condition per CLAUDE.md §3, but rely on humans to catch the disagreement early. This is what the rule already says to do; the gap is lack of automation to catch violations before merge.
+**Keep both hand-authored and stop silently when they disagree**: Treat disagreement as a stop-and-report condition per sarvex-v1-architecture.md. This is what the rule already says to do; the gap is lack of automation to catch violations before merge.
 
 ## Consequences
 

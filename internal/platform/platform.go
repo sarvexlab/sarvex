@@ -17,23 +17,23 @@
 // All; no established platform's code and no plane's wiring changes.
 //
 // The frozen connectors (internal/platform/frozen/*) are deliberately absent:
-// they exist to keep CI honest, not to be served (CLAUDE.md §6).
+// they exist to keep CI honest, not to be served (sarvex-v1-architecture.md).
 package platform
 
 import (
 	"encoding/json"
 	"slices"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/simstore"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
-	validatorregistry "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/validator/registry"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/magento"
-	magentosim "github.com/sarvexlabs/sarvex.cp/internal/platform/magento/sim"
-	magentovalidator "github.com/sarvexlabs/sarvex.cp/internal/platform/magento/validator"
-	"github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce"
-	woosim "github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce/sim"
-	woovalidator "github.com/sarvexlabs/sarvex.cp/internal/platform/woocommerce/validator"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/simstore"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
+	validatorregistry "github.com/sarvexlab/sarvex/internal/pkg/ucp/validator/registry"
+	"github.com/sarvexlab/sarvex/internal/platform/magento"
+	magentosim "github.com/sarvexlab/sarvex/internal/platform/magento/sim"
+	magentovalidator "github.com/sarvexlab/sarvex/internal/platform/magento/validator"
+	"github.com/sarvexlab/sarvex/internal/platform/woocommerce"
+	woosim "github.com/sarvexlab/sarvex/internal/platform/woocommerce/sim"
+	woovalidator "github.com/sarvexlab/sarvex/internal/platform/woocommerce/validator"
 )
 
 // Name identifies a backend platform on the wire and in storage

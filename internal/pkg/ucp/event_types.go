@@ -64,7 +64,7 @@ const (
 	// EventCatalogQueryRecorded carries what an agent asked the discovery
 	// read path for (CatalogService.Search/Lookup): matched product ids,
 	// query kind, surface — deliberately never the raw free-text query
-	// string (CLAUDE.md privacy invariant). Added to close the emission gap
+	// string (sarvex-v1-architecture.md privacy invariant). Added to close the emission gap
 	// documented in the Agent Behavior Insights audit: prior to this event,
 	// nothing recorded what a catalog request was actually for, only that a
 	// request happened (EventTelemetryRecorded) or was logged

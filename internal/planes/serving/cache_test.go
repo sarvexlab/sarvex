@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"testing"
 
-	servingpkg "github.com/sarvexlabs/sarvex.cp/internal/pkg/serving"
+	servingpkg "github.com/sarvexlab/sarvex/internal/pkg/serving"
 )
 
 // The serving cache has one not-found sentinel. It used to have two — one in

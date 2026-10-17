@@ -4,7 +4,7 @@
 
 /**
  * Plugin Name: Sarvex UCP Gateway
- * Plugin URI: https://github.com/sarvexlabs/sarvex.cp
+ * Plugin URI: https://github.com/sarvexlab/sarvex
  * Description: WooCommerce integration for Google UCP checkout via Sarvex
  * Version: 1.0.0
  * Author: Sarvex Labs

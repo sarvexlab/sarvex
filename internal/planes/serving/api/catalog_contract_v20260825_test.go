@@ -11,10 +11,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/negotiation"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
-	v20260408 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260408"
-	v20260825 "github.com/sarvexlabs/sarvex.cp/internal/spec/v20260825"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/negotiation"
+	"github.com/sarvexlab/sarvex/internal/planes/serving"
+	v20260408 "github.com/sarvexlab/sarvex/internal/spec/v20260408"
+	v20260825 "github.com/sarvexlab/sarvex/internal/spec/v20260825"
 )
 
 // CatalogSearch/CatalogLookup render in the negotiated protocol version

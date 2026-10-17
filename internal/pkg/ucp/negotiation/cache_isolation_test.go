@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/testtenancy"
+	"github.com/sarvexlab/sarvex/internal/testtenancy"
 )
 
 // TestCacheKey_TenantMatrixNoCollision is the "cache-key collision on
@@ -42,7 +42,7 @@ func TestCacheKey_TenantMatrixNoCollision(t *testing.T) {
 // merchants whose store_id happens to be identical (store_id is expected to
 // be a globally-unique UUID minted from control_stores._id, MongoDB's own
 // primary key, so this should be structurally impossible in production; see
-// docs/TENANCY-PATTERNS.md's compound-key rule and CLAUDE.md architecture
+// docs/TENANCY-PATTERNS.md's compound-key rule and the architecture
 // invariant #4) — and confirms the cache still doesn't bleed one merchant's
 // NegotiationResult (active capabilities, payment handlers) into another's,
 // because merchantID is now folded into the composite key alongside the

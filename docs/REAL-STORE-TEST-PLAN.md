@@ -20,14 +20,14 @@ generations (2026-04-08, 2026-08-25). The frozen connectors are out of scope.
 - Record for each item: platform, version, store/plugin versions, PASS/FAIL,
   request/response excerpts, and any store-side state (order, meta, comment).
 - A failure that comes from the simulator being wrong is fixed in the simulator
-  and the connector together (CLAUDE.md §8), with a regression test.
+  and the connector together (sarvex-v1-architecture.md), with a regression test.
 
 ## 1. Highest-risk gaps (simulator ≠ real store)
 
 | # | Area | Why the simulator may be hiding a difference |
 |---|------|----------------------------------------------|
 | 1 | **WooCommerce shipping rate options** | The connector builds a checkout's rate options from `available_shipping_rates` on the order. That is a **simulator-only field**; stock WooCommerce orders do not have it. On a real store the shipping method will be offered with **no rate options** until rates are sourced from the store's shipping zones/methods (or a rate-quote endpoint). Expect this to fail. |
-| 2 | **WooCommerce charging** | The connector sets the order to `processing` and forwards `payment_token`. Stock WooCommerce ignores the token, so nothing is charged. Needs a gateway integration, which conflicts with CLAUDE.md §4 (thin plugin). Decide the approach before testing payment. |
+| 2 | **WooCommerce charging** | The connector sets the order to `processing` and forwards `payment_token`. Stock WooCommerce ignores the token, so nothing is charged. Needs a gateway integration, which conflicts with sarvex-v1-architecture.md (thin plugin). Decide the approach before testing payment. |
 | 3 | **WooCommerce order totals** | REST-created orders do not necessarily compute shipping/tax/coupon totals the way the simulator does. Verify `shipping_total`, `total_tax`, `discount_total`, `total` after each write. |
 | 4 | **Magento guest checkout** | The connector uses the real Magento request shapes (`addressInformation`, `cartItem`, `payment-information` with email + billing address), written from the documentation. Never run against a real Magento. |
 | 5 | **Magento in-store pickup** | Detection reads MSI `GET /inventory/sources` for `is_pickup_location_active`; selection posts the `instore` / `pickup` carrier with `extension_attributes.pickup_location_code`. Both are from memory of the MSI module. |

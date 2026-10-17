@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/resilience"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/resilience"
 )
 
 func alwaysRetryable(error) bool { return true }

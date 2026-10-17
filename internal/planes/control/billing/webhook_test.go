@@ -14,8 +14,8 @@ import (
 
 	"github.com/stripe/stripe-go/v72/webhook"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/billing"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/billing"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 const testWebhookSecret = "whsec_test"

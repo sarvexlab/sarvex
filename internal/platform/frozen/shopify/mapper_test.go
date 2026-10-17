@@ -6,8 +6,8 @@ package shopify
 import (
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
-	ucp "github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/connectors/base"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
+	ucp "github.com/sarvexlab/sarvex/internal/pkg/ucp/connectors/base"
 )
 
 // All tests in this file are pure unit tests — no network, no file I/O.

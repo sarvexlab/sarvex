@@ -5,7 +5,7 @@ package middlewares
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/common"
+	"github.com/sarvexlab/sarvex/internal/pkg/common"
 )
 
 func WithServerHeader() echo.MiddlewareFunc {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/contracts/apierror"
+	"github.com/sarvexlab/sarvex/internal/pkg/contracts/apierror"
 )
 
 func notImplemented(c echo.Context) error {

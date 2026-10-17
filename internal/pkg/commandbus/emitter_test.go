@@ -5,7 +5,7 @@ package commandbus
 
 // Topic names are asserted against the constants in internal/pkg/ucp, not
 // against string literals. Those constants are the single source of truth
-// for bus topic names (CLAUDE.md §0), so a literal here is a second,
+// for bus topic names (sarvex-v1-architecture.md), so a literal here is a second,
 // silently-divergent copy — which is exactly what these assertions were
 // before: they pinned "command.audit_requested" and
 // "command.remediations_applied", names the emitter had long since stopped
@@ -18,9 +18,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/domain"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/eventbus"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/eventbus"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
 )
 
 type mockEventBus struct {

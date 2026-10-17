@@ -6,8 +6,8 @@ package connector
 import (
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/secretmanagement"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/pkg/secretmanagement"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // heartbeatStaleAfter bounds how long a connector's last-reported health may

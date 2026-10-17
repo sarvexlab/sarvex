@@ -6,7 +6,7 @@ package catalog
 import (
 	"context"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/control/domain"
+	"github.com/sarvexlab/sarvex/internal/planes/control/domain"
 )
 
 // ReadinessRepository reads the store-level readiness score from the catalog
@@ -42,7 +42,7 @@ type ProductRepository interface {
 // sync plane's sync_catalog_remediations collection: the sync plane is their
 // only writer (its score stage creates and retires them, its apply-remediations
 // handler marks them applied), and the control plane reads them by collection
-// name, read-only (CLAUDE.md §2.1, §2.3). Applying remediations is a command to
+// name, read-only (sarvex-v1-architecture.md A10.1, §2.3). Applying remediations is a command to
 // the sync plane (CommandEmitter.ApplyRemediation), never a write here.
 type RemediationRepository interface {
 	// List returns up to limit remediations for the store ordered by ID.

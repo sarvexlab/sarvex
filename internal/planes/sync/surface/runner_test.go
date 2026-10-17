@@ -12,9 +12,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/serving"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/surfaces"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/sync/surface"
+	"github.com/sarvexlab/sarvex/internal/pkg/serving"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/surfaces"
+	"github.com/sarvexlab/sarvex/internal/planes/sync/surface"
 )
 
 // A generator with nothing Google about it: the runner must work for any

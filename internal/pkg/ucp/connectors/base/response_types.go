@@ -6,7 +6,7 @@ package base
 import (
 	"encoding/json"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 )
 
 // ─── Status ───────────────────────────────────────────────────────────────────

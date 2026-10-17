@@ -17,7 +17,7 @@ import (
 	"testing"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/ucpsig"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/ucpsig"
 )
 
 func makeKeyPair(t *testing.T, kid string) (*ecdsa.PrivateKey, ucpsig.JWK) {

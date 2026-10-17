@@ -9,9 +9,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wire"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireintersect"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wire"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireintersect"
 )
 
 // fakeCache is a ServingCache that returns a preset profile/error for GetProfile.

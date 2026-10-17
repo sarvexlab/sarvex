@@ -13,16 +13,16 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/commerce/model"
+	"github.com/sarvexlab/sarvex/internal/pkg/commerce/model"
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/middlewares"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/negotiation"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/ucp/wireadapt"
-	"github.com/sarvexlabs/sarvex.cp/internal/pkg/utils"
-	"github.com/sarvexlabs/sarvex.cp/internal/planes/serving"
+	"github.com/sarvexlab/sarvex/internal/pkg/middlewares"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/negotiation"
+	"github.com/sarvexlab/sarvex/internal/pkg/ucp/wireadapt"
+	"github.com/sarvexlab/sarvex/internal/pkg/utils"
+	"github.com/sarvexlab/sarvex/internal/planes/serving"
 )
 
 type ServingHandler interface {
@@ -190,7 +190,7 @@ func (h *servingHandler) CatalogSearch(c echo.Context) error {
 
 	h.emitCatalogQuery(c, instance, serving.CatalogQuerySearch, matchedProductIDs(result))
 
-	// Catalog reads are cache-only and side-effect-free (CLAUDE.md §2.2), so
+	// Catalog reads are cache-only and side-effect-free (sarvex-v1-architecture.md A10.2), so
 	// the page is rendered by whichever generation negotiation selected.
 	out, err := wireCodecs.EncodeCatalogSearch(v, catalogPage(result, query))
 	if err != nil {

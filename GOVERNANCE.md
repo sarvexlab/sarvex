@@ -14,7 +14,7 @@ A contributor who has sustained, high-quality involvement (reviews, fixes, featu
 ## Decision making
 
 - Day-to-day changes are decided in pull requests by lazy consensus: a change merges once a maintainer has approved it, CI is green, and no maintainer has objected.
-- Changes to the architectural invariants in [`CLAUDE.md`](CLAUDE.md) §2, to the public contracts (`sarvex-v1-*.yaml`), or to licensing require an Architecture Decision Record in [`docs/adr`](docs/adr) and approval from a majority of maintainers.
+- Changes to the architectural invariants in [A10 of the architecture](sarvex-v1-architecture.md#a10-backend-invariants), to the public contracts (`sarvex-v1-*.yaml`), or to licensing require an Architecture Decision Record in [`docs/adr`](docs/adr) and approval from a majority of maintainers.
 - If consensus cannot be reached, the maintainers vote; Sarvex Labs' maintainers break ties.
 
 ## Releases
