@@ -11,7 +11,7 @@ description: Where each plane, shared package, platform and frontend lives.
 | `internal/planes/sync` | Event-driven: `/connector/*` (HMAC), ingestion → mapping → scoring → catalog store, import, sweep, agent-surface artifact generators. |
 | `internal/planes/control` | Interactive: console and operator REST API plus WebSocket. |
 | `internal/spec/vYYYYMMDD` | One self-contained module per UCP spec generation (schema, wire, profile, codec, release). |
-| `internal/platform/<name>` | One self-contained module per backend platform (WooCommerce, Magento; Shopify/BigCommerce/Commercetools are frozen). |
+| `internal/platform/<name>` | One self-contained module per backend platform (WooCommerce, Magento; Shopify is frozen). |
 | `internal/pkg/ucp` | Shared protocol machinery: signing, negotiation, definitions catalogue, connector base. |
 | `internal/pkg/commerce/model` | The canonical commerce model each spec codec renders. |
 | `internal/archtest` | Repository-wide boundary checks (planes, versions, platforms, surfaces). |

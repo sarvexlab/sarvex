@@ -2,9 +2,12 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Go](https://img.shields.io/badge/go-1.26-00ADD8.svg)](go.mod)
-[![CI](https://github.com/conductorlab/conductor.cp/actions/workflows/go-test.yml/badge.svg?branch=main)](https://github.com/conductorlab/conductor.cp/actions/workflows/go-test.yml)
+[![CI](https://github.com/sarvexlab/sarvex/actions/workflows/go-test.yml/badge.svg?branch=main)](https://github.com/sarvexlab/sarvex/actions/workflows/go-test.yml)
 
 **Sarvex is an open-source gateway that makes an online store transactable by AI shopping agents over the [Universal Commerce Protocol (UCP)](https://github.com/Universal-Commerce-Protocol/ucp).**
+
+<!-- TODO(launch): replace with the final asciinema recording (see docs/demo/README.md) -->
+> _Demo recording coming soon — see [`docs/demo`](docs/demo) to run it yourself._
 
 A merchant on WooCommerce or Magento installs a thin plugin. Sarvex then hosts the store's UCP profile and checkout endpoints, keeps its catalog agent-ready (mapping, scoring, remediation tasks), and monitors the integration — so the merchant never has to understand the protocol.
 
@@ -16,7 +19,7 @@ A merchant on WooCommerce or Magento installs a thin plugin. Sarvex then hosts t
 - **Verifies and monitors** — a per-store activation lifecycle (`draft → connector_linked → profile_published → verified → active`), synthetic endpoint probes, conformance runs, and a console for merchants and operators.
 - **Is extensible by registration, not by editing** — new UCP spec generations, commerce platforms and agent surfaces each plug in behind a registry. See the `docs/HOWTO-add-*.md` guides.
 
-Supported commerce backends: **WooCommerce** and **Magento 2**. (Shopify, BigCommerce and Commercetools connectors exist but are frozen: they are kept compiling, not extended.)
+Supported commerce backends: **WooCommerce** and **Magento 2**. (The Shopify connector exists but is frozen: it is kept compiling, not extended.)
 
 ## Architecture
 

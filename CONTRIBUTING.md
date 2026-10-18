@@ -16,7 +16,7 @@ By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). Report 
 You need Go 1.26+, Node.js (current LTS), and Docker for the local stack.
 
 ```bash
-git clone https://github.com/sarvexlab/sarvex && cd sarvex.cp
+git clone https://github.com/sarvexlab/sarvex && cd sarvex
 go build ./...
 make test-unit                      # no external services
 make dev-up                         # full local stack (Mongo, Redis, NATS, Vault, planes)
