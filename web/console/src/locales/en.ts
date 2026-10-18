@@ -81,6 +81,8 @@ export default {
       emptyTitle: 'No agent orders yet',
       emptyBody:
         "{storeName} isn't live for agents yet, so there's nothing here. Once you're live, every agent checkout lands here and flows straight into {platform}.",
+      emptyBodyLive:
+        'No agent has checked out from {storeName} yet. Every agent checkout lands here and flows straight into {platform}.',
       orderTitle: 'Order {id}',
     },
     presence: {
