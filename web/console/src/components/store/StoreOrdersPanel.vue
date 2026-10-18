@@ -3,7 +3,8 @@
   SPDX-License-Identifier: Apache-2.0
 -->
 <script setup lang="ts">
-// Orders tab — agent-checkout list (pre-live: empty state).
+// Orders tab — agent-checkout list. The empty state depends on whether the
+// store is live: a live store with no orders just has no checkouts yet.
 // GET /orders → useOrdersStore
 
 import { computed } from 'vue'
@@ -21,6 +22,8 @@ const orders = useOrdersStore()
 const { t } = useI18n()
 
 const store = computed(() => stores.currentStore)
+// Same liveness rule as the presence panel: the store is serving once UCP-active.
+const isLive = computed(() => store.value?.ucp_state === 'active')
 const showSkeleton = computed(() => orders.loading && !orders.loaded)
 </script>
 
@@ -40,7 +43,12 @@ const showSkeleton = computed(() => orders.loading && !orders.loaded)
 
     <div v-else-if="orders.orders.length === 0" class="card empty-note">
       <div class="big">{{ t('store.orders.emptyTitle') }}</div>
-      {{ t('store.orders.emptyBody', { storeName: store?.name, platform: store?.platform }) }}
+      {{
+        t(isLive ? 'store.orders.emptyBodyLive' : 'store.orders.emptyBody', {
+          storeName: store?.name,
+          platform: store?.platform,
+        })
+      }}
     </div>
     <div v-else class="card orders-list">
       <div v-for="(o, i) in orders.orders" :key="o.order_id" class="order-row" :class="{ first: i === 0 }">
