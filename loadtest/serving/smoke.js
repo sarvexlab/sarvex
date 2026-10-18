@@ -70,7 +70,7 @@ export default function () {
         'catalog/:itemId is 200': (r) => r.status === 200,
         'catalog/:itemId returns the requested sku': (r) => {
           try {
-            return JSON.parse(r.body).sku === sku;
+            return JSON.parse(r.body).id === sku;
           } catch (e) {
             return false;
           }
