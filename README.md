@@ -6,8 +6,9 @@
 
 **Sarvex is an open-source gateway that makes an online store transactable by AI shopping agents over the [Universal Commerce Protocol (UCP)](https://github.com/Universal-Commerce-Protocol/ucp).**
 
-<!-- TODO(launch): replace with the final asciinema recording (see docs/demo/README.md) -->
-> _Demo recording coming soon — see [`docs/demo`](docs/demo) to run it yourself._
+[![asciicast](https://asciinema.org/a/PAeVxEds8E8e708k.svg)](https://asciinema.org/a/PAeVxEds8E8e708k)
+
+_Run the demo yourself: see [`docs/demo`](docs/demo)._
 
 A merchant on WooCommerce or Magento installs a thin plugin. Sarvex then hosts the store's UCP profile and checkout endpoints, keeps its catalog agent-ready (mapping, scoring, remediation tasks), and monitors the integration — so the merchant never has to understand the protocol.
 
