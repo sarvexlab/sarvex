@@ -60,10 +60,17 @@ const elapsed = computed(() => {
   return formatDuration(session.value.started_at, session.value.terminal_at ?? undefined)
 })
 
+// The API serialises an unset time as Go's zero value (0001-01-01T00:00:00Z),
+// not null, so "was it escalated?" has to treat both as absent.
+function isUnsetTime(iso: string | null | undefined): boolean {
+  return !iso || new Date(iso).getUTCFullYear() <= 1
+}
+const wasEscalated = computed(() => !isUnsetTime(session.value?.escalation?.escalated_at))
+
 const escalationElapsed = computed(() => {
   void nowTick.value
   const esc = session.value?.escalation
-  if (!esc?.escalated_at) return '—'
+  if (!esc?.escalated_at || !wasEscalated.value) return '—'
   return formatDuration(esc.escalated_at, esc.returned_at ?? undefined)
 })
 const isStalled = computed(() => session.value?.diagnosis?.cause === 'escalation_stalled')
@@ -193,9 +200,10 @@ const showSkeleton = computed(() => !sessions.detailLoaded && sessions.detailLoa
         <div class="meta-grid">
           <div class="meta-item">
             <div class="meta-label">{{ t('checkout.detail.escalated') }}</div>
-            <div class="meta-val" :title="formatUTCTimestamp(session.escalation.escalated_at)">
+            <div v-if="wasEscalated" class="meta-val" :title="formatUTCTimestamp(session.escalation.escalated_at)">
               {{ formatRelativeTime(session.escalation.escalated_at) }}
             </div>
+            <div v-else class="meta-val">{{ t('checkout.detail.no') }}</div>
           </div>
           <div class="meta-item">
             <div class="meta-label">{{ t('checkout.detail.continueUrlIssued') }}</div>
@@ -203,11 +211,12 @@ const showSkeleton = computed(() => !sessions.detailLoaded && sessions.detailLoa
           </div>
           <div class="meta-item">
             <div class="meta-label">{{ t('checkout.detail.returned') }}</div>
-            <div v-if="session.escalation.returned_at" class="meta-val" :title="formatUTCTimestamp(session.escalation.returned_at)">
+            <div v-if="!isUnsetTime(session.escalation.returned_at)" class="meta-val" :title="formatUTCTimestamp(session.escalation.returned_at)">
               {{ formatRelativeTime(session.escalation.returned_at) }}
             </div>
             <div v-else class="meta-val warn-text">
-              {{ t('checkout.detail.neverReturned') }} <span class="faint">· {{ t('checkout.detail.elapsedSuffix', { when: escalationElapsed }) }}</span>
+              {{ t('checkout.detail.neverReturned') }}
+              <span v-if="wasEscalated" class="faint">· {{ t('checkout.detail.elapsedSuffix', { when: escalationElapsed }) }}</span>
             </div>
           </div>
         </div>
