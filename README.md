@@ -47,18 +47,25 @@ plugin/ (WooCommerce, Magento)   thin signal sender + /.well-known/ucp doorway
 ## Repository layout
 
 ```
-main.go, cmd/root.go the single server binary; --service selects the plane
-cmd/sarvex/       CLI: onboard merchants, play the shopping-agent role, run conformance
-cmd/sim/             persistent fake WooCommerce store for local dev
-cmd/                 also gateway-cli, scaffold, verify-routes (tooling)
-internal/planes/     serving, sync, control
-internal/spec/       one self-contained module per UCP spec generation
-internal/platform/   one module per commerce backend (woocommerce, magento, frozen/*)
-internal/pkg/        shared machinery: event bus, Vault secrets/keys, signing, negotiation, catalogue
-web/console/         Vue 3 + TypeScript management console
-plugin/              WooCommerce (PHP) and Magento (PHP) plugins
-deployments/         Helm/GitOps for Kubernetes (production), docker-compose for local dev
-docs/                ADRs, how-to guides, test and security plans
+main.go, cmd/root.go  the single server binary; --service selects the plane
+cmd/sarvex/           CLI: onboard merchants, play the shopping-agent role, run conformance
+cmd/sim/              persistent fake WooCommerce store for local dev
+cmd/                  also scaffold, verify-routes (tooling)
+internal/planes/      serving, sync, control
+internal/spec/        one self-contained module per UCP spec generation
+internal/platform/    one module per commerce backend (woocommerce, magento, frozen/*)
+internal/pkg/         shared machinery: event bus, Vault secrets/keys, signing, negotiation, catalogue
+internal/archtest/    architecture-boundary tests
+configs/              per-plane configuration (control, serving, sync)
+web/console/          Vue 3 + TypeScript management console
+web/docs/             documentation site
+plugin/               WooCommerce (PHP) and Magento (PHP) plugins
+deployments/          Helm/GitOps for Kubernetes (production), docker-compose for local dev
+build/                container packaging (Dockerfile)
+test/                 end-to-end and per-platform test suites
+loadtest/             k6 load tests (see loadtest/README.md)
+scripts/              dev stack, load test, conformance and license-check scripts
+docs/                 ADRs, how-to guides, test and security plans
 ```
 
 ## Quick start (local)

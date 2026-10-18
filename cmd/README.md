@@ -1,19 +1,12 @@
-# `/cmd`
+# `cmd`
 
-Main applications for this project.
+Executables. The server itself is the repository-root `main.go` and `cmd/root.go`: one binary, with `--service` selecting the serving, sync or control plane. Everything else here is tooling.
 
-The directory name for each application should match the name of the executable you want to have (e.g., `/cmd/myapp`).
+| Directory | What it is |
+|---|---|
+| `sarvex/` | CLI that onboards merchants through the control plane's API and plays the shopping-agent role against the resulting stores. Also runs conformance. See [`sarvex/README.md`](sarvex/README.md). |
+| `sim/` | Persistent fake WooCommerce store for local development (`make dev-up` starts it). |
+| `scaffold/` | Adds a UCP spec generation or a commerce platform as a new module (`make new-spec-version`, `make new-platform`). See the `docs/HOWTO-add-*.md` guides. |
+| `verify-routes/` | Checks that every control-plane route is documented in the OpenAPI spec (`make check-routes`). |
 
-Don't put a lot of code in the application directory. If you think the code can be imported and used in other projects, then it should live in the `/pkg` directory. If the code is not reusable or if you don't want others to reuse it, put that code in the `/internal` directory. You'll be surprised what others will do, so be explicit about your intentions!
-
-It's common to have a small `main` function that imports and invokes the code from the `/internal` and `/pkg` directories and nothing else.
-
-Examples:
-
-* https://github.com/heptio/ark/tree/master/cmd (just a really small `main` function with everything else in packages)
-* https://github.com/moby/moby/tree/master/cmd
-* https://github.com/prometheus/prometheus/tree/master/cmd
-* https://github.com/influxdata/influxdb/tree/master/cmd
-* https://github.com/kubernetes/kubernetes/tree/master/cmd
-* https://github.com/dapr/dapr/tree/master/cmd
-* https://github.com/ethereum/go-ethereum/tree/master/cmd
+Keep `main` packages thin: logic that more than one command needs belongs under `internal/`.
