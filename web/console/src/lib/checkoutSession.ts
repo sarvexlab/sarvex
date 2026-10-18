@@ -1,4 +1,4 @@
-// Copyright 2026 Sarvex Labs
+// Copyright 2026 Sarvex Lab
 // SPDX-License-Identifier: Apache-2.0
 
 // Shared severity/label mapping for the Checkout Escalation Console — used

@@ -1,4 +1,4 @@
-// Copyright 2026 Sarvex Labs
+// Copyright 2026 Sarvex Lab
 // SPDX-License-Identifier: Apache-2.0
 
 // Package auth handles authentication and authorization for the control plane.

@@ -143,4 +143,4 @@ Sarvex is pre-1.0: interfaces and wire formats may change, and the WooCommerce/M
 
 Apache License 2.0 — see [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE). Third-party components and their licences are listed in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Source files carry an `SPDX-License-Identifier: Apache-2.0` header (`scripts/license-headers.py --check`).
 
-"Sarvex" and the Sarvex logo are marks of Sarvex Labs; the licence does not grant trademark rights. UCP is an open specification developed independently of this project; Google, WooCommerce, Magento, Kinde and other names are the property of their owners and are used only to describe compatibility.
+"Sarvex" and the Sarvex logo are marks of Sarvex Lab; the licence does not grant trademark rights. UCP is an open specification developed independently of this project; Google, WooCommerce, Magento, Kinde and other names are the property of their owners and are used only to describe compatibility.

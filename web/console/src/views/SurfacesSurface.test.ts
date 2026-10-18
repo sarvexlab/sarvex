@@ -1,4 +1,4 @@
-// Copyright 2026 Sarvex Labs
+// Copyright 2026 Sarvex Lab
 // SPDX-License-Identifier: Apache-2.0
 
 // The Surfaces page renders entirely from the registry, and the generic

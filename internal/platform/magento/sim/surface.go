@@ -1,4 +1,4 @@
-// Copyright 2026 Sarvex Labs
+// Copyright 2026 Sarvex Lab
 // SPDX-License-Identifier: Apache-2.0
 
 // Package sim is Magento's simulated store: the subset of the Magento 2.x REST

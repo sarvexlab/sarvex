@@ -1,4 +1,4 @@
-// Copyright 2026 Sarvex Labs
+// Copyright 2026 Sarvex Lab
 // SPDX-License-Identifier: Apache-2.0
 
 // Theme-token guard (A6): the Channel Dashboard's new components must read

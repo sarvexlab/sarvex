@@ -1,4 +1,4 @@
-// Copyright 2026 Sarvex Labs
+// Copyright 2026 Sarvex Lab
 // SPDX-License-Identifier: Apache-2.0
 
 // Package profile is Sarvex's first UCP generation (2026-04-08)'s generation.Generation: it reads and

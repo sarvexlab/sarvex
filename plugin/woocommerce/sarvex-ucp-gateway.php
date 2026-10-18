@@ -1,5 +1,5 @@
 <?php
-// Copyright 2026 Sarvex Labs
+// Copyright 2026 Sarvex Lab
 // SPDX-License-Identifier: Apache-2.0
 
 /**
@@ -7,7 +7,7 @@
  * Plugin URI: https://github.com/sarvexlab/sarvex
  * Description: WooCommerce integration for Google UCP checkout via Sarvex
  * Version: 1.0.0
- * Author: Sarvex Labs
+ * Author: Sarvex Lab
  * License: Apache-2.0
  * License URI: https://www.apache.org/licenses/LICENSE-2.0
  * Text Domain: sarvex-ucp-gateway

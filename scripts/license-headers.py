@@ -11,7 +11,7 @@ and test fixtures are skipped.
 import subprocess
 import sys
 
-HOLDER = "Sarvex Labs"
+HOLDER = "Sarvex Lab"
 YEAR = "2026"
 SPDX = "SPDX-License-Identifier: Apache-2.0"
 SKIP_PREFIXES = (

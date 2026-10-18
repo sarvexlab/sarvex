@@ -1,6 +1,6 @@
 # Governance
 
-Sarvex is an open-source project started and stewarded by Sarvex Labs. This document describes how decisions are made today; it will evolve as the contributor community grows.
+Sarvex is an open-source project started and stewarded by Sarvex Lab. This document describes how decisions are made today; it will evolve as the contributor community grows.
 
 ## Roles
 
@@ -15,7 +15,7 @@ A contributor who has sustained, high-quality involvement (reviews, fixes, featu
 
 - Day-to-day changes are decided in pull requests by lazy consensus: a change merges once a maintainer has approved it, CI is green, and no maintainer has objected.
 - Changes to the architectural invariants in [A10 of the architecture](sarvex-v1-architecture.md#a10-backend-invariants), to the public contracts (`sarvex-v1-*.yaml`), or to licensing require an Architecture Decision Record in [`docs/adr`](docs/adr) and approval from a majority of maintainers.
-- If consensus cannot be reached, the maintainers vote; Sarvex Labs' maintainers break ties.
+- If consensus cannot be reached, the maintainers vote; Sarvex Lab's maintainers break ties.
 
 ## Releases
 
@@ -27,4 +27,4 @@ Conduct reports follow the [Code of Conduct](CODE_OF_CONDUCT.md); vulnerability 
 
 ## Licence and trademarks
 
-The code is licensed under Apache-2.0 and contributions are accepted under the same licence. The Sarvex name and logo are marks of Sarvex Labs; use of the marks to identify unmodified software or to describe compatibility is fine, other uses need permission.
+The code is licensed under Apache-2.0 and contributions are accepted under the same licence. The Sarvex name and logo are marks of Sarvex Lab; use of the marks to identify unmodified software or to describe compatibility is fine, other uses need permission.
