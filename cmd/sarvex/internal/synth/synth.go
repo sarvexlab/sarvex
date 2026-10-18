@@ -82,7 +82,6 @@ func seedFromName(name string) int64 {
 	// one would make the printed seed awkward to pass back in.
 	// The mask clears the sign bit, so the value always fits in a positive
 	// int64 and the conversion cannot overflow.
-	//nolint:gosec // G115: masked to 63 bits directly above
 	return int64(h.Sum64() & 0x7fffffffffffffff)
 }
 
