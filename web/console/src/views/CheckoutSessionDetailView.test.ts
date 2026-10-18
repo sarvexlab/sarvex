@@ -224,6 +224,46 @@ describe('CheckoutSessionDetailView — escalation "never returned" (R9)', () =>
   })
 })
 
+describe('CheckoutSessionDetailView — escalation with an unset escalated_at', () => {
+  // The API serialises an unset time as Go's zero value, not null.
+  const NEVER_ESCALATED = {
+    ...STALLED_SESSION,
+    diagnosis: null,
+    escalation: {
+      reason: '',
+      escalated_at: '0001-01-01T00:00:00Z',
+      continue_url_issued: false,
+      returned_at: null,
+      resolved: true,
+    },
+  }
+
+  it('shows No for Escalated and no elapsed time, not a 2,000-year-old timestamp', async () => {
+    vi.mocked(getCheckoutSession).mockResolvedValue(NEVER_ESCALATED)
+    vi.mocked(getCheckoutSessionTimeline).mockResolvedValue({ data: [], page: { cursor: null, has_more: false } })
+    const { wrapper } = await mountDetail()
+
+    const text = wrapper.find('.escalation').text()
+    expect(text).not.toMatch(/years? ago/)
+    expect(text).not.toMatch(/\d{4,}d/)
+    expect(text).toContain('Never returned')
+    expect(text).not.toContain('elapsed')
+    const items = wrapper.findAll('.escalation .meta-item')
+    expect(items[0].text()).toContain('No')
+  })
+
+  it('treats a null escalated_at the same way', async () => {
+    vi.mocked(getCheckoutSession).mockResolvedValue({
+      ...NEVER_ESCALATED,
+      escalation: { ...NEVER_ESCALATED.escalation, escalated_at: null },
+    } as unknown as typeof STALLED_SESSION)
+    vi.mocked(getCheckoutSessionTimeline).mockResolvedValue({ data: [], page: { cursor: null, has_more: false } })
+    const { wrapper } = await mountDetail()
+
+    expect(wrapper.findAll('.escalation .meta-item')[0].text()).toContain('No')
+  })
+})
+
 describe('CheckoutSessionDetailView — no retry/re-execute control (R10)', () => {
   it('contains no retry/re-run/re-execute affordance', async () => {
     vi.mocked(getCheckoutSession).mockResolvedValue(STALLED_SESSION)
