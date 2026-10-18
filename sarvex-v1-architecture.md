@@ -115,7 +115,7 @@ The backend is a **single binary with three roles**. `main.go` calls `cmd.Execut
 
 Config is layered by viper: `--configPath` + `--env` resolve a `configs.<env>.json` file; `--port`, `--tls` are flags. Each plane's `entry.go` wires its dependencies (datastores, bus, services) and registers Echo routes. This is why the planes cannot import each other in-process — they are separate deployables of the same binary (`internal/planes/doc.go` encodes the "never import another plane" rule).
 
-Other `cmd/` binaries are tooling, not part of the runtime: `cmd/sarvex` (merchant onboarding driver + UCP agent / conformance runner), `cmd/sim` (a persistent fake WooCommerce store for local dev), `cmd/gateway-cli`, `cmd/verify-routes`.
+Other `cmd/` binaries are tooling, not part of the runtime: `cmd/sarvex` (merchant onboarding driver + UCP agent / conformance runner), `cmd/sim` (a persistent fake WooCommerce store for local dev), `cmd/scaffold` (adds spec generations and platforms), `cmd/verify-routes`.
 
 ## A2. The three planes
 

@@ -62,10 +62,13 @@ export const options = {
       startTime: '5m30s', // run after baseline_mixed finishes
     },
   },
+  // Latency gates apply to baseline_mixed only. single_merchant_ceiling
+  // deliberately drives one store past the rate limit, so its fast 429s and
+  // queued requests would otherwise be folded into the same p95.
   thresholds: {
-    'http_req_duration{name:catalog_search}': ['p(95)<800'],
-    'http_req_duration{name:catalog_lookup}': ['p(95)<300'],
-    'http_req_duration{name:well_known_ucp}': ['p(95)<300'],
+    'http_req_duration{scenario:baseline_mixed,name:catalog_search}': ['p(95)<800'],
+    'http_req_duration{scenario:baseline_mixed,name:catalog_lookup}': ['p(95)<300'],
+    'http_req_duration{scenario:baseline_mixed,name:well_known_ucp}': ['p(95)<300'],
   },
 };
 
@@ -74,7 +77,9 @@ function base(store) {
 }
 
 function hitReadPaths(store) {
-  http.get(`${base(store)}/.well-known/ucp`, { tags: { name: 'well_known_ucp' } });
+  // 429 is expected from the ceiling scenario; anything 5xx is a real failure.
+  const profileRes = http.get(`${base(store)}/.well-known/ucp`, { tags: { name: 'well_known_ucp' } });
+  check(profileRes, { 'well-known/ucp not 5xx': (r) => r.status < 500 });
 
   const searchRes = http.post(
     `${base(store)}/catalog/search`,
@@ -92,7 +97,8 @@ function hitReadPaths(store) {
       // ignore parse failures under load; counted by the threshold instead
     }
     if (sku) {
-      http.get(`${base(store)}/catalog/${encodeURIComponent(sku)}`, { tags: { name: 'catalog_lookup' } });
+      const itemRes = http.get(`${base(store)}/catalog/${encodeURIComponent(sku)}`, { tags: { name: 'catalog_lookup' } });
+      check(itemRes, { 'catalog/:itemId not 5xx': (r) => r.status < 500 });
     }
   }
 }
