@@ -2,7 +2,7 @@ module github.com/sarvexlab/sarvex
 
 go 1.26.0
 
-require github.com/ThreeDotsLabs/watermill v1.5.2
+require github.com/ThreeDotsLabs/watermill v1.5.3
 
 require github.com/joho/godotenv v1.5.1
 
