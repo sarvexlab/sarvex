@@ -12,7 +12,7 @@ require (
 	github.com/labstack/echo/v4 v4.15.4
 	github.com/matoous/go-nanoid/v2 v2.0.0
 	github.com/redis/go-redis/v9 v9.23.0
-	github.com/spf13/cobra v1.6.1
+	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.13.0
 	github.com/stretchr/testify v1.12.1
 	github.com/stripe/stripe-go/v72 v72.122.0
