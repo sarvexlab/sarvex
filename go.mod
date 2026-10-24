@@ -27,7 +27,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-7 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/klauspost/compress v1.19.2 // indirect
+	github.com/klauspost/compress v1.20.0 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
@@ -70,7 +70,7 @@ require (
 	github.com/hashicorp/vault/api v1.23.0
 	github.com/hibiken/asynq v0.26.0
 	github.com/kinde-oss/kinde-go v0.2.0
-	github.com/nats-io/nats.go v1.52.0
+	github.com/nats-io/nats.go v1.54.0
 	github.com/resend/resend-go/v2 v2.28.0
 	github.com/samber/lo v1.53.0
 	go.opentelemetry.io/otel v1.47.0
@@ -102,7 +102,7 @@ require (
 	github.com/hashicorp/go-secure-stdlib/strutil v0.1.2 // indirect
 	github.com/hashicorp/go-sockaddr v1.0.7 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/nats-io/nkeys v0.4.15 // indirect
+	github.com/nats-io/nkeys v0.4.16 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
