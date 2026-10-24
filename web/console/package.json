@@ -37,7 +37,7 @@
     "vite": "^6.0.5",
     "vitest": "^5.0.4",
     "vue-tsc": "^2.1.10",
-    "wrangler": "^4.135.0"
+    "wrangler": "^4.151.3"
   },
   "overrides": {
     "sharp": ">=0.35.5"
