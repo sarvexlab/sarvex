@@ -13,7 +13,7 @@
     "doctor": "npm run sync && blume doctor"
   },
   "dependencies": {
-    "blume": "^1.7.0"
+    "blume": "^2.2.7"
   },
   "overrides": {
     "lodash-es": "^4.18.1",
